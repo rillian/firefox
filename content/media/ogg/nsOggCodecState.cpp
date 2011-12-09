@@ -62,6 +62,8 @@ nsOggCodecState::Create(ogg_page* aPage)
     codecState = new nsTheoraState(aPage);
   } else if (aPage->body_len > 6 && memcmp(aPage->body+1, "vorbis", 6) == 0) {
     codecState = new nsVorbisState(aPage);
+  } else if (aPage->body_len > 8 && memcmp(aPage->body, "OpusHead", 8) == 0) {
+    codecState = new nsOpusState(aPage);
   } else if (aPage->body_len > 8 && memcmp(aPage->body, "fishead\0", 8) == 0) {
     codecState = new nsSkeletonState(aPage);
   } else {
@@ -752,6 +754,69 @@ nsresult nsVorbisState::ReconstructVorbisGranulepos()
 
   return NS_OK;
 }
+
+
+nsOpusState::nsOpusState(ogg_page* aBosPage) :
+    nsOggCodecState(aBosPage, true),
+    mDecoder(NULL)
+{
+    MOZ_COUNT_CTOR(nsOpusState);
+}
+
+nsOpusState::~nsOpusState() {
+    MOZ_COUNT_DTOR(nsOpusState);
+    Reset();
+}
+
+nsresult nsOpusState::Reset()
+{
+  nsresult res = NS_OK;
+
+  if (mActive != 0) {
+    res = NS_ERROR_FAILURE;
+  }
+  if (NS_FAILED(nsOggCodecState::Reset())) {
+    return NS_ERROR_FAILURE;
+  }
+
+  if (mDecoder) {
+    opus_decoder_destroy(mDecoder);
+    mDecoder = 0;
+  }
+
+  return res;
+}
+
+bool nsOpusState::Init(void)
+{
+  return true;
+}
+
+bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
+{
+  return true;
+}
+
+PRInt64 nsOpusState::Time(PRInt64 granulepos)
+{
+  /* Ogg Opus always runs at a granule rate of 48 kHz */
+  return granulepos / 48000;
+}
+
+bool nsOpusState::IsHeader(ogg_packet* aPacket)
+{
+  if (aPacket->bytes < 9)
+    return false;
+  if (!memcmp(aPacket->packet, "OpusHead\0", 9))
+    return true;
+  return false;
+}
+
+nsresult nsOpusState::PageIn(ogg_page* aPage)
+{
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 
 
 nsSkeletonState::nsSkeletonState(ogg_page* aBosPage)
