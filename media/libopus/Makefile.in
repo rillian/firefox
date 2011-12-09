@@ -52,11 +52,17 @@ DEFINES += \
   -DOPUS_VERSION='"draft-10-mozilla"' \
   $(NULL)
 
+EXPORTS = \
+  include/opus.h \
+  include/opus_defines.h \
+  include/opus_types.h \
+  include/opus_multistream.h \
+  $(NULL)
+
 LOCAL_INCLUDES += \
   -I$(srcdir)/include \
   -I$(srcdir)/celt \
   -I$(srcdir)/silk \
-  -I$(srcdir)/silk/float \
   -I$(srcdir)/src \
   $(NULL)
 
@@ -66,21 +72,25 @@ VPATH += \
   $(srcdir)/src \
   $(NULL)
 
-EXPORTS = \
-  include/opus.h \
-  include/opus_defines.h \
-  include/opus_types.h \
-  include/opus_multistream.h \
-  $(NULL)
-
 include $(srcdir)/celt_sources.mk
 include $(srcdir)/silk_sources.mk
-include $(srcdir)/celt_sources.mk
+include $(srcdir)/opus_sources.mk
 
 CSRCS = \
   $(notdir $(CELT_SOURCES)) \
   $(notdir $(SILK_SOURCES)) \
   $(notdir $(OPUS_SOURCES)) \
   $(NULL)
+
+ifdef MOZ_OPUS_FIXED
+DEFINES += -DFIXED_POINT=1 -DDISABLE_FLOAT_API
+LOCAL_INCLUDES += -I$(srcdir)/silk/fixed
+VPATH += $(srcdir)/silk/fixed
+CSRCS += $(notdir $(SILK_SOURCES_FIXED))
+else
+LOCAL_INCLUDES += -I$(srcdir)/silk/float
+VPATH += $(srcdir)/silk/float
+CSRCS += $(notdir $(SILK_SOURCES_FLOAT))
+endif
 
 include $(topsrcdir)/config/rules.mk
