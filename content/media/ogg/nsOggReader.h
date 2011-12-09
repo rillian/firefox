@@ -253,6 +253,9 @@ private:
   // Decode state of the Vorbis bitstream we're decoding, if we have audio.
   nsVorbisState* mVorbisState;
 
+  // Decode state of the Opus bitstream we're decoding, if we have one.
+  nsOpusState *mOpusState;
+
   // Decode state of the Skeleton bitstream.
   nsSkeletonState* mSkeletonState;
 
