@@ -761,17 +761,20 @@ nsOpusState::nsOpusState(ogg_page* aBosPage) :
     mDecoder(NULL)
 {
     MOZ_COUNT_CTOR(nsOpusState);
+    printf("creating new opus state\n");
 }
 
 nsOpusState::~nsOpusState() {
     MOZ_COUNT_DTOR(nsOpusState);
     Reset();
+    printf("deleting opus state\n");
 }
 
 nsresult nsOpusState::Reset()
 {
   nsresult res = NS_OK;
 
+  printf("resetting opus state\n");
   if (mActive != 0) {
     res = NS_ERROR_FAILURE;
   }
@@ -789,11 +792,13 @@ nsresult nsOpusState::Reset()
 
 bool nsOpusState::Init(void)
 {
+  printf("initializing opus state\n");
   return true;
 }
 
 bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
+  printf("decoding opus header\n");
   return true;
 }
 
@@ -809,15 +814,33 @@ bool nsOpusState::IsHeader(ogg_packet* aPacket)
     return false;
   if (!memcmp(aPacket->packet, "OpusHead\0", 9))
     return true;
+  else if (!memcmp(aPacket->packet, "OpusTags", 8))
+    return true;
   return false;
 }
 
 nsresult nsOpusState::PageIn(ogg_page* aPage)
 {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  printf("got opus page %p\n", aPage);
+  if (!mActive)
+    return NS_OK;
+  NS_ASSERTION(ogg_page_serialno(aPage) == mSerial,
+      "Page is not for this stream");
+  if (ogg_stream_pagein(&mState, aPage) == -1)
+    return NS_ERROR_FAILURE;
+  int ret;
+  do {
+    ogg_packet packet;
+    ret = ogg_stream_packetout(&mState, &packet);
+    if (ret == 1)
+      mPackets.Append(Clone(&packet));
+  } while (ret != 0);
+  if (ogg_stream_check(&mState)) {
+    NS_WARNING("Unrecoverable errror in ogg_stream_packetout");
+    return NS_ERROR_FAILURE;
+  }
+  return NS_OK;
 }
-
-
 
 nsSkeletonState::nsSkeletonState(ogg_page* aBosPage)
   : nsOggCodecState(aBosPage, true),
