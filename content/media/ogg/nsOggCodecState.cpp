@@ -823,7 +823,7 @@ bool nsOpusState::IsHeader(ogg_packet* aPacket)
 
 nsresult nsOpusState::PageIn(ogg_page* aPage)
 {
-  printf("got opus page %p\n", aPage);
+  printf("got opus page %p\n", (void*)aPage);
   if (!mActive)
     return NS_OK;
   NS_ASSERTION(ogg_page_serialno(aPage) == mSerial,
@@ -836,7 +836,7 @@ nsresult nsOpusState::PageIn(ogg_page* aPage)
     ret = ogg_stream_packetout(&mState, &packet);
     if (ret == 1)
       mPackets.Append(Clone(&packet));
-  } while (r != 0);
+  } while (ret != 0);
   if (ogg_stream_check(&mState)) {
     NS_WARNING("Unrecoverable errror in ogg_stream_packetout");
     return NS_ERROR_FAILURE;
