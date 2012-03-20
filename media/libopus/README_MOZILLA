@@ -1,0 +1,4 @@
+Using the draft source code, extracted from
+https://tools.ietf.org/id/draft-ietf-codec-opus-11.txt
+
+Removed the upstream Makefile (Makefile.draft in git)
