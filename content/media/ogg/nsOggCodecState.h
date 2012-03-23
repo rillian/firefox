@@ -336,6 +336,10 @@ public:
   bool IsHeader(ogg_packet* aPacket);
   nsresult PageIn(ogg_page* aPage);
 
+  int mRate;
+  int mNominalRate;
+  int mChannels;
+
   OpusDecoder *mDecoder;
 
 private:

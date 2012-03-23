@@ -216,6 +216,10 @@ private:
   // audio queue.
   nsresult DecodeVorbis(ogg_packet* aPacket);
 
+  // Decodes a packet of Opus data, and inserts its samples into the
+  // audio queue.
+  nsresult DecodeOpus(ogg_packet* aPacket);
+
   // Decodes a packet of Theora data, and inserts its frame into the
   // video queue. May return NS_ERROR_OUT_OF_MEMORY. Caller must have obtained
   // the reader's monitor. aTimeThreshold is the current playback position

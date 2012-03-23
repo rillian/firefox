@@ -758,6 +758,9 @@ nsresult nsVorbisState::ReconstructVorbisGranulepos()
 
 nsOpusState::nsOpusState(ogg_page* aBosPage) :
     nsOggCodecState(aBosPage, true),
+    mRate(0),
+    mNominalRate(0),
+    mChannels(0),
     mDecoder(NULL)
 {
     MOZ_COUNT_CTOR(nsOpusState);
@@ -784,21 +787,71 @@ nsresult nsOpusState::Reset()
 
   if (mDecoder) {
     opus_decoder_destroy(mDecoder);
-    mDecoder = 0;
+    mDecoder = NULL;
   }
+
+  mRate = 0;
+  mNominalRate = 0;
+  mChannels = 0;
 
   return res;
 }
 
 bool nsOpusState::Init(void)
 {
+  int error;
+
   printf("initializing opus state\n");
+  NS_ASSERTION(mDecoder == NULL, "leaking OpusDecoder");
+
+  mDecoder = opus_decoder_create(mRate, mChannels, &error);
+  if (error != OPUS_OK)
+    return false;
+
   return true;
 }
 
 bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
   printf("decoding opus header\n");
+
+  // minimum length of any header
+  if (aPacket->bytes < 16)
+    return NS_ERROR_FAILURE;
+
+  // try parsing as the metadata header
+  if (!memcmp(aPacket->packet, "OpusTags", 8)) {
+      mDoneReadingHeaders = true; // last opus header
+      mActive = true;
+      return true;
+  }
+
+  // otherwise, parse as the id header
+  if (memcmp(aPacket->packet, "OpusHead\0", 9))
+    return NS_ERROR_FAILURE;
+  if (aPacket->bytes < 19)
+    return NS_ERROR_FAILURE;
+
+  int count, preskip, rate, gain, mapping;
+  count = aPacket->packet[9];
+  preskip = aPacket->packet[11] << 8 | aPacket->packet[10];
+  rate = aPacket->packet[12] |
+         (aPacket->packet[13] << 8) |
+         (aPacket->packet[14] << 16) |
+         (aPacket->packet[15] << 24);
+  gain = (aPacket->packet[17] << 8) | aPacket->packet[16];
+  mapping = aPacket->packet[18];
+
+  printf(" opus channel count %d\n", count);
+  printf(" opus preskip %d samples\n", preskip);
+  printf(" opus nominal rate %d Hz\n", rate);
+  printf(" opus output gain %d.%d\n", (gain >> 8) & 0x7, gain & 0xf);
+  printf(" opus channel mapping family %d\n", mapping);
+
+  mRate = 48000;
+  mNominalRate = rate;
+  mChannels = count;
+
   return true;
 }
 

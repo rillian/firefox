@@ -42,6 +42,7 @@
 #include "nsOggReader.h"
 #include "VideoUtils.h"
 #include "theora/theoradec.h"
+#include "opus.h"
 #include "nsTimeRanges.h"
 #include "mozilla/TimeStamp.h"
 
@@ -105,6 +106,7 @@ nsOggReader::nsOggReader(nsBuiltinDecoder* aDecoder)
   : nsBuiltinDecoderReader(aDecoder),
     mTheoraState(nsnull),
     mVorbisState(nsnull),
+    mOpusState(nsnull),
     mSkeletonState(nsnull),
     mVorbisSerial(0),
     mTheoraSerial(0),
@@ -218,6 +220,12 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
         mTheoraState = static_cast<nsTheoraState*>(codecState);
       }
       if (codecState &&
+          codecState->GetType() == nsOggCodecState::TYPE_OPUS &&
+          !mOpusState)
+      {
+        mOpusState = static_cast<nsOpusState*>(codecState);
+      }
+      if (codecState &&
           codecState->GetType() == nsOggCodecState::TYPE_SKELETON &&
           !mSkeletonState)
       {
@@ -240,7 +248,8 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
   // Deactivate any non-primary bitstreams.
   for (PRUint32 i = 0; i < bitstreams.Length(); i++) {
     nsOggCodecState* s = bitstreams[i];
-    if (s != mVorbisState && s != mTheoraState && s != mSkeletonState) {
+    if (s != mVorbisState && s != mOpusState &&
+        s != mTheoraState && s != mSkeletonState) {
       s->Deactivate();
     }
   }
@@ -289,6 +298,12 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
     mVorbisSerial = mVorbisState->mSerial;
   } else {
     memset(&mVorbisInfo, 0, sizeof(mVorbisInfo));
+  }
+
+  if (mOpusState && ReadHeaders(mOpusState)) {
+    mInfo.mHasAudio = true;
+    mInfo.mAudioRate = mOpusState->mRate;
+    mInfo.mAudioChannels = mOpusState->mChannels;
   }
 
   if (mSkeletonState) {
@@ -387,19 +402,58 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
   return NS_OK;
 }
 
+nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
+  PRInt32 frames = opus_decoder_get_nb_samples(mOpusState->mDecoder,
+      aPacket->packet, aPacket->bytes);
+  if (frames <= 0)
+    return NS_ERROR_FAILURE;
+  PRUint32 channels = mOpusState->mChannels;
+  nsAutoArrayPtr<AudioDataValue> buffer(new AudioDataValue[frames * channels]);
+
+  //TODO: handle int16 output if MOZ_TREMO
+  NS_ASSERTION(MOZ_SAMPLE_TYPE_FLOAT32, "need to hook up fixed-point decode");
+
+  if (opus_decode_float(mOpusState->mDecoder,
+        aPacket->packet, aPacket->bytes,
+        buffer, frames, false) != OPUS_OK)
+    return NS_ERROR_FAILURE;
+
+  PRInt64 endFrame = aPacket->granulepos; // wrong, preskip?
+  PRInt64 duration = mOpusState->Time((PRInt64)frames);
+  PRInt64 startTime = mOpusState->Time(endFrame - frames);
+  mAudioQueue.Push(new AudioData(mPageOffset,
+                                 startTime,
+                                 duration,
+                                 frames,
+                                 buffer.forget(),
+                                 channels));
+
+  return NS_OK;
+}
+
 bool nsOggReader::DecodeAudioData()
 {
   NS_ASSERTION(mDecoder->OnDecodeThread(), "Should be on decode thread.");
-  NS_ASSERTION(mVorbisState!=0, "Need Vorbis state to decode audio");
+  NS_ASSERTION(mVorbisState!=0 || mOpusState!=0,
+    "Need audio codec state to decode audio");
 
   // Read the next data packet. Skip any non-data packets we encounter.
   ogg_packet* packet = 0;
-  do {
-    if (packet) {
-      nsOggCodecState::ReleasePacket(packet);
-    }
-    packet = NextOggPacket(mVorbisState);
-  } while (packet && mVorbisState->IsHeader(packet));
+  if (mVorbisState) {
+    do {
+      if (packet) {
+        nsOggCodecState::ReleasePacket(packet);
+      }
+      packet = NextOggPacket(mVorbisState);
+    } while (packet && mVorbisState->IsHeader(packet));
+  } else {
+    do {
+      if (packet) {
+        nsOggCodecState::ReleasePacket(packet);
+      }
+      packet = NextOggPacket(mOpusState);
+    } while (packet && mOpusState->IsHeader(packet));
+  }
   if (!packet) {
     mAudioQueue.Finish();
     return false;
@@ -408,7 +462,10 @@ bool nsOggReader::DecodeAudioData()
   NS_ASSERTION(packet && packet->granulepos != -1,
     "Must have packet with known granulepos");
   nsAutoReleasePacket autoRelease(packet);
-  DecodeVorbis(packet);
+  if (mVorbisState)
+    DecodeVorbis(packet);
+  else
+    DecodeOpus(packet);
   if (packet->e_o_s) {
     // We've encountered an end of bitstream packet, or we've hit the end of
     // file while trying to decode, so inform the audio queue that there'll
