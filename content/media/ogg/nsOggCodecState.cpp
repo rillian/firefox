@@ -851,19 +851,29 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   mRate = 48000;
   mNominalRate = rate;
   mChannels = count;
+  mChannelMapping = mapping;
+  mPreSkip = preskip;
+  mGain = (float)gain / 256.0;
 
   return true;
 }
 
+/* return the timestamp (in microseconds) equivalent to a granulepos */
 PRInt64 nsOpusState::Time(PRInt64 granulepos)
 {
+  if (granulepos < 0)
+    return -1;
+
   /* Ogg Opus always runs at a granule rate of 48 kHz */
-  return granulepos / 48000;
+  CheckedInt64 t = CheckedInt64(granulepos - mPreSkip) * USECS_PER_S;
+  if (!t.valid())
+    return -1;
+  return t.value() / mRate;
 }
 
 bool nsOpusState::IsHeader(ogg_packet* aPacket)
 {
-  if (aPacket->bytes < 9)
+  if (aPacket->bytes < 16)
     return false;
   if (!memcmp(aPacket->packet, "OpusHead\0", 9))
     return true;

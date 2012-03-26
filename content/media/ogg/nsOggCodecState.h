@@ -339,6 +339,9 @@ public:
   int mRate;
   int mNominalRate;
   int mChannels;
+  int mPreSkip;
+  float mGain;
+  int mChannelMapping;
 
   OpusDecoder *mDecoder;
 
