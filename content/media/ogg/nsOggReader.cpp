@@ -403,8 +403,10 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
 }
 
 nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
+  NS_ASSERTION(aPacket->granulepos != -1, "Must know vorbis granulepos!");
+
   PRInt32 frames = opus_decoder_get_nb_samples(mOpusState->mDecoder,
-      aPacket->packet, aPacket->bytes);
+                       aPacket->packet, aPacket->bytes);
   if (frames <= 0)
     return NS_ERROR_FAILURE;
   PRUint32 channels = mOpusState->mChannels;
@@ -1352,11 +1354,12 @@ nsresult nsOggReader::SeekBisection(PRInt64 aTarget,
 
         ogg_int64_t granulepos = ogg_page_granulepos(&page);
 
-        if (HasAudio() &&
-            granulepos > 0 &&
-            serial == mVorbisState->mSerial &&
-            audioTime == -1) {
-          audioTime = mVorbisState->Time(granulepos);
+        if (HasAudio() && granulepos > 0 && audioTime == -1) {
+          if (serial == mVorbisState->mSerial) {
+            audioTime = mVorbisState->Time(granulepos);
+          } else if (serial == mOpusState->mSerial) {
+            audioTime = mOpusState->Time(granulepos);
+          }
         }
         
         if (HasVideo() &&
