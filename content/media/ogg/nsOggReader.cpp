@@ -403,7 +403,7 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
 }
 
 nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
-  NS_ASSERTION(aPacket->granulepos != -1, "Must know vorbis granulepos!");
+  NS_ASSERTION(aPacket->granulepos != -1, "Must know opus granulepos!");
 
   PRInt32 frames = opus_decoder_get_nb_samples(mOpusState->mDecoder,
                        aPacket->packet, aPacket->bytes);
