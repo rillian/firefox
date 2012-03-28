@@ -1356,9 +1356,9 @@ nsresult nsOggReader::SeekBisection(PRInt64 aTarget,
         ogg_int64_t granulepos = ogg_page_granulepos(&page);
 
         if (HasAudio() && granulepos > 0 && audioTime == -1) {
-          if (serial == mVorbisState->mSerial) {
+          if (mVorbisState && serial == mVorbisState->mSerial) {
             audioTime = mVorbisState->Time(granulepos);
-          } else if (serial == mOpusState->mSerial) {
+          } else if (mOpusState && serial == mOpusState->mSerial) {
             audioTime = mOpusState->Time(granulepos);
           }
         }
