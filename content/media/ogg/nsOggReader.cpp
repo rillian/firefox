@@ -420,7 +420,7 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
         buffer, frames, false) != OPUS_OK)
     return NS_ERROR_FAILURE;
 
-  PRInt64 endFrame = aPacket->granulepos; // wrong, preskip?
+  PRInt64 endFrame = aPacket->granulepos;
   PRInt64 duration = mOpusState->Time((PRInt64)frames);
   PRInt64 startTime = mOpusState->Time(endFrame - frames);
   mAudioQueue.Push(new AudioData(mPageOffset,
