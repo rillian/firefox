@@ -412,7 +412,7 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   PRUint32 channels = mOpusState->mChannels;
   nsAutoArrayPtr<AudioDataValue> buffer(new AudioDataValue[frames * channels]);
 
-  //TODO: handle int16 output if MOZ_TREMO
+  //TODO: handle int16 output if MOZ_TREMOR
   NS_ASSERTION(MOZ_SAMPLE_TYPE_FLOAT32, "need to hook up fixed-point decode");
 
   if (opus_decode_float(mOpusState->mDecoder,
