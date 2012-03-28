@@ -72,7 +72,8 @@ public:
                                   PRInt64 aTimeThreshold);
 
   virtual bool HasAudio() {
-    return mVorbisState != 0 && mVorbisState->mActive;
+    return (mVorbisState != 0 && mVorbisState->mActive) ||
+           (mOpusState != 0 && mOpusState->mActive);
   }
 
   virtual bool HasVideo() {
