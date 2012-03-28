@@ -832,7 +832,7 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   if (aPacket->bytes < 19)
     return NS_ERROR_FAILURE;
 
-  int count, preskip, rate, gain, mapping;
+  int count, preskip, rate, gain, mapping, streams;
   count = aPacket->packet[9];
   preskip = aPacket->packet[11] << 8 | aPacket->packet[10];
   rate = aPacket->packet[12] |
@@ -842,18 +842,25 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   gain = (aPacket->packet[17] << 8) | aPacket->packet[16];
   mapping = aPacket->packet[18];
 
-  printf(" opus channel count %d\n", count);
-  printf(" opus preskip %d samples\n", preskip);
-  printf(" opus nominal rate %d Hz\n", rate);
-  printf(" opus output gain %d.%d\n", (gain >> 8) & 0x7, gain & 0xf);
-  printf(" opus channel mapping family %d\n", mapping);
+  if (mapping > 0 && aPacket->bytes > 19)
+    streams = aPacket->packet[19];
+  else
+    streams = 1;
 
-  mRate = 48000;
+  mRate = 48000; // decoder runs at 48 kHz regardless
   mNominalRate = rate;
   mChannels = count;
   mChannelMapping = mapping;
   mPreSkip = preskip;
   mGain = (float)gain / 256.0;
+
+  printf(" opus channel count %d\n", mChannels);
+  printf(" opus preskip %d samples\n", mPreSkip);
+  printf(" opus nominal rate %d Hz\n", mNominalRate);
+  printf(" opus output gain %f\n", mGain);
+  printf(" opus channel mapping family %d\n", mChannelMapping);
+
+  printf(" opus channel mapping encodes %d source streams\n", streams);
 
   return true;
 }
