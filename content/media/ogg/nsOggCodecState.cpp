@@ -764,20 +764,17 @@ nsOpusState::nsOpusState(ogg_page* aBosPage) :
     mDecoder(NULL)
 {
     MOZ_COUNT_CTOR(nsOpusState);
-    printf("creating new opus state\n");
 }
 
 nsOpusState::~nsOpusState() {
     MOZ_COUNT_DTOR(nsOpusState);
     Reset();
-    printf("deleting opus state\n");
 }
 
 nsresult nsOpusState::Reset()
 {
   nsresult res = NS_OK;
 
-  printf("resetting opus state\n");
   if (mActive != 0) {
     res = NS_ERROR_FAILURE;
   }
@@ -801,7 +798,6 @@ bool nsOpusState::Init(void)
 {
   int error;
 
-  printf("initializing opus state\n");
   NS_ASSERTION(mDecoder == NULL, "leaking OpusDecoder");
 
   mDecoder = opus_decoder_create(mRate, mChannels, &error);
@@ -813,8 +809,6 @@ bool nsOpusState::Init(void)
 
 bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
-  printf("decoding opus header\n");
-
   // minimum length of any header
   if (aPacket->bytes < 16)
     return NS_ERROR_FAILURE;
