@@ -415,10 +415,11 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   //TODO: handle int16 output if MOZ_TREMOR
   NS_ASSERTION(MOZ_SAMPLE_TYPE_FLOAT32, "need to hook up fixed-point decode");
 
-  if (opus_decode_float(mOpusState->mDecoder,
-        aPacket->packet, aPacket->bytes,
-        buffer, frames, false) != OPUS_OK)
+  int ret = opus_decode_float(mOpusState->mDecoder,
+        aPacket->packet, aPacket->bytes, buffer, frames, false);
+  if (ret < 0)
     return NS_ERROR_FAILURE;
+  NS_ASSERTION(ret == frames, "Opus decoded too few audio samples");
 
   PRInt64 endFrame = aPacket->granulepos;
   PRInt64 duration = mOpusState->Time((PRInt64)frames);
