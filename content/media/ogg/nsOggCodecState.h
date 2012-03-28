@@ -352,7 +352,7 @@ private:
   // the stream, with the last packet having a known granulepos. Using this
   // known granulepos, and the known frame numbers, we recover the granulepos
   // of all frames in the array. This enables us to determine their timestamps.
-  void ReconstructOpusGranulepos();
+  void ReconstructGranulepos();
 };
 
 // Constructs a 32bit version number out of two 16 bit major,minor

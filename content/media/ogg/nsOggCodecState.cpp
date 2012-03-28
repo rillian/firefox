@@ -891,26 +891,52 @@ bool nsOpusState::IsHeader(ogg_packet* aPacket)
 
 nsresult nsOpusState::PageIn(ogg_page* aPage)
 {
-  printf("got opus page %p\n", aPage);
   if (!mActive)
     return NS_OK;
-  NS_ASSERTION(ogg_page_serialno(aPage) == mSerial,
+  NS_ASSERTION(static_cast<PRUint32>(ogg_page_serialno(aPage)) == mSerial,
       "Page is not for this stream");
   if (ogg_stream_pagein(&mState, aPage) == -1)
     return NS_ERROR_FAILURE;
-  int ret;
-  do {
-    ogg_packet packet;
-    ret = ogg_stream_packetout(&mState, &packet);
-    if (ret == 1)
-      mPackets.Append(Clone(&packet));
-  } while (ret != 0);
-  if (ogg_stream_check(&mState)) {
-    NS_WARNING("Unrecoverable errror in ogg_stream_packetout");
-    return NS_ERROR_FAILURE;
+
+  bool haveGranulepos;
+  nsresult rv = PacketOutUntilGranulepos(haveGranulepos);
+  if (NS_FAILED(rv))
+    return rv;
+  if (haveGranulepos) {
+    ReconstructGranulepos();
+    for (PRUint32 i = 0; i < mUnstamped.Length(); i++) {
+      ogg_packet* packet = mUnstamped[i];
+      NS_ASSERTION(!IsHeader(packet), "Don't try to play a header packet");
+      NS_ASSERTION(packet->granulepos != -1, "Packet should have a granulepos");
+      mPackets.Append(packet);
+    }
+    mUnstamped.Clear();
   }
   return NS_OK;
 }
+
+void nsOpusState::ReconstructGranulepos(void)
+{
+  NS_ASSERTION(mUnstamped.Length() > 0, "Must have unstamped packets");
+  ogg_packet* last = mUnstamped[mUnstamped.Length()-1];
+  NS_ASSERTION(last->e_o_s || last->granulepos > 0,
+      "Must know last granulepos!");
+  if (mUnstamped.Length() == 1)
+    return; // nothing to do
+
+  // loop through the packets backwards, subtracting the next
+  // packet's duration from its granulepos to get the value
+  // for the current packet.
+  for (PRUint32 i = mUnstamped.Length() - 1; i > 0; i--) {
+    ogg_packet* next = mUnstamped[i];
+    int offset = opus_decoder_get_nb_samples(mDecoder,
+        next->packet, next->bytes);
+    // check for error (negative) and overflow
+    if (offset > 0 && offset < next->granulepos)
+      mUnstamped[i - 1]->granulepos = next->granulepos - offset;
+  }
+}
+
 
 nsSkeletonState::nsSkeletonState(ogg_page* aBosPage)
   : nsOggCodecState(aBosPage, true),
