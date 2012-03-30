@@ -53,6 +53,30 @@ extern PRLogModuleInfo* gBuiltinDecoderLog;
 #define LOG(type, msg)
 #endif
 
+// Reads a little-endian encoded unsigned 32bit integer at p.
+static PRUint32 LEUint32(const unsigned char* p)
+{
+  return p[0] +
+        (p[1] << 8) +
+        (p[2] << 16) +
+        (p[3] << 24);
+}
+
+// Reads a little-endian encoded 64bit integer at p.
+static PRInt64 LEInt64(const unsigned char* p)
+{
+  PRUint32 lo = LEUint32(p);
+  PRUint32 hi = LEUint32(p + 4);
+  return static_cast<PRInt64>(lo) | (static_cast<PRInt64>(hi) << 32);
+}
+
+// Reads a little-endian encoded unsigned 16bit integer at p.
+static PRUint16 LEUint16(const unsigned char* p)
+{
+  return p[0] + (p[1] << 8);
+}
+
+/** Decoder base class for Ogg-encapsulated streams */
 nsOggCodecState*
 nsOggCodecState::Create(ogg_page* aPage)
 {
@@ -826,27 +850,19 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   if (aPacket->bytes < 19)
     return NS_ERROR_FAILURE;
 
-  int count, preskip, rate, gain, mapping, streams;
-  count = aPacket->packet[9];
-  preskip = aPacket->packet[11] << 8 | aPacket->packet[10];
-  rate = aPacket->packet[12] |
-         (aPacket->packet[13] << 8) |
-         (aPacket->packet[14] << 16) |
-         (aPacket->packet[15] << 24);
-  gain = (aPacket->packet[17] << 8) | aPacket->packet[16];
-  mapping = aPacket->packet[18];
+  mRate = 48000; // decoder runs at 48 kHz regardless
 
-  if (mapping > 0 && aPacket->bytes > 19)
+  mChannels= aPacket->packet[9];
+  mPreSkip = LEUint16(aPacket->packet + 10);
+  mNominalRate = LEUint32(aPacket->packet + 12);
+  mGain = (float)LEUint16(aPacket->packet + 16) / 256.0;
+  mChannelMapping = aPacket->packet[18];
+
+  int streams;
+  if (mChannelMapping > 0 && aPacket->bytes > 19)
     streams = aPacket->packet[19];
   else
     streams = 1;
-
-  mRate = 48000; // decoder runs at 48 kHz regardless
-  mNominalRate = rate;
-  mChannels = count;
-  mChannelMapping = mapping;
-  mPreSkip = preskip;
-  mGain = (float)gain / 256.0;
 
   printf(" opus channel count %d\n", mChannels);
   printf(" opus preskip %d samples\n", mPreSkip);
@@ -991,29 +1007,6 @@ static bool IsSkeletonIndex(ogg_packet* aPacket)
 {
   return aPacket->bytes >= SKELETON_4_0_MIN_INDEX_LEN &&
          memcmp(reinterpret_cast<char*>(aPacket->packet), "index", 5) == 0;
-}
-
-// Reads a little-endian encoded unsigned 32bit integer at p.
-static PRUint32 LEUint32(const unsigned char* p)
-{
-  return p[0] +
-        (p[1] << 8) + 
-        (p[2] << 16) +
-        (p[3] << 24);
-}
-
-// Reads a little-endian encoded 64bit integer at p.
-static PRInt64 LEInt64(const unsigned char* p)
-{
-  PRUint32 lo = LEUint32(p);
-  PRUint32 hi = LEUint32(p + 4);
-  return static_cast<PRInt64>(lo) | (static_cast<PRInt64>(hi) << 32);
-}
-
-// Reads a little-endian encoded unsigned 16bit integer at p.
-static PRUint16 LEUint16(const unsigned char* p)
-{
-  return p[0] + (p[1] << 8);  
 }
 
 // Reads a variable length encoded integer at p. Will not read
