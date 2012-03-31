@@ -147,6 +147,9 @@ nsresult nsOggReader::ResetDecode()
   if (mVorbisState && NS_FAILED(mVorbisState->Reset())) {
     res = NS_ERROR_FAILURE;
   }
+  if (mOpusState && NS_FAILED(mOpusState->Reset())) {
+    res = NS_ERROR_FAILURE;
+  }
   if (mTheoraState && NS_FAILED(mTheoraState->Reset())) {
     res = NS_ERROR_FAILURE;
   }

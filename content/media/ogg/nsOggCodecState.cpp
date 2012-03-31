@@ -793,6 +793,11 @@ nsOpusState::nsOpusState(ogg_page* aBosPage) :
 nsOpusState::~nsOpusState() {
     MOZ_COUNT_DTOR(nsOpusState);
     Reset();
+
+    if (mDecoder) {
+      opus_decoder_destroy(mDecoder);
+      mDecoder = NULL;
+    }
 }
 
 nsresult nsOpusState::Reset()
@@ -802,18 +807,16 @@ nsresult nsOpusState::Reset()
   if (mActive != 0) {
     res = NS_ERROR_FAILURE;
   }
+
+  if (mDecoder) {
+    // reset the decoder
+    opus_decoder_ctl(mDecoder, OPUS_RESET_STATE);
+  }
+
+  // clear queued data
   if (NS_FAILED(nsOggCodecState::Reset())) {
     return NS_ERROR_FAILURE;
   }
-
-  if (mDecoder) {
-    opus_decoder_destroy(mDecoder);
-    mDecoder = NULL;
-  }
-
-  mRate = 0;
-  mNominalRate = 0;
-  mChannels = 0;
 
   return res;
 }
@@ -867,7 +870,7 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   printf(" opus channel count %d\n", mChannels);
   printf(" opus preskip %d samples\n", mPreSkip);
   printf(" opus nominal rate %d Hz\n", mNominalRate);
-  printf(" opus output gain %f\n", mGain);
+  printf(" opus output gain %f dB\n", mGain);
   printf(" opus channel mapping family %d\n", mChannelMapping);
 
   printf(" opus channel mapping encodes %d source streams\n", streams);
