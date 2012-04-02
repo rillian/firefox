@@ -867,14 +867,6 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   else
     streams = 1;
 
-  printf(" opus channel count %d\n", mChannels);
-  printf(" opus preskip %d samples\n", mPreSkip);
-  printf(" opus nominal rate %d Hz\n", mNominalRate);
-  printf(" opus output gain %f dB\n", mGain);
-  printf(" opus channel mapping family %d\n", mChannelMapping);
-
-  printf(" opus channel mapping encodes %d source streams\n", streams);
-
   return true;
 }
 

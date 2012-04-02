@@ -434,11 +434,6 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
                                  buffer.forget(),
                                  channels));
 
-  printf(" opus block %lld us start %lld us"
-         " %d frames with granulepos %lld\n",
-     (long long)duration, (long long)startTime,
-      frames, (long long)endFrame);
-
   return NS_OK;
 }
 
