@@ -282,6 +282,10 @@ public:
   static bool IsOggType(const nsACString& aType);
   static const char gOggTypes[3][16];
   static char const *const gOggCodecs[3];
+#ifdef MOZ_OPUS
+  static bool IsOpusEnabled();
+  static char const *const gOggCodecsWithOpus[4];
+#endif
 #endif
 
 #ifdef MOZ_WAVE

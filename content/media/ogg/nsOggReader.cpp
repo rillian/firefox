@@ -107,6 +107,7 @@ nsOggReader::nsOggReader(nsBuiltinDecoder* aDecoder)
     mTheoraState(nsnull),
     mVorbisState(nsnull),
     mOpusState(nsnull),
+    mOpusEnabled(nsHTMLMediaElement::IsOpusEnabled()),
     mSkeletonState(nsnull),
     mVorbisSerial(0),
     mTheoraSerial(0),
@@ -226,7 +227,10 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
           codecState->GetType() == nsOggCodecState::TYPE_OPUS &&
           !mOpusState)
       {
-        mOpusState = static_cast<nsOpusState*>(codecState);
+        if (mOpusEnabled)
+          mOpusState = static_cast<nsOpusState*>(codecState);
+        else
+          printf("media.opus.enabled is not set\n");
       }
       if (codecState &&
           codecState->GetType() == nsOggCodecState::TYPE_SKELETON &&

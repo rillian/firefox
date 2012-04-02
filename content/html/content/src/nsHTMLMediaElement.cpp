@@ -1745,6 +1745,21 @@ char const *const nsHTMLMediaElement::gOggCodecs[3] = {
   nsnull
 };
 
+#ifdef MOZ_OPUS
+char const *const nsHTMLMediaElement::gOggCodecsWithOpus[4] = {
+  "vorbis",
+  "opus",
+  "theora",
+  nsnull
+};
+
+bool
+nsHTMLMediaElement::IsOpusEnabled()
+{
+  return Preferences::GetBool("media.opus.enabled");
+}
+#endif
+
 bool
 nsHTMLMediaElement::IsOggEnabled()
 {
@@ -1857,6 +1872,10 @@ nsHTMLMediaElement::CanHandleMediaType(const char* aMIMEType,
 #ifdef MOZ_OGG
   if (IsOggType(nsDependentCString(aMIMEType))) {
     *aCodecList = gOggCodecs;
+#ifdef MOZ_OPUS
+    if (IsOpusEnabled())
+      *aCodecList = gOggCodecsWithOpus;
+#endif
     return CANPLAY_MAYBE;
   }
 #endif
