@@ -452,7 +452,7 @@ bool nsOggReader::DecodeAudioData()
       }
       packet = NextOggPacket(mVorbisState);
     } while (packet && mVorbisState->IsHeader(packet));
-  } else {
+  } else if (mOpusState) {
     do {
       if (packet) {
         nsOggCodecState::ReleasePacket(packet);
