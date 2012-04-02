@@ -804,7 +804,7 @@ nsresult nsOpusState::Reset()
 {
   nsresult res = NS_OK;
 
-  if (mActive != 0) {
+  if (!mActive) {
     res = NS_ERROR_FAILURE;
   }
 
