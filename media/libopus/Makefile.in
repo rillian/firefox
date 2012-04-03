@@ -52,6 +52,10 @@ DEFINES += \
   -DOPUS_VERSION='"draft-10-mozilla"' \
   $(NULL)
 
+ifeq ($(OS_ARCH),AIX)
+DEFINES += -Dalloca=__alloca
+endif
+
 EXPORTS_NAMESPACES = opus
 
 EXPORTS_opus = \
