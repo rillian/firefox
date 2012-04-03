@@ -42,7 +42,7 @@
 #include "nsOggReader.h"
 #include "VideoUtils.h"
 #include "theora/theoradec.h"
-#include "opus.h"
+#include "opus/opus.h"
 #include "nsTimeRanges.h"
 #include "mozilla/TimeStamp.h"
 

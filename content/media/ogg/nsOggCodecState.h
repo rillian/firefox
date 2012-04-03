@@ -47,7 +47,7 @@
 #include <vorbis/codec.h>
 #endif
 #ifdef MOZ_OPUS
-#include <opus.h>
+#include <opus/opus.h>
 #endif
 #include <nsDeque.h>
 #include <nsTArray.h>

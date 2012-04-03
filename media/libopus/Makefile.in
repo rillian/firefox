@@ -52,7 +52,9 @@ DEFINES += \
   -DOPUS_VERSION='"draft-10-mozilla"' \
   $(NULL)
 
-EXPORTS = \
+EXPORTS_NAMESPACES = opus
+
+EXPORTS_opus = \
   include/opus.h \
   include/opus_defines.h \
   include/opus_types.h \
