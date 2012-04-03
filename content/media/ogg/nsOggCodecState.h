@@ -336,12 +336,13 @@ public:
   bool IsHeader(ogg_packet* aPacket);
   nsresult PageIn(ogg_page* aPage);
 
-  int mRate;
-  int mNominalRate;
-  int mChannels;
-  int mPreSkip;
-  float mGain;
-  int mChannelMapping;
+  // Various fields from the Ogg Opus header
+  int mRate;        // Sample rate the decoder uses (always 48 kHz)
+  int mNominalRate; // Original sample rate of the data (informational)
+  int mChannels;    // Number of channels decoder will produce
+  int mPreSkip;     // Number of samples to strip after decoder reset
+  float mGain;      // Gain (dB) to apply to decoder output
+  int mChannelMapping; // Channel mapping family
 
   OpusDecoder *mDecoder;
 

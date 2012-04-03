@@ -230,7 +230,8 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
         if (mOpusEnabled)
           mOpusState = static_cast<nsOpusState*>(codecState);
         else
-          printf("media.opus.enabled is not set\n");
+          NS_WARNING("Opus decoding disabled."
+                     " See media.opus.enabled in about:config");
       }
       if (codecState &&
           codecState->GetType() == nsOggCodecState::TYPE_SKELETON &&
@@ -413,7 +414,8 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(aPacket->granulepos != -1, "Must know opus granulepos!");
 
   PRInt32 frames = opus_decoder_get_nb_samples(mOpusState->mDecoder,
-                       aPacket->packet, aPacket->bytes);
+                                               aPacket->packet,
+                                               aPacket->bytes);
   if (frames <= 0)
     return NS_ERROR_FAILURE;
   PRUint32 channels = mOpusState->mChannels;
@@ -423,7 +425,9 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(MOZ_SAMPLE_TYPE_FLOAT32, "need to hook up fixed-point decode");
 
   int ret = opus_decode_float(mOpusState->mDecoder,
-        aPacket->packet, aPacket->bytes, buffer, frames, false);
+                              aPacket->packet,
+                              aPacket->bytes,
+                              buffer, frames, false);
   if (ret < 0)
     return NS_ERROR_FAILURE;
   NS_ASSERTION(ret == frames, "Opus decoded too few audio samples");
@@ -444,26 +448,23 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
 bool nsOggReader::DecodeAudioData()
 {
   NS_ASSERTION(mDecoder->OnDecodeThread(), "Should be on decode thread.");
-  NS_ASSERTION(mVorbisState!=0 || mOpusState!=0,
+  NS_ASSERTION(mVorbisState != nsnull || mOpusState != nsnull,
     "Need audio codec state to decode audio");
 
   // Read the next data packet. Skip any non-data packets we encounter.
   ogg_packet* packet = 0;
-  if (mVorbisState) {
-    do {
-      if (packet) {
-        nsOggCodecState::ReleasePacket(packet);
-      }
-      packet = NextOggPacket(mVorbisState);
-    } while (packet && mVorbisState->IsHeader(packet));
-  } else if (mOpusState) {
-    do {
-      if (packet) {
-        nsOggCodecState::ReleasePacket(packet);
-      }
-      packet = NextOggPacket(mOpusState);
-    } while (packet && mOpusState->IsHeader(packet));
-  }
+  nsOggCodecState* codecState;
+  if (mVorbisState)
+    codecState = static_cast<nsOggCodecState*>(mVorbisState);
+  else
+    codecState = static_cast<nsOggCodecState*>(mOpusState);
+  do {
+    if (packet) {
+      nsOggCodecState::ReleasePacket(packet);
+    }
+    packet = NextOggPacket(codecState);
+  } while (packet && codecState->IsHeader(packet));
+
   if (!packet) {
     mAudioQueue.Finish();
     return false;
@@ -472,10 +473,12 @@ bool nsOggReader::DecodeAudioData()
   NS_ASSERTION(packet && packet->granulepos != -1,
     "Must have packet with known granulepos");
   nsAutoReleasePacket autoRelease(packet);
-  if (mVorbisState)
+  if (mVorbisState) {
     DecodeVorbis(packet);
-  else
+  } else if (mOpusState) {
     DecodeOpus(packet);
+  }
+
   if (packet->e_o_s) {
     // We've encountered an end of bitstream packet, or we've hit the end of
     // file while trying to decode, so inform the audio queue that there'll

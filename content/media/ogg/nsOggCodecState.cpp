@@ -781,23 +781,26 @@ nsresult nsVorbisState::ReconstructVorbisGranulepos()
 
 
 nsOpusState::nsOpusState(ogg_page* aBosPage) :
-    nsOggCodecState(aBosPage, true),
-    mRate(0),
-    mNominalRate(0),
-    mChannels(0),
-    mDecoder(NULL)
+  nsOggCodecState(aBosPage, true),
+  mRate(0),
+  mNominalRate(0),
+  mChannels(0),
+  mPreSkip(0),
+  mGain(0.0),
+  mChannelMapping(0),
+  mDecoder(NULL)
 {
-    MOZ_COUNT_CTOR(nsOpusState);
+  MOZ_COUNT_CTOR(nsOpusState);
 }
 
 nsOpusState::~nsOpusState() {
-    MOZ_COUNT_DTOR(nsOpusState);
-    Reset();
+  MOZ_COUNT_DTOR(nsOpusState);
+  Reset();
 
-    if (mDecoder) {
-      opus_decoder_destroy(mDecoder);
-      mDecoder = NULL;
-    }
+  if (mDecoder) {
+    opus_decoder_destroy(mDecoder);
+    mDecoder = NULL;
+  }
 }
 
 nsresult nsOpusState::Reset()
@@ -842,15 +845,13 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 
   // try parsing as the metadata header
   if (!memcmp(aPacket->packet, "OpusTags", 8)) {
-      mDoneReadingHeaders = true; // last opus header
-      mActive = true;
-      return true;
+    mDoneReadingHeaders = true; // last opus header
+    mActive = true;
+    return true;
   }
 
   // otherwise, parse as the id header
-  if (memcmp(aPacket->packet, "OpusHead\0", 9))
-    return NS_ERROR_FAILURE;
-  if (aPacket->bytes < 19)
+  if (aPacket->bytes < 19 || memcmp(aPacket->packet, "OpusHead\0", 9))
     return NS_ERROR_FAILURE;
 
   mRate = 48000; // decoder runs at 48 kHz regardless
@@ -877,8 +878,6 @@ PRInt64 nsOpusState::Time(PRInt64 granulepos)
     return -1;
 
   /* Ogg Opus always runs at a granule rate of 48 kHz */
-  //CheckedInt64 t = CheckedInt64(granulepos - mPreSkip) * USECS_PER_S;
-  // HACK: don't subtract preskip to avoid generating negative timestamps.
   CheckedInt64 t = CheckedInt64(granulepos) * USECS_PER_S;
   if (!t.valid())
     return -1;
@@ -901,7 +900,7 @@ nsresult nsOpusState::PageIn(ogg_page* aPage)
   if (!mActive)
     return NS_OK;
   NS_ASSERTION(static_cast<PRUint32>(ogg_page_serialno(aPage)) == mSerial,
-      "Page is not for this stream");
+               "Page must be for this stream!");
   if (ogg_stream_pagein(&mState, aPage) == -1)
     return NS_ERROR_FAILURE;
 
@@ -928,8 +927,6 @@ void nsOpusState::ReconstructGranulepos(void)
   ogg_packet* last = mUnstamped[mUnstamped.Length()-1];
   NS_ASSERTION(last->e_o_s || last->granulepos > 0,
       "Must know last granulepos!");
-  if (mUnstamped.Length() == 1)
-    return; // nothing to do
 
   // loop through the packets backwards, subtracting the next
   // packet's duration from its granulepos to get the value
@@ -937,19 +934,20 @@ void nsOpusState::ReconstructGranulepos(void)
   for (PRUint32 i = mUnstamped.Length() - 1; i > 0; i--) {
     ogg_packet* next = mUnstamped[i];
     int offset = opus_decoder_get_nb_samples(mDecoder,
-        next->packet, next->bytes);
-    // check for error (negative) and overflow
+                                             next->packet,
+                                             next->bytes);
+    // check for error (negative offset) and overflow
     if (offset > 0 && offset < next->granulepos)
       mUnstamped[i - 1]->granulepos = next->granulepos - offset;
   }
 }
 
 
-nsSkeletonState::nsSkeletonState(ogg_page* aBosPage)
-  : nsOggCodecState(aBosPage, true),
-    mVersion(0),
-    mPresentationTime(0),
-    mLength(0)
+nsSkeletonState::nsSkeletonState(ogg_page* aBosPage) :
+  nsOggCodecState(aBosPage, true),
+  mVersion(0),
+  mPresentationTime(0),
+  mLength(0)
 {
   MOZ_COUNT_CTOR(nsSkeletonState);
 }
