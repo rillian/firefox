@@ -258,13 +258,13 @@ private:
   // Decode state of the Vorbis bitstream we're decoding, if we have audio.
   nsVorbisState* mVorbisState;
 
+  // Decode state of the Opus bitstream we're decoding, if we have one.
+  nsOpusState *mOpusState;
+
   // Represents the user pref media.opus.enabled at the time our
   // contructor was called. We can't check it dynamically because
   // we're not on the main thread;
   bool mOpusEnabled;
-
-  // Decode state of the Opus bitstream we're decoding, if we have one.
-  nsOpusState *mOpusState;
 
   // Decode state of the Skeleton bitstream.
   nsSkeletonState* mSkeletonState;
