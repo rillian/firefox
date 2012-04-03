@@ -1745,7 +1745,6 @@ char const *const nsHTMLMediaElement::gOggCodecs[3] = {
   nsnull
 };
 
-#ifdef MOZ_OPUS
 char const *const nsHTMLMediaElement::gOggCodecsWithOpus[4] = {
   "vorbis",
   "opus",
@@ -1756,9 +1755,12 @@ char const *const nsHTMLMediaElement::gOggCodecsWithOpus[4] = {
 bool
 nsHTMLMediaElement::IsOpusEnabled()
 {
+#ifdef MOZ_OPUS
   return Preferences::GetBool("media.opus.enabled");
-}
+#else
+  return false;
 #endif
+}
 
 bool
 nsHTMLMediaElement::IsOggEnabled()
