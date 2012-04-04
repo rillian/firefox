@@ -9,7 +9,8 @@ var gSmallTests = [
   { name:"r11025_s16_c1.wav", type:"audio/x-wav", duration:1.0 },
   { name:"320x240.ogv", type:"video/ogg", width:320, height:240, duration:0.233 },
   { name:"seek.webm", type:"video/webm", duration:3.966 },
-  { name:"bogus.duh", type:"bogus/duh" }
+  { name:"bogus.duh", type:"bogus/duh" },
+  { name:"detodos-16.opus", type:"audio/ogg", duration:2.937 }
 ];
 
 // Used by test_progress to ensure we get the correct progress information
@@ -126,7 +127,10 @@ var gPlayTests = [
   // hardware.
   { name:"spacestorm-1000Hz-100ms.ogg", type:"audio/ogg", duration:0.099 },
 
-  { name:"bogus.duh", type:"bogus/duh", duration:Number.NaN }
+  { name:"bogus.duh", type:"bogus/duh", duration:Number.NaN },
+
+  // Opus data in an ogg container
+  { name:"detodos-16.opus", type:"audio/ogg", duration:2.937 }
 ];
 
 // Converts a path/filename to a file:// URI which we can load from disk.
@@ -236,7 +240,8 @@ var gSeekTests = [
   { name:"seek.webm", type:"video/webm", duration:3.966 },
   { name:"bug516323.indexed.ogv", type:"video/ogg", duration:4.208 },
   { name:"split.webm", type:"video/webm", duration:1.967 },
-  { name:"bogus.duh", type:"bogus/duh", duration:123 }
+  { name:"bogus.duh", type:"bogus/duh", duration:123 },
+  { name:"detodos-16.opus", type:"audio/ogg", duration:2.937 }
 ];
 
 // These are files suitable for using with a "new Audio" constructor.
@@ -451,16 +456,20 @@ function mediaTestCleanup() {
   var branch = prefService.getBranch("media.");
   var oldDefault = 2;
   var oldAuto = 3;
+  var oldOpus = false;
   try {
     oldDefault = branch.getIntPref("preload.default");
     oldAuto    = branch.getIntPref("preload.auto");
+    oldOpus    = branch.getBoolPref("opus.enabled");
   } catch(ex) { }
   branch.setIntPref("preload.default", 2); // preload_metadata
   branch.setIntPref("preload.auto", 3); // preload_enough
+  branch.setBoolPref("opus.enabled", true); // test opus playback
 
   window.addEventListener("unload", function() {
     netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
     branch.setIntPref("preload.default", oldDefault);
     branch.setIntPref("preload.auto", oldAuto);
+    branch.setBoolPref("opus.enabled", oldOpus);
   }, false);
  })();

@@ -15,6 +15,14 @@ function check_ogg(v, enabled) {
   check("video/ogg; codecs=\"vorbis, theora\"", "probably");
   check("video/ogg; codecs=theora", "probably");
 
+  // Verify Opus support
+  var OpusEnabled = SpecialPowers.getBoolPref("media.opus.enabled");
+  SpecialPowers.setBoolPref("media.opus.enabled", true);
+  check("audio/ogg; codecs=opus", "probably");
+  SpecialPowers.setBoolPref("media.opus.enabled", false);
+  check("audio/ogg; codecs=opus", "");
+  SpecialPowers.setBoolPref("media.opus.enabled", OpusEnabled);
+
   // Unsupported Ogg codecs
   check("video/ogg; codecs=xyz", "");
   check("video/ogg; codecs=xyz,vorbis", "");
