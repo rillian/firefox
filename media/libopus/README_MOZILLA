@@ -1,4 +1,2 @@
-Using the draft source code, extracted from
-https://tools.ietf.org/id/draft-ietf-codec-opus-11.txt
-
-Removed the upstream Makefile (Makefile.draft in git)
+Using revision v0.9.9 from
+https://git.xiph.org/opus.git
