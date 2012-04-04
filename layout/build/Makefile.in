@@ -169,12 +169,6 @@ SHARED_LIBRARY_LIBS 	+= \
 	$(NULL)
 endif
 
-ifdef MOZ_OPUS
-SHARED_LIBRARY_LIBS	+= \
-	$(DEPTH)/media/libopus/$(LIB_PREFIX)opus.$(LIB_SUFFIX) \
-	$(NULL)
-endif
-
 ifdef MOZ_RAW
 SHARED_LIBRARY_LIBS     += \
        $(DEPTH)/content/media/raw/$(LIB_PREFIX)gkconraw_s.$(LIB_SUFFIX)\
