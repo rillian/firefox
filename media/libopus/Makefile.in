@@ -49,7 +49,7 @@ FORCE_STATIC_LIB= 1
 DEFINES += \
   -DUSE_ALLOCA -DHAVE_LRINTF -Drestrict= \
   -DOPUS_BUILD \
-  -DOPUS_VERSION='"draft-10-mozilla"' \
+  -DOPUS_VERSION='"draft-11-mozilla"' \
   $(NULL)
 
 ifeq ($(OS_ARCH),AIX)
