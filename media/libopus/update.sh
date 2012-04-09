@@ -11,10 +11,21 @@ STATIC_FILES="COPYING"
 MK_FILES="opus_sources.mk celt_sources.mk silk_sources.mk \
           opus_headers.txt celt_headers.txt silk_headers.txt"
 
+# Make sure we have a source directory
+if test -z $1 || ! test -r $1/include/opus.h; then
+  echo "Update the current directory from a source checkout"
+  echo "usage: $0 ../opus"
+  exit 1
+fi
+
 # "parse" the makefile fragments to get the list of source files
 # requires GNU sed extensions
 SRC_FILES=$(sed -e ':a;N;$!ba;s/\\\n//g;s/[A-Z_]* = //g' \
              $(for file in ${MK_FILES}; do echo "$1/${file}"; done))
+
+# pre-release versions of the code don't list opus_custom.h
+# in celt_headers.mk, so we must include it manually
+HDR_FILES="include/opus_custom.h"
 
 # make sure the necessary subdirectories exist
 for file in ${SRC_FILES}; do
@@ -43,6 +54,6 @@ else
 fi
 echo "copied from revision ${version}"
 # update README revision
-sed -e "s/^Using revision .* from/Using revision ${version} from/" \
+sed -e "s/^The git tag\/revision used was .*/The git tag\/revision used was ${version}./" \
     ${TARGET}/README_MOZILLA > ${TARGET}/README_MOZILLA+ && \
     mv ${TARGET}/README_MOZILLA+ ${TARGET}/README_MOZILLA
