@@ -432,6 +432,9 @@ static nsDefaultMimeTypeEntry defaultMimeEntries [] =
   { VIDEO_OGG, "ogg" },
   { APPLICATION_OGG, "ogg" },
   { AUDIO_OGG, "oga" },
+#ifdef MOZ_OPUS
+  { AUDIO_OGG, "opus" },
+#endif
 #endif
 #ifdef MOZ_WEBM
   { VIDEO_WEBM, "webm" },
