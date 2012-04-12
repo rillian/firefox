@@ -436,8 +436,26 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(ret == frames, "Opus decoded too few audio samples");
 
   PRInt64 endFrame = aPacket->granulepos;
-  PRInt64 duration = mOpusState->Time((PRInt64)frames);
+  PRInt64 endTime = mOpusState->Time(endFrame);
   PRInt64 startTime = mOpusState->Time(endFrame - frames);
+  PRInt64 duration = endTime - startTime;
+
+  // trim off the initial samples
+  if (endTime < 0)
+    return NS_OK;
+  if (startTime < 0) {
+    PRInt32 skip = mOpusState->mPreSkip;
+    PRInt32 goodFrames = frames - skip;
+    NS_ASSERTION(goodFrames > 0, "endTime calculation was wrong");
+    nsAutoArrayPtr<AudioDataValue> goodBuffer(new AudioDataValue[goodFrames * channels]);
+    for (int i = 0; i < goodFrames*channels; i++)
+      goodBuffer[i] = buffer[skip*channels + i];
+
+    startTime = mOpusState->Time(endFrame - goodFrames);
+    duration = endTime - startTime;
+    buffer = goodBuffer;
+  }
+
   mAudioQueue.Push(new AudioData(mPageOffset,
                                  startTime,
                                  duration,

@@ -878,7 +878,7 @@ PRInt64 nsOpusState::Time(PRInt64 granulepos)
     return -1;
 
   /* Ogg Opus always runs at a granule rate of 48 kHz */
-  CheckedInt64 t = CheckedInt64(granulepos) * USECS_PER_S;
+  CheckedInt64 t = CheckedInt64(granulepos - mPreSkip) * USECS_PER_S;
   if (!t.valid())
     return -1;
   return t.value() / mRate;
