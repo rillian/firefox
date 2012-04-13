@@ -453,6 +453,7 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
 
     startTime = mOpusState->Time(endFrame - goodFrames);
     duration = endTime - startTime;
+    frames = goodFrames;
     buffer = goodBuffer;
   }
 
