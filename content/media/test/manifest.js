@@ -9,8 +9,8 @@ var gSmallTests = [
   { name:"r11025_s16_c1.wav", type:"audio/x-wav", duration:1.0 },
   { name:"320x240.ogv", type:"video/ogg", width:320, height:240, duration:0.233 },
   { name:"seek.webm", type:"video/webm", duration:3.966 },
-  { name:"bogus.duh", type:"bogus/duh" },
-  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 }
+  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 },
+  { name:"bogus.duh", type:"bogus/duh" }
 ];
 
 // Used by test_progress to ensure we get the correct progress information
@@ -127,10 +127,11 @@ var gPlayTests = [
   // hardware.
   { name:"spacestorm-1000Hz-100ms.ogg", type:"audio/ogg", duration:0.099 },
 
-  { name:"bogus.duh", type:"bogus/duh", duration:Number.NaN },
-
   // Opus data in an ogg container
-  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 }
+  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 },
+
+  // Invalid file
+  { name:"bogus.duh", type:"bogus/duh", duration:Number.NaN }
 ];
 
 // Converts a path/filename to a file:// URI which we can load from disk.
@@ -240,8 +241,8 @@ var gSeekTests = [
   { name:"seek.webm", type:"video/webm", duration:3.966 },
   { name:"bug516323.indexed.ogv", type:"video/ogg", duration:4.208 },
   { name:"split.webm", type:"video/webm", duration:1.967 },
-  { name:"bogus.duh", type:"bogus/duh", duration:123 },
-  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 }
+  { name:"detodos.opus", type:"audio/ogg", duration:2.9135 },
+  { name:"bogus.duh", type:"bogus/duh", duration:123 }
 ];
 
 // These are files suitable for using with a "new Audio" constructor.
