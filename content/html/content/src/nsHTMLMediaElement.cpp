@@ -1876,7 +1876,7 @@ nsHTMLMediaElement::CanHandleMediaType(const char* aMIMEType,
     *aCodecList = gOggCodecs;
 #ifdef MOZ_OPUS
     if (IsOpusEnabled())
-      *aCodecList = gOggCodecsWithOpus;
+      *aCodecList = IsOpusEnabled() ? gOggCodecsWithOpus : gOggCodecs;
 #endif
     return CANPLAY_MAYBE;
   }
