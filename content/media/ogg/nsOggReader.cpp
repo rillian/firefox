@@ -421,7 +421,7 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   PRUint32 channels = mOpusState->mChannels;
   nsAutoArrayPtr<AudioDataValue> buffer(new AudioDataValue[frames * channels]);
 
-  // decode to the appropriate sample type
+  // Decode to the appropriate sample type.
 #ifdef MOZ_SAMPLE_TYPE_FLOAT32
   int ret = opus_decode_float(mOpusState->mDecoder,
                               aPacket->packet, aPacket->bytes,
@@ -440,7 +440,7 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   PRInt64 startTime = mOpusState->Time(endFrame - frames);
   PRInt64 duration = endTime - startTime;
 
-  // trim off the initial samples
+  // Trim the initial samples.
   if (endTime < 0)
     return NS_OK;
   if (startTime < 0) {

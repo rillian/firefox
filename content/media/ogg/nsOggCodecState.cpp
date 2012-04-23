@@ -76,7 +76,7 @@ static PRUint16 LEUint16(const unsigned char* p)
   return p[0] + (p[1] << 8);
 }
 
-/** Decoder base class for Ogg-encapsulated streams */
+/** Decoder base class for Ogg-encapsulated streams. */
 nsOggCodecState*
 nsOggCodecState::Create(ogg_page* aPage)
 {
@@ -812,11 +812,11 @@ nsresult nsOpusState::Reset()
   }
 
   if (mDecoder) {
-    // reset the decoder
+    // Reset the decoder.
     opus_decoder_ctl(mDecoder, OPUS_RESET_STATE);
   }
 
-  // clear queued data
+  // Clear queued data.
   if (NS_FAILED(nsOggCodecState::Reset())) {
     return NS_ERROR_FAILURE;
   }
@@ -839,22 +839,22 @@ bool nsOpusState::Init(void)
 
 bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
-  // minimum length of any header
+  // Minimum length of any header is 16 bytes.
   if (aPacket->bytes < 16)
     return NS_ERROR_FAILURE;
 
-  // try parsing as the metadata header
+  // Try parsing as the metadata header.
   if (!memcmp(aPacket->packet, "OpusTags", 8)) {
-    mDoneReadingHeaders = true; // last opus header
+    mDoneReadingHeaders = true; // This is the last Opus header.
     mActive = true;
     return true;
   }
 
-  // otherwise, parse as the id header
+  // Otherwise, parse as the id header.
   if (aPacket->bytes < 19 || memcmp(aPacket->packet, "OpusHead\0", 9))
     return NS_ERROR_FAILURE;
 
-  mRate = 48000; // decoder runs at 48 kHz regardless
+  mRate = 48000; // The Opus decoder runs at 48 kHz regardless.
 
   mChannels= aPacket->packet[9];
   mPreSkip = LEUint16(aPacket->packet + 10);
@@ -871,13 +871,13 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   return true;
 }
 
-/* return the timestamp (in microseconds) equivalent to a granulepos */
+/* Return the timestamp (in microseconds) equivalent to a granulepos. */
 PRInt64 nsOpusState::Time(PRInt64 granulepos)
 {
   if (!mActive || granulepos < 0)
     return -1;
 
-  /* Ogg Opus always runs at a granule rate of 48 kHz */
+  // Ogg Opus always runs at a granule rate of 48 kHz.
   CheckedInt64 t = CheckedInt64(granulepos - mPreSkip) * USECS_PER_S;
   if (!t.valid())
     return -1;
@@ -928,7 +928,7 @@ void nsOpusState::ReconstructGranulepos(void)
   NS_ASSERTION(last->e_o_s || last->granulepos > 0,
       "Must know last granulepos!");
 
-  // loop through the packets backwards, subtracting the next
+  // Loop through the packets backwards, subtracting the next
   // packet's duration from its granulepos to get the value
   // for the current packet.
   for (PRUint32 i = mUnstamped.Length() - 1; i > 0; i--) {
@@ -936,7 +936,7 @@ void nsOpusState::ReconstructGranulepos(void)
     int offset = opus_decoder_get_nb_samples(mDecoder,
                                              next->packet,
                                              next->bytes);
-    // check for error (negative offset) and overflow
+    // Check for error (negative offset) and overflow.
     if (offset > 0 && offset < next->granulepos)
       mUnstamped[i - 1]->granulepos = next->granulepos - offset;
   }
