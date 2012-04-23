@@ -72,9 +72,9 @@ SHARED_LIBRARY_LIBS 	+= \
 endif
 
 ifdef MOZ_OPUS
-SHARED_LIBRARY_LIBS	+= \
-	$(DEPTH)/media/libopus/$(LIB_PREFIX)opus.$(LIB_SUFFIX) \
-	$(NULL)
+SHARED_LIBRARY_LIBS += \
+  $(DEPTH)/media/libopus/$(LIB_PREFIX)opus.$(LIB_SUFFIX) \
+  $(NULL)
 endif
 
 ifdef MOZ_WEBM

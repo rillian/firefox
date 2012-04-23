@@ -135,8 +135,8 @@ endif
 
 ifdef MOZ_OPUS
 tier_platform_dirs += \
-		media/libopus \
-		$(NULL)
+  media/libopus \
+  $(NULL)
 endif
 
 ifdef MOZ_WEBM
