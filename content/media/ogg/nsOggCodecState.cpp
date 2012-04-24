@@ -827,17 +827,17 @@ bool nsOpusState::Init(void)
   NS_ASSERTION(mDecoder == NULL, "leaking OpusDecoder");
 
   mDecoder = opus_decoder_create(mRate, mChannels, &error);
-  if (error != OPUS_OK)
-    return false;
 
-  return true;
+  return error == OPUS_OK;
 }
 
 bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
   // Minimum length of any header is 16 bytes.
-  if (aPacket->bytes < 16)
-    return NS_ERROR_FAILURE;
+  if (aPacket->bytes < 16) {
+    mActive = false;
+    return true;
+  }
 
   // Try parsing as the metadata header.
   if (!memcmp(aPacket->packet, "OpusTags", 8)) {
@@ -847,8 +847,10 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   }
 
   // Otherwise, parse as the id header.
-  if (aPacket->bytes < 19 || memcmp(aPacket->packet, "OpusHead\0", 9))
-    return NS_ERROR_FAILURE;
+  if (aPacket->bytes < 19 || memcmp(aPacket->packet, "OpusHead\0", 9)) {
+    mActive = false;
+    return true;
+  }
 
   mRate = 48000; // The Opus decoder runs at 48 kHz regardless.
 
@@ -875,20 +877,14 @@ PRInt64 nsOpusState::Time(PRInt64 granulepos)
 
   // Ogg Opus always runs at a granule rate of 48 kHz.
   CheckedInt64 t = CheckedInt64(granulepos - mPreSkip) * USECS_PER_S;
-  if (!t.valid())
-    return -1;
-  return t.value() / mRate;
+  return t.valid() ? t.value() / mRate : -1;
 }
 
 bool nsOpusState::IsHeader(ogg_packet* aPacket)
 {
-  if (aPacket->bytes < 16)
-    return false;
-  if (!memcmp(aPacket->packet, "OpusHead\0", 9))
-    return true;
-  else if (!memcmp(aPacket->packet, "OpusTags", 8))
-    return true;
-  return false;
+  return aPacket->bytes >= 16 &&
+         (!memcmp(aPacket->packet, "OpusHead\0", 9) ||
+          !memcmp(aPacket->packet, "OpusTags", 8));
 }
 
 nsresult nsOpusState::PageIn(ogg_page* aPage)
@@ -902,18 +898,16 @@ nsresult nsOpusState::PageIn(ogg_page* aPage)
 
   bool haveGranulepos;
   nsresult rv = PacketOutUntilGranulepos(haveGranulepos);
-  if (NS_FAILED(rv))
+  if (NS_FAILED(rv) || !haveGranulepos)
     return rv;
-  if (haveGranulepos) {
-    ReconstructGranulepos();
-    for (PRUint32 i = 0; i < mUnstamped.Length(); i++) {
-      ogg_packet* packet = mUnstamped[i];
-      NS_ASSERTION(!IsHeader(packet), "Don't try to play a header packet");
-      NS_ASSERTION(packet->granulepos != -1, "Packet should have a granulepos");
-      mPackets.Append(packet);
-    }
-    mUnstamped.Clear();
+  ReconstructGranulepos();
+  for (PRUint32 i = 0; i < mUnstamped.Length(); i++) {
+    ogg_packet* packet = mUnstamped[i];
+    NS_ASSERTION(!IsHeader(packet), "Don't try to play a header packet");
+    NS_ASSERTION(packet->granulepos != -1, "Packet should have a granulepos");
+    mPackets.Append(packet);
   }
+  mUnstamped.Clear();
   return NS_OK;
 }
 
@@ -933,7 +927,7 @@ void nsOpusState::ReconstructGranulepos(void)
                                              next->packet,
                                              next->bytes);
     // Check for error (negative offset) and overflow.
-    if (offset > 0 && offset < next->granulepos)
+    if (offset > 0 && offset <= next->granulepos)
       mUnstamped[i - 1]->granulepos = next->granulepos - offset;
   }
 }
