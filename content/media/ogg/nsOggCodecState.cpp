@@ -807,11 +807,7 @@ nsresult nsOpusState::Reset()
 {
   nsresult res = NS_OK;
 
-  if (!mActive) {
-    res = NS_ERROR_FAILURE;
-  }
-
-  if (mDecoder) {
+  if (mActive && mDecoder) {
     // Reset the decoder.
     opus_decoder_ctl(mDecoder, OPUS_RESET_STATE);
   }
