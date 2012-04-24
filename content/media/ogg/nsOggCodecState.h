@@ -324,6 +324,7 @@ private:
 };
 
 class nsOpusState : public nsOggCodecState {
+#ifdef MOZ_OPUS
 public:
   nsOpusState(ogg_page* aBosPage);
   virtual ~nsOpusState();
@@ -354,6 +355,7 @@ private:
   // known granulepos, and the known frame numbers, we recover the granulepos
   // of all frames in the array. This enables us to determine their timestamps.
   void ReconstructGranulepos();
+#endif /* MOZ_OPUS */
 };
 
 // Constructs a 32bit version number out of two 16 bit major,minor

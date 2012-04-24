@@ -42,7 +42,9 @@
 #include "nsOggReader.h"
 #include "VideoUtils.h"
 #include "theora/theoradec.h"
+#ifdef MOZ_OPUS
 #include "opus/opus.h"
+#endif
 #include "nsTimeRanges.h"
 #include "mozilla/TimeStamp.h"
 
@@ -307,13 +309,13 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
   } else {
     memset(&mVorbisInfo, 0, sizeof(mVorbisInfo));
   }
-
+#ifdef MOZ_OPUS
   if (mOpusState && ReadHeaders(mOpusState)) {
     mInfo.mHasAudio = true;
     mInfo.mAudioRate = mOpusState->mRate;
     mInfo.mAudioChannels = mOpusState->mChannels;
   }
-
+#endif
   if (mSkeletonState) {
     if (!HasAudio() && !HasVideo()) {
       // We have a skeleton track, but no audio or video, may as well disable
@@ -409,7 +411,7 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
   }
   return NS_OK;
 }
-
+#ifdef MOZ_OPUS
 nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(aPacket->granulepos != -1, "Must know opus granulepos!");
 
@@ -463,9 +465,9 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
                                  frames,
                                  buffer.forget(),
                                  channels));
-
   return NS_OK;
 }
+#endif /* MOZ_OPUS */
 
 bool nsOggReader::DecodeAudioData()
 {
@@ -497,8 +499,10 @@ bool nsOggReader::DecodeAudioData()
   nsAutoReleasePacket autoRelease(packet);
   if (mVorbisState) {
     DecodeVorbis(packet);
+#ifdef MOZ_OPUS
   } else if (mOpusState) {
     DecodeOpus(packet);
+#endif
   }
 
   if (packet->e_o_s) {
@@ -1390,8 +1394,10 @@ nsresult nsOggReader::SeekBisection(PRInt64 aTarget,
         if (HasAudio() && granulepos > 0 && audioTime == -1) {
           if (mVorbisState && serial == mVorbisState->mSerial) {
             audioTime = mVorbisState->Time(granulepos);
+#ifdef MOZ_OPUS
           } else if (mOpusState && serial == mOpusState->mSerial) {
             audioTime = mOpusState->Time(granulepos);
+#endif
           }
         }
         

@@ -86,8 +86,10 @@ nsOggCodecState::Create(ogg_page* aPage)
     codecState = new nsTheoraState(aPage);
   } else if (aPage->body_len > 6 && memcmp(aPage->body+1, "vorbis", 6) == 0) {
     codecState = new nsVorbisState(aPage);
+#ifdef MOZ_OPUS
   } else if (aPage->body_len > 8 && memcmp(aPage->body, "OpusHead", 8) == 0) {
     codecState = new nsOpusState(aPage);
+#endif
   } else if (aPage->body_len > 8 && memcmp(aPage->body, "fishead\0", 8) == 0) {
     codecState = new nsSkeletonState(aPage);
   } else {
@@ -779,7 +781,7 @@ nsresult nsVorbisState::ReconstructVorbisGranulepos()
   return NS_OK;
 }
 
-
+#ifdef MOZ_OPUS
 nsOpusState::nsOpusState(ogg_page* aBosPage) :
   nsOggCodecState(aBosPage, true),
   mRate(0),
@@ -931,7 +933,7 @@ void nsOpusState::ReconstructGranulepos(void)
       mUnstamped[i - 1]->granulepos = next->granulepos - offset;
   }
 }
-
+#endif /* MOZ_OPUS */
 
 nsSkeletonState::nsSkeletonState(ogg_page* aBosPage) :
   nsOggCodecState(aBosPage, true),
