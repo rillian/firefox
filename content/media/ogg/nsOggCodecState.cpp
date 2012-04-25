@@ -929,8 +929,13 @@ void nsOpusState::ReconstructGranulepos(void)
                                              next->packet,
                                              next->bytes);
     // Check for error (negative offset) and overflow.
-    if (offset > 0 && offset <= next->granulepos)
+    if (offset >= 0 && offset <= next->granulepos) {
       mUnstamped[i - 1]->granulepos = next->granulepos - offset;
+    } else {
+      if (offset > next->granulepos)
+        NS_WARNING("Clamping negative Opus granulepos to zero.");
+      mUnstamped[i - 1]->granulepos = 0;
+    }
   }
 }
 #endif /* MOZ_OPUS */
