@@ -837,6 +837,7 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 {
   // Minimum length of any header is 16 bytes.
   if (aPacket->bytes < 16) {
+    LOG(PR_LOG_DEBUG, ("Invalid Opus file: header too short"));
     mActive = false;
     return true;
   }
@@ -850,6 +851,7 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
 
   // Otherwise, parse as the id header.
   if (aPacket->bytes < 19 || memcmp(aPacket->packet, "OpusHead\0", 9)) {
+    LOG(PR_LOG_DEBUG, ("Invalid Opus file: unrecognized header"));
     mActive = false;
     return true;
   }
