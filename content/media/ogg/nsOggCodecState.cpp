@@ -790,6 +790,7 @@ nsOpusState::nsOpusState(ogg_page* aBosPage) :
   mPreSkip(0),
   mGain(0.0),
   mChannelMapping(0),
+  mStreams(0),
   mDecoder(NULL)
 {
   MOZ_COUNT_CTOR(nsOpusState);
@@ -864,11 +865,16 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   mGain = (float)LEUint16(aPacket->packet + 16) / 256.0;
   mChannelMapping = aPacket->packet[18];
 
-  int streams;
-  if (mChannelMapping > 0 && aPacket->bytes > 19)
-    streams = aPacket->packet[19];
-  else
-    streams = 1;
+  if (mChannelMapping == 0) {
+    mStreams = 1;
+  } else if (aPacket->bytes > 19) {
+    mStreams = aPacket->packet[19];
+  } else {
+    LOG(PR_LOG_DEBUG, ("Invalid Opus file: channel mapping %d,"
+                       " but no channel mapping table", mChannelMapping));
+    mActive = false;
+    return true;
+  }
 
   return true;
 }
