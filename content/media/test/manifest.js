@@ -457,7 +457,7 @@ function mediaTestCleanup() {
   var branch = prefService.getBranch("media.");
   var oldDefault = 2;
   var oldAuto = 3;
-  var oldOpus = false;
+  var oldOpus = undefined;
   try {
     oldDefault = branch.getIntPref("preload.default");
     oldAuto    = branch.getIntPref("preload.auto");
@@ -465,12 +465,15 @@ function mediaTestCleanup() {
   } catch(ex) { }
   branch.setIntPref("preload.default", 2); // preload_metadata
   branch.setIntPref("preload.auto", 3); // preload_enough
-  branch.setBoolPref("opus.enabled", true); // test opus playback
+  // test opus playback iff the pref exists
+  if (oldOpus !== undefined)
+    branch.setBoolPref("opus.enabled", true);
 
   window.addEventListener("unload", function() {
     netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
     branch.setIntPref("preload.default", oldDefault);
     branch.setIntPref("preload.auto", oldAuto);
-    branch.setBoolPref("opus.enabled", oldOpus);
+    if (oldOpus !== undefined)
+      branch.setBoolPref("opus.enabled", oldOpus);
   }, false);
  })();
