@@ -229,11 +229,12 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
           codecState->GetType() == nsOggCodecState::TYPE_OPUS &&
           !mOpusState)
       {
-        if (mOpusEnabled)
+        if (mOpusEnabled) {
           mOpusState = static_cast<nsOpusState*>(codecState);
-        else
+        } else {
           NS_WARNING("Opus decoding disabled."
                      " See media.opus.enabled in about:config");
+        }
       }
       if (codecState &&
           codecState->GetType() == nsOggCodecState::TYPE_SKELETON &&
