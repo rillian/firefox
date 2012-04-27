@@ -908,7 +908,7 @@ nsresult nsOpusState::PageIn(ogg_page* aPage)
 
   bool haveGranulepos;
   nsresult rv = PacketOutUntilGranulepos(haveGranulepos);
-  if (NS_FAILED(rv) || !haveGranulepos)
+  if (NS_FAILED(rv) || !haveGranulepos || !mDoneReadingHeaders)
     return rv;
   ReconstructGranulepos();
   for (PRUint32 i = 0; i < mUnstamped.Length(); i++) {
