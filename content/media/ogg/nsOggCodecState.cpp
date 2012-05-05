@@ -76,6 +76,12 @@ static PRUint16 LEUint16(const unsigned char* p)
   return p[0] + (p[1] << 8);
 }
 
+// Reads a little-endian encoded signed 16bit integer at p.
+static PRInt16 LEInt16(const unsigned char* p)
+{
+  return static_cast<PRInt16>(p[0] | (p[1] << 8));
+}
+
 /** Decoder base class for Ogg-encapsulated streams. */
 nsOggCodecState*
 nsOggCodecState::Create(ogg_page* aPage)
@@ -786,6 +792,8 @@ nsOpusState::nsOpusState(ogg_page* aBosPage) :
   mChannels(0),
   mPreSkip(0),
   mGain(0.0),
+  mGainRatioFloat(0.0),
+  mGainRatioFixed(1<<8),
   mChannelMapping(0),
   mStreams(0),
   mDecoder(NULL)
@@ -859,9 +867,12 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
   mChannels= aPacket->packet[9];
   mPreSkip = LEUint16(aPacket->packet + 10);
   mNominalRate = LEUint32(aPacket->packet + 12);
-  mGain = (float)LEUint16(aPacket->packet + 16) / 256.0;
-  mChannelMapping = aPacket->packet[18];
+  mGain = (float)LEInt16(aPacket->packet + 16) / 256.0;
+  // Precompute the gain multiplier to apply to samples.
+  mGainRatioFloat = pow(10.0, mGain / 20.0);
+  mGainRatioFixed = mGainRatioFloat * 256;
 
+  mChannelMapping = aPacket->packet[18];
   if (mChannelMapping == 0) {
     mStreams = 1;
   } else if (aPacket->bytes > 19) {

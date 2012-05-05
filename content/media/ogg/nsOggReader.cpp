@@ -429,10 +429,17 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   int ret = opus_decode_float(mOpusState->mDecoder,
                               aPacket->packet, aPacket->bytes,
                               buffer, frames, false);
+  for (int i = 0; i < frames * channels; i++) {
+    //buffer[i] *= mOpusState->mGainRatioFloat;
+    buffer[i] = buffer[i] * mOpusState->mGainRatioFloat;
+  }
 #else
   int ret = opus_decode(mOpusState->mDecoder,
                         aPacket->packet, aPacket->bytes,
                         buffer, frames, false);
+  for (int i = 0; i < frames * channels; i++) {
+    buffer[i] = MOZ_CLIP_TO_15((int)buffer[i] * mOpusState->mGainRatioFixed >> 8);
+  }
 #endif
   if (ret < 0)
     return NS_ERROR_FAILURE;

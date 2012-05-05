@@ -343,6 +343,8 @@ public:
   int mChannels;    // Number of channels the stream encodes.
   int mPreSkip;     // Number of samples to strip after decoder reset.
   float mGain;      // Gain (dB) to apply to decoder output.
+  float mGainRatioFloat; // Gain multiplier to apply to float samples.
+  int mGainRatioFixed;   // Gain multiplier to apply to integer samples.
   int mChannelMapping; // Channel mapping family.
   int mStreams;     // Number of packed streams in each packet.
 
