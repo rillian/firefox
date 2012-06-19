@@ -757,6 +757,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aEndOffset)
   NS_ASSERTION(mDecoder->OnStateMachineThread() || mDecoder->OnDecodeThread(),
                "Should be on state machine or decode thread.");
 
+  LOG(PR_LOG_DEBUG, ("RangeEndTime(%lld)\n", aEndOffset));
   MediaResource* resource = mDecoder->GetResource();
   NS_ENSURE_TRUE(resource != nsnull, -1);
   PRInt64 position = resource->Tell();
@@ -797,6 +798,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
           // We have encountered a page before, or we're at the end of file.
           break;
         }
+        LOG(PR_LOG_DEBUG, ("   backing off %d bytes\n", step));
         mustBackOff = false;
         prevChecksumAfterSeek = checksumAfterSeek;
         checksumAfterSeek = 0;
@@ -825,6 +827,8 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
         NS_ENSURE_SUCCESS(res, -1);
         res = resource->Read(buffer, bytesToRead, &bytesRead);
         NS_ENSURE_SUCCESS(res, -1);
+        LOG(PR_LOG_DEBUG, (" read %d bytes at %lld\n",
+              bytesRead, (long long)readHead));
       }
       readHead += bytesRead;
 
@@ -850,6 +854,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
       // again, we'll know that we won't find a page with an end time after
       // this one, so we'll know to back off again.
       checksumAfterSeek = checksum;
+      LOG(PR_LOG_DEBUG, (" remebering checksum 0x%08x\n", checksum));
     }
     if (checksum == prevChecksumAfterSeek) {
       // This page has the same checksum as the first page we encountered
@@ -857,6 +862,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
       // page and failed to find an end time, we may as well backoff again and
       // try to find an end time from an earlier page.
       mustBackOff = true;
+      LOG(PR_LOG_DEBUG, (" backing off\n"));
       continue;
     }
 
@@ -982,6 +988,7 @@ nsOggReader::IndexedSeekResult nsOggReader::SeekToKeyframeUsingIndex(PRInt64 aTa
 
   // Remember original resource read cursor position so we can rollback on failure.
   PRInt64 tell = resource->Tell();
+  LOG(PR_LOG_DEBUG, ("  at offset %lld\n", tell));
 
   // Seek to the keypoint returned by the index.
   if (keyframe.mKeyPoint.mOffset > resource->GetLength() ||
