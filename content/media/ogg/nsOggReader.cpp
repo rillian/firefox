@@ -782,6 +782,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
   // haven't found an end time yet, or return the last end time found.
   const int step = 5000;
   PRInt64 readStartOffset = aEndOffset;
+  PRInt64 prevReadStartOffset = readStartOffset;
   PRInt64 readHead = aEndOffset;
   PRInt64 endTime = -1;
   PRUint32 checksumAfterSeek = 0;
@@ -803,6 +804,7 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
         prevChecksumAfterSeek = checksumAfterSeek;
         checksumAfterSeek = 0;
         ogg_sync_reset(&sync.mState);
+        prevReadStartOffset = readStartOffset;
         readStartOffset = NS_MAX(static_cast<PRInt64>(0), readStartOffset - step);
         readHead = NS_MAX(aStartOffset, readStartOffset);
       }
@@ -831,6 +833,10 @@ PRInt64 nsOggReader::RangeEndTime(PRInt64 aStartOffset,
               bytesRead, (long long)readHead));
       }
       readHead += bytesRead;
+      if (readHead > readStartOffset + step) {
+        LOG(PR_LOG_DEBUG, ("No pages found, backing off\n"));
+        mustBackOff = true;
+      }
 
       // Update the synchronisation layer with the number
       // of bytes written to the buffer
