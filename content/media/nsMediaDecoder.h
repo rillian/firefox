@@ -33,7 +33,7 @@ static const PRUint32 FRAMEBUFFER_LENGTH_MIN = 512;
 static const PRUint32 FRAMEBUFFER_LENGTH_MAX = 16384;
 
 // All methods of nsMediaDecoder must be called from the main thread only
-// with the exception of GetVideoFrameContainer and GetStatistics,
+// with the exception of GetVideoFrameContainer, and GetStatistics
 // which can be called from any thread.
 class nsMediaDecoder : public nsIObserver
 {
@@ -256,6 +256,15 @@ public:
   
   // Return the frame decode/paint related statistics.
   FrameStatistics& GetFrameStatistics() { return mFrameStats; }
+
+  // Structure for passing media stream metadata back to the
+  // media element. I don't know that it makes sense for this
+  // to be a struct, since the strings aren't passed by value
+  // which is the point of the Statistics struct.
+  struct Metadata {
+    nsCString mCreator;
+    nsCString mTitle;
+  };
 
   // Set the duration of the media resource in units of seconds.
   // This is called via a channel listener if it can pick up the duration
