@@ -1425,6 +1425,45 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
   return NS_OK;
 }
 
+// Helper struct with arguments for our hash iterator.
+typedef struct {
+  JSContext* cx;
+  JSObject*  tags;
+} MetadataIterCx;
+
+PLDHashOperator
+nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
+                                        nsCString aValue,
+                                        void* aUserArg)
+{
+  MetadataIterCx* args = static_cast<MetadataIterCx*>(aUserArg);
+
+  JSString *string = JS_NewStringCopyZ(args->cx, aValue.Data());
+  JS::Value value = STRING_TO_JSVAL(string);
+  if (!JS_SetProperty(args->cx, args->tags, aKey.Data(), &value)) {
+    NS_WARNING("Failed to set metadata property");
+  }
+
+  return PL_DHASH_NEXT;
+}
+
+NS_IMETHODIMP
+nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
+{
+  if (!mTags) {
+    return NS_ERROR_DOM_INVALID_STATE_ERR;
+  }
+
+  JSObject *tags = JS_NewObject(cx, NULL, NULL, NULL);
+  if (tags) {
+    MetadataIterCx iter = {cx, tags};
+    mTags->EnumerateRead(BuildObjectFromTags, static_cast<void*>(&iter));
+    *aValue = OBJECT_TO_JSVAL(tags);
+  }
+
+  return NS_OK;
+}
+
 NS_IMETHODIMP
 nsHTMLMediaElement::GetMozFrameBufferLength(PRUint32 *aMozFrameBufferLength)
 {
@@ -1627,6 +1666,7 @@ nsHTMLMediaElement::nsHTMLMediaElement(already_AddRefed<nsINodeInfo> aNodeInfo)
     mVolume(1.0),
     mChannels(0),
     mRate(0),
+    mTags(nsnull),
     mPreloadAction(PRELOAD_UNDEFINED),
     mMediaSize(-1,-1),
     mLastCurrentTime(0.0),
@@ -2638,11 +2678,15 @@ void nsHTMLMediaElement::ProcessMediaFragmentURI()
   }
 }
 
-void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio)
+void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio, MetadataTags *aTags)
 {
   mChannels = aChannels;
   mRate = aRate;
   mHasAudio = aHasAudio;
+  if (mTags) {
+    delete mTags;
+  }
+  mTags = aTags;
   ChangeReadyState(nsIDOMHTMLMediaElement::HAVE_METADATA);
   DispatchAsyncEvent(NS_LITERAL_STRING("durationchange"));
   DispatchAsyncEvent(NS_LITERAL_STRING("loadedmetadata"));
