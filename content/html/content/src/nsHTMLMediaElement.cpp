@@ -1426,6 +1426,17 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
 }
 
 NS_IMETHODIMP
+nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
+{
+  if (!mDecoder) {
+    return NS_ERROR_DOM_INVALID_STATE_ERR;
+  }
+
+  aValue = NS_ConvertUTF8toUTF16(mTagCreator);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsHTMLMediaElement::GetMozFrameBufferLength(PRUint32 *aMozFrameBufferLength)
 {
   // The framebuffer (via MozAudioAvailable events) is only available

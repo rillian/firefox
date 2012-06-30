@@ -700,6 +700,11 @@ protected:
   // Current audio sample rate.
   PRUint32 mRate;
 
+  // Metadata tag values parsed from the media stream
+  nsCString mTagCreator;
+  nsCString mTagTitle;
+  nsCString mTagDate;
+
   // URI of the resource we're attempting to load. This stores the value we
   // return in the currentSrc attribute. Use GetCurrentSrc() to access the
   // currentSrc attribute.
