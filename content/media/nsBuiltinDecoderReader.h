@@ -21,7 +21,8 @@ public:
       mDisplay(0,0),
       mStereoMode(mozilla::layers::STEREO_MODE_MONO),
       mHasAudio(false),
-      mHasVideo(false)
+      mHasVideo(false),
+      mTags(nsnull)
   {}
 
   // Returns true if it's safe to use aPicture as the picture to be
@@ -50,6 +51,9 @@ public:
 
   // True if we have an active video bitstream.
   bool mHasVideo;
+
+  // Tag metadata from the media stream
+  nsHTMLMediaElement::MetadataTags* mTags;
 };
 
 #ifdef MOZ_TREMOR

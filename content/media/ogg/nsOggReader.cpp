@@ -151,6 +151,34 @@ void nsOggReader::BuildSerialList(nsTArray<PRUint32>& aTracks)
   }
 }
 
+static
+nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
+{
+  nsHTMLMediaElement::MetadataTags* tags;
+  int i;
+
+  tags = new nsHTMLMediaElement::MetadataTags;
+  if (tags) {
+    tags->Init();
+    for (i = 0; i < vc->comments; i++) {
+      char *comment = vc->user_comments[i];
+      char *div = (char*)memchr(comment, '=', vc->comment_lengths[i]);
+      if (!div) {
+        LOG(PR_LOG_DEBUG, ("Invalid vorbis comment: no separator"));
+        continue;
+      }
+      // this should be ASCII
+      nsCString key = nsCString(comment, div-comment);
+      PRUint32 value_length = vc->comment_lengths[i] - (div-comment);
+      // this should be utf-8
+      nsCString value = nsCString(div + 1, value_length);
+      tags->Put(key, value);
+    }
+  }
+
+  return tags;
+}
+
 nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
 {
   NS_ASSERTION(mDecoder->OnDecodeThread(), "Should be on decode thread.");
@@ -283,7 +311,8 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
     memcpy(&mVorbisInfo, &mVorbisState->mInfo, sizeof(mVorbisInfo));
     mVorbisInfo.codec_setup = NULL;
     mVorbisSerial = mVorbisState->mSerial;
-  } else {
+    mInfo.mTags = TagsFromVorbisComment(&mVorbisState->mComment);
+ } else {
     memset(&mVorbisInfo, 0, sizeof(mVorbisInfo));
   }
 #ifdef MOZ_OPUS
