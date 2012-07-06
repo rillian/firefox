@@ -257,6 +257,19 @@ public:
   // Return the frame decode/paint related statistics.
   FrameStatistics& GetFrameStatistics() { return mFrameStats; }
 
+  // Structure for passing media stream metadata back to the
+  // media element. I don't know that it makes sense for this
+  // to be a struct, since the strings aren't passed by value
+  // which is the point of the Statistics struct.
+  struct Metadata {
+    nsCString mCreator;
+    nsCString mTitle;
+  }
+
+  // Return metadata. This can be called from any thread to get a copy
+  // of the metadata from the media we're decoding.
+  virtual Metadata GetMetadata() = 0;
+
   // Set the duration of the media resource in units of seconds.
   // This is called via a channel listener if it can pick up the duration
   // from a content header. Must be called from the main thread only.
