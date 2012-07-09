@@ -18,6 +18,8 @@ public:
     return new nsOggDecoder();
   }
   virtual nsDecoderStateMachine* CreateStateMachine();
+
+  virtual Metadata GetMetadata();
 };
 
 #endif

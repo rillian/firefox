@@ -467,6 +467,8 @@ public:
 
   virtual Statistics GetStatistics();
 
+  virtual Metadata GetMetadata();
+
   // Suspend any media downloads that are in progress. Called by the
   // media element when it is sent to the bfcache. Call on the main
   // thread only.

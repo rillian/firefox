@@ -1432,7 +1432,9 @@ nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
     return NS_ERROR_DOM_INVALID_STATE_ERR;
   }
 
-  aValue = NS_ConvertUTF8toUTF16(mTagCreator);
+  nsMediaDecoder::Metadata metadata = mDecoder->GetMetadata();
+  aValue = NS_ConvertUTF8toUTF16(metadata.mCreator);
+  // Leaks the metadata struct?
   return NS_OK;
 }
 

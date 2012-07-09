@@ -639,6 +639,18 @@ void nsBuiltinDecoder::UpdatePlaybackRate()
   mResource->SetPlaybackRate(rate);
 }
 
+nsMediaDecoder::Metadata
+nsBuiltinDecoder::GetMetadata()
+{
+  Metadata result;
+
+  ReentrantMonitorAutoEnter mon(mReentrantMonitor);
+  result.mCreator = NS_LITERAL_CSTRING("Test Creator from " __FILE__);
+  result.mTitle = NS_LITERAL_CSTRING("Test Title from " __FILE__);
+
+  return result;
+}
+
 void nsBuiltinDecoder::NotifySuspendedStatusChanged()
 {
   NS_ASSERTION(NS_IsMainThread(), "Should be on main thread.");
