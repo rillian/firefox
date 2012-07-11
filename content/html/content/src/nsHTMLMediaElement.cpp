@@ -1428,7 +1428,14 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
 NS_IMETHODIMP
 nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
 {
-  aValue = NS_ConvertUTF8toUTF16(mTagCreator);
+  if (!mTags) {
+    return NS_ERROR_DOM_INVALID_STATE_ERR;
+  }
+  nsCString key = NS_LITERAL_CSTRING("creator");
+  nsCString value;
+  if(mTags->Get(key, &value)) {
+    aValue = NS_ConvertUTF8toUTF16(value);
+  }
   return NS_OK;
 }
 
@@ -1634,6 +1641,7 @@ nsHTMLMediaElement::nsHTMLMediaElement(already_AddRefed<nsINodeInfo> aNodeInfo)
     mVolume(1.0),
     mChannels(0),
     mRate(0),
+    mTags(nsnull),
     mPreloadAction(PRELOAD_UNDEFINED),
     mMediaSize(-1,-1),
     mLastCurrentTime(0.0),
@@ -2644,12 +2652,15 @@ void nsHTMLMediaElement::ProcessMediaFragmentURI()
   }
 }
 
-void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio, nsCString aCreator)
+void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio, MetadataTags *aTags)
 {
   mChannels = aChannels;
   mRate = aRate;
   mHasAudio = aHasAudio;
-  mTagCreator = aCreator;
+  if (mTags) {
+    delete mTags;
+  }
+  mTags = aTags;
   ChangeReadyState(nsIDOMHTMLMediaElement::HAVE_METADATA);
   DispatchAsyncEvent(NS_LITERAL_STRING("durationchange"));
   DispatchAsyncEvent(NS_LITERAL_STRING("loadedmetadata"));

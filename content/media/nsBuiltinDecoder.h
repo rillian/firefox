@@ -577,7 +577,7 @@ public:
   void MetadataLoaded(PRUint32 aChannels,
                       PRUint32 aRate,
                       bool aHasAudio,
-                      nsCString mCreator);
+                      nsHTMLMediaElement::MetadataTags* aTags);
 
   // Called when the first frame has been loaded.
   // Call on the main thread only.

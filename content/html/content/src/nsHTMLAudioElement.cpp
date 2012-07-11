@@ -123,7 +123,7 @@ nsHTMLAudioElement::MozSetup(PRUint32 aChannels, PRUint32 aRate)
     return rv;
   }
 
-  MetadataLoaded(aChannels, aRate, true, NS_LITERAL_CSTRING("MozSetup"));
+  MetadataLoaded(aChannels, aRate, true, nsnull);
   mAudioStream->SetVolume(mVolume);
   return NS_OK;
 }
