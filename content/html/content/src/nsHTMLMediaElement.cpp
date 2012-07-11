@@ -1428,13 +1428,7 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
 NS_IMETHODIMP
 nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
 {
-  if (!mDecoder) {
-    return NS_ERROR_DOM_INVALID_STATE_ERR;
-  }
-
-  nsMediaDecoder::Metadata metadata = mDecoder->GetMetadata();
-  aValue = NS_ConvertUTF8toUTF16(metadata.mCreator);
-  // Leaks the metadata struct?
+  aValue = NS_ConvertUTF8toUTF16(mTagCreator);
   return NS_OK;
 }
 
@@ -2650,11 +2644,12 @@ void nsHTMLMediaElement::ProcessMediaFragmentURI()
   }
 }
 
-void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio)
+void nsHTMLMediaElement::MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio, nsCString aCreator)
 {
   mChannels = aChannels;
   mRate = aRate;
   mHasAudio = aHasAudio;
+  mTagCreator = aCreator;
   ChangeReadyState(nsIDOMHTMLMediaElement::HAVE_METADATA);
   DispatchAsyncEvent(NS_LITERAL_STRING("durationchange"));
   DispatchAsyncEvent(NS_LITERAL_STRING("loadedmetadata"));

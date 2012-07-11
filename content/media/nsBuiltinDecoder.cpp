@@ -406,7 +406,8 @@ void nsBuiltinDecoder::AudioAvailable(float* aFrameBuffer,
 
 void nsBuiltinDecoder::MetadataLoaded(PRUint32 aChannels,
                                       PRUint32 aRate,
-                                      bool aHasAudio)
+                                      bool aHasAudio,
+                                      nsCString aCreator)
 {
   NS_ASSERTION(NS_IsMainThread(), "Should be on main thread.");
   if (mShuttingDown) {
@@ -428,7 +429,7 @@ void nsBuiltinDecoder::MetadataLoaded(PRUint32 aChannels,
     // Make sure the element and the frame (if any) are told about
     // our new size.
     Invalidate();
-    mElement->MetadataLoaded(aChannels, aRate, aHasAudio);
+    mElement->MetadataLoaded(aChannels, aRate, aHasAudio, aCreator);
   }
 
   if (!mResourceLoaded) {
@@ -637,18 +638,6 @@ void nsBuiltinDecoder::UpdatePlaybackRate()
     rate = NS_MAX(rate, 10000u);
   }
   mResource->SetPlaybackRate(rate);
-}
-
-nsMediaDecoder::Metadata
-nsBuiltinDecoder::GetMetadata()
-{
-  Metadata result;
-
-  ReentrantMonitorAutoEnter mon(mReentrantMonitor);
-  result.mCreator = NS_LITERAL_CSTRING("Test Creator from " __FILE__);
-  result.mTitle = NS_LITERAL_CSTRING("Test Title from " __FILE__);
-
-  return result;
 }
 
 void nsBuiltinDecoder::NotifySuspendedStatusChanged()

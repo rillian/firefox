@@ -33,8 +33,8 @@ static const PRUint32 FRAMEBUFFER_LENGTH_MIN = 512;
 static const PRUint32 FRAMEBUFFER_LENGTH_MAX = 16384;
 
 // All methods of nsMediaDecoder must be called from the main thread only
-// with the exception of GetVideoFrameContainer, GetStatistics, and
-// GetMetadata which can be called from any thread.
+// with the exception of GetVideoFrameContainer, and GetStatistics
+// which can be called from any thread.
 class nsMediaDecoder : public nsIObserver
 {
 public:
@@ -265,10 +265,6 @@ public:
     nsCString mCreator;
     nsCString mTitle;
   };
-
-  // Return metadata. This can be called from any thread to get a copy
-  // of the metadata from the media we're decoding.
-  virtual Metadata GetMetadata() = 0;
 
   // Set the duration of the media resource in units of seconds.
   // This is called via a channel listener if it can pick up the duration

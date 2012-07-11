@@ -109,7 +109,7 @@ public:
   // Called by the video decoder object, on the main thread,
   // when it has read the metadata containing video dimensions,
   // etc.
-  void MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio);
+  void MetadataLoaded(PRUint32 aChannels, PRUint32 aRate, bool aHasAudio, nsCString aCreator);
 
   // Called by the video decoder object, on the main thread,
   // when it has read the first frame of the video

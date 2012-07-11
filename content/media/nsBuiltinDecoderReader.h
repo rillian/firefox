@@ -51,6 +51,10 @@ public:
 
   // True if we have an active video bitstream.
   bool mHasVideo;
+
+  // Tag metadata from the media stream
+  nsCString mCreator;
+  nsCString mTitle;
 };
 
 #ifdef MOZ_TREMOR

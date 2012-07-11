@@ -467,8 +467,6 @@ public:
 
   virtual Statistics GetStatistics();
 
-  virtual Metadata GetMetadata();
-
   // Suspend any media downloads that are in progress. Called by the
   // media element when it is sent to the bfcache. Call on the main
   // thread only.
@@ -578,7 +576,8 @@ public:
   // Call on the main thread only.
   void MetadataLoaded(PRUint32 aChannels,
                       PRUint32 aRate,
-                      bool aHasAudio);
+                      bool aHasAudio,
+                      nsCString mCreator);
 
   // Called when the first frame has been loaded.
   // Call on the main thread only.

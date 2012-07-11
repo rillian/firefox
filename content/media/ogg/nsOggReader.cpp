@@ -293,6 +293,7 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
     mInfo.mAudioChannels = mOpusState->mChannels;
     mOpusSerial = mOpusState->mSerial;
     mOpusPreSkip = mOpusState->mPreSkip;
+    mInfo.mCreator = NS_LITERAL_CSTRING("Test OggOpus Creator from " __FILE__);
   }
 #endif
   if (mSkeletonState) {
