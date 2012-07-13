@@ -1440,16 +1440,15 @@ nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
 }
 
 NS_IMETHODIMP
-nsHTMLMediaElement::GetMozTitle(nsAString& aValue)
+nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
 {
   if (!mTags) {
     return NS_ERROR_DOM_INVALID_STATE_ERR;
   }
-  nsCString key = NS_LITERAL_CSTRING("title");
-  nsCString value;
-  if(mTags->Get(key, &value)) {
-    aValue = NS_ConvertUTF8toUTF16(value);
-  }
+
+  JSObject *tags = JS_NewObject(cx, NULL, NULL, NULL);
+  aValue = OBJECT_TO_JSVAL(tags);
+
   return NS_OK;
 }
 

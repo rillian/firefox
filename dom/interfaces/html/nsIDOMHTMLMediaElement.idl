@@ -27,7 +27,7 @@ interface nsIDOMMediaStream;
 #endif
 %}
 
-[scriptable, uuid(6b938133-a8c2-424a-9401-a631f74aeff5)]
+[scriptable, uuid(386d2e72-cc73-11e1-abed-1c6f65c86a3f)]
 interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
 {
   // error state
@@ -91,12 +91,11 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
   readonly attribute unsigned long mozSampleRate;
            attribute unsigned long mozFrameBufferLength;
 
-  // Mozilla extension: return embedded metadata from the stream. This
-  // can be used by player interfaces to display the song title, artist,
-  // etc.
-  readonly attribute DOMString mozCreator; // artist, dc:creator
-  readonly attribute DOMString mozTitle;   // dc:title
-//  readonly attribute DOMString mozDate;    // dc:date
+  // Mozilla extension: return embedded metadata from the stream as a
+  // JSObject with key:value pairs for each tag. This can be used by
+  // player interfaces to display the song title, artist, etc.
+  [implicit_jscontext]
+  readonly attribute jsval mozMetadata;
 
   // Mozilla extension: load data from another media element. This is like
   // load() but we don't run the resource selection algorithm; instead
