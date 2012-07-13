@@ -1433,7 +1433,13 @@ nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
   }
 
   JSObject *tags = JS_NewObject(cx, NULL, NULL, NULL);
-  aValue = OBJECT_TO_JSVAL(tags);
+  if (tags) {
+    JSString *string = JS_NewStringCopyZ(cx, "just testing");
+    JS::Value value = STRING_TO_JSVAL(string);
+    if (!JS_SetProperty(cx, tags, "test", &value))
+      return NS_ERROR_DOM_ABORT_ERR;
+  }
+  *aValue = OBJECT_TO_JSVAL(tags);
 
   return NS_OK;
 }
