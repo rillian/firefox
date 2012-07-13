@@ -1426,20 +1426,6 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
 }
 
 NS_IMETHODIMP
-nsHTMLMediaElement::GetMozCreator(nsAString& aValue)
-{
-  if (!mTags) {
-    return NS_ERROR_DOM_INVALID_STATE_ERR;
-  }
-  nsCString key = NS_LITERAL_CSTRING("creator");
-  nsCString value;
-  if(mTags->Get(key, &value)) {
-    aValue = NS_ConvertUTF8toUTF16(value);
-  }
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
 {
   if (!mTags) {
