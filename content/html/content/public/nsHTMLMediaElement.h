@@ -703,6 +703,11 @@ protected:
   // Current audio sample rate.
   PRUint32 mRate;
 
+  // Helper function to iterate over a hash table
+  // and convert it to a JSObject.
+  static PLDHashOperator BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
+                                             nsCString aValue,
+                                             void* aUserArg);
   MetadataTags* mTags;
 
   // URI of the resource we're attempting to load. This stores the value we

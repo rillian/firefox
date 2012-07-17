@@ -1425,6 +1425,28 @@ nsHTMLMediaElement::GetMozSampleRate(PRUint32 *aMozSampleRate)
   return NS_OK;
 }
 
+// Helper struct with arguments for our hash iterator.
+typedef struct {
+  JSContext* cx;
+  JSObject*  tags;
+} MetadataIterCx;
+
+PLDHashOperator
+nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
+                                        nsCString aValue,
+                                        void* aUserArg)
+{
+  MetadataIterCx* args = static_cast<MetadataIterCx*>(aUserArg);
+
+  JSString *string = JS_NewStringCopyZ(args->cx, aValue.Data());
+  JS::Value value = STRING_TO_JSVAL(string);
+  if (!JS_SetProperty(args->cx, args->tags, aKey.Data(), &value)) {
+    NS_WARNING("Failed to set metadata property");
+  }
+
+  return PL_DHASH_NEXT;
+}
+
 NS_IMETHODIMP
 nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
 {
@@ -1434,10 +1456,8 @@ nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
 
   JSObject *tags = JS_NewObject(cx, NULL, NULL, NULL);
   if (tags) {
-    JSString *string = JS_NewStringCopyZ(cx, "just testing");
-    JS::Value value = STRING_TO_JSVAL(string);
-    if (!JS_SetProperty(cx, tags, "test", &value))
-      return NS_ERROR_DOM_ABORT_ERR;
+    MetadataIterCx iter = {cx, tags};
+    mTags->EnumerateRead(BuildObjectFromTags, static_cast<void*>(&iter));
   }
   *aValue = OBJECT_TO_JSVAL(tags);
 
