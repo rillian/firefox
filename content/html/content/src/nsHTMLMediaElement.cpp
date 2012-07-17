@@ -1438,7 +1438,8 @@ nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
 {
   MetadataIterCx* args = static_cast<MetadataIterCx*>(aUserArg);
 
-  JSString *string = JS_NewStringCopyZ(args->cx, aValue.Data());
+  nsString wideValue = NS_ConvertUTF8toUTF16(aValue);
+  JSString *string = JS_NewUCStringCopyZ(args->cx, wideValue.Data());
   JS::Value value = STRING_TO_JSVAL(string);
   if (!JS_SetProperty(args->cx, args->tags, aKey.Data(), &value)) {
     NS_WARNING("Failed to set metadata property");
