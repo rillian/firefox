@@ -151,6 +151,33 @@ void nsOggReader::BuildSerialList(nsTArray<PRUint32>& aTracks)
   }
 }
 
+static
+nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
+{
+  nsHTMLMediaElement::MetadataTags* tags;
+
+  tags = new nsHTMLMediaElement::MetadataTags;
+  if (tags) {
+    tags->Init();
+    char *creator = vorbis_comment_query(vc, "artist", 0);
+    if (creator) {
+      nsCString key = NS_LITERAL_CSTRING("creator");
+      nsCString value = nsCString(creator);
+      tags->Put(key, value);
+    }
+    char *title = vorbis_comment_query(vc, "title", 0);
+    if (title) {
+      tags->Put(NS_LITERAL_CSTRING("title"), nsCString(title));
+    }
+    char *date = vorbis_comment_query(vc, "date", 0);
+    if (date) {
+      tags->Put(NS_LITERAL_CSTRING("date"), nsCString(date));
+    }
+  }
+
+  return tags;
+}
+
 nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
 {
   NS_ASSERTION(mDecoder->OnDecodeThread(), "Should be on decode thread.");
@@ -283,22 +310,8 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo)
     memcpy(&mVorbisInfo, &mVorbisState->mInfo, sizeof(mVorbisInfo));
     mVorbisInfo.codec_setup = NULL;
     mVorbisSerial = mVorbisState->mSerial;
-    nsHTMLMediaElement::MetadataTags* tags = new nsHTMLMediaElement::MetadataTags;
-    if (tags) {
-      tags->Init();
-      char *creator = vorbis_comment_query(&mVorbisState->mComment, "artist", 0);
-      if (creator) {
-        nsCString key = NS_LITERAL_CSTRING("creator");
-        nsCString value = nsCString(creator);
-        tags->Put(key, value);
-      }
-      char *title = vorbis_comment_query(&mVorbisState->mComment, "title", 0);
-      if (title) {
-        tags->Put(NS_LITERAL_CSTRING("title"), nsCString(title));
-      }
-      mInfo.mTags = tags;
-    }
-  } else {
+    mInfo.mTags = TagsFromVorbisComment(&mVorbisState->mComment);
+ } else {
     memset(&mVorbisInfo, 0, sizeof(mVorbisInfo));
   }
 #ifdef MOZ_OPUS
