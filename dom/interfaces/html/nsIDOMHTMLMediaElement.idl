@@ -95,7 +95,7 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
   // JSObject with key:value pairs for each tag. This can be used by
   // player interfaces to display the song title, artist, etc.
   [implicit_jscontext]
-  readonly attribute jsval mozMetadata;
+  jsval mozGetMetadata();
 
   // Mozilla extension: load data from another media element. This is like
   // load() but we don't run the resource selection algorithm; instead

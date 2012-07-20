@@ -1449,7 +1449,7 @@ nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
 }
 
 NS_IMETHODIMP
-nsHTMLMediaElement::GetMozMetadata(JSContext *cx, JS::Value* aValue)
+nsHTMLMediaElement::MozGetMetadata(JSContext *cx, JS::Value* aValue)
 {
   if (!mTags) {
     return NS_ERROR_DOM_INVALID_STATE_ERR;
