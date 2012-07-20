@@ -155,23 +155,24 @@ static
 nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
 {
   nsHTMLMediaElement::MetadataTags* tags;
+  int i;
 
   tags = new nsHTMLMediaElement::MetadataTags;
   if (tags) {
     tags->Init();
-    char *creator = vorbis_comment_query(vc, "artist", 0);
-    if (creator) {
-      nsCString key = NS_LITERAL_CSTRING("creator");
-      nsCString value = nsCString(creator);
+    for (i = 0; i < vc->comments; i++) {
+      char *comment = vc->user_comments[i];
+      char *div = (char*)memchr(comment, '=', vc->comment_lengths[i]);
+      if (!div) {
+        LOG(PR_LOG_DEBUG, ("Invalid vorbis comment: no separator"));
+        continue;
+      }
+      // this should be ASCII
+      nsCString key = nsCString(comment, div-comment);
+      PRUint32 value_length = vc->comment_lengths[i] - (div-comment);
+      // this should be utf-8
+      nsCString value = nsCString(div + 1, value_length);
       tags->Put(key, value);
-    }
-    char *title = vorbis_comment_query(vc, "title", 0);
-    if (title) {
-      tags->Put(NS_LITERAL_CSTRING("title"), nsCString(title));
-    }
-    char *date = vorbis_comment_query(vc, "date", 0);
-    if (date) {
-      tags->Put(NS_LITERAL_CSTRING("date"), nsCString(date));
     }
   }
 
