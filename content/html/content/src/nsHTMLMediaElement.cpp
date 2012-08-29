@@ -1438,6 +1438,7 @@ nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
   JS::Value value = STRING_TO_JSVAL(string);
   if (!JS_SetProperty(args->cx, args->tags, aKey.Data(), &value)) {
     NS_WARNING("Failed to set metadata property");
+    return PL_DHASH_STOP;
   }
 
   return PL_DHASH_NEXT;
@@ -1456,7 +1457,13 @@ nsHTMLMediaElement::MozGetMetadata(JSContext* cx, JS::Value* aValue)
   }
   if (mTags) {
     MetadataIterCx iter = {cx, tags};
-    mTags->EnumerateRead(BuildObjectFromTags, static_cast<void*>(&iter));
+    uint32_t ret = mTags->EnumerateRead(BuildObjectFromTags,
+                                        static_cast<void*>(&iter));
+    LOG(PR_LOG_DEBUG, ("tag enumerator returned %d", ret));
+    if (ret == PL_DHASH_STOP) {
+      NS_WARNING("couldn't create metadata object!");
+      return NS_ERROR_FAILURE;
+    }
   }
   *aValue = OBJECT_TO_JSVAL(tags);
 
