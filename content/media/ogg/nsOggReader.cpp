@@ -160,6 +160,29 @@ void nsOggReader::BuildSerialList(nsTArray<uint32_t>& aTracks)
   }
 }
 
+static bool IsValidVorbisTagName(nsCString& name)
+{
+  // Vorbis comment tag names must be ASCII.
+  if (!IsASCII(name)) {
+    LOG(PR_LOG_DEBUG, ("Tag is invalid: non-ASCII name"));
+    return false;
+  }
+
+  // Tag names must consist of ASCII 0x20 through 0x7D,
+  // excluding 0x3D '=' which is the separator.
+  uint32_t length = name.Length();
+  const char *data = name.Data();
+
+  for (uint32_t i = 0; i < length; i++) {
+    if (data[i] < 0x20 || data[i] > 0x7D || data[i] == '=') {
+      LOG(PR_LOG_DEBUG, ("Tag is invalid: character out of range"));
+      return false;
+    }
+  }
+
+  return true;
+}
+
 static
 nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
 {
@@ -172,14 +195,20 @@ nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
     char *comment = vc->user_comments[i];
     char *div = (char*)memchr(comment, '=', vc->comment_lengths[i]);
     if (!div) {
-      LOG(PR_LOG_DEBUG, ("Invalid vorbis comment: no separator"));
+      LOG(PR_LOG_DEBUG, ("Skipping vorbis comment: no separator"));
       continue;
     }
-    // This should be ASCII.
     nsCString key = nsCString(comment, div-comment);
+    if (!IsValidVorbisTagName(key)) {
+      LOG(PR_LOG_DEBUG, ("Skipping vorbis comment: invalid tag name"));
+      continue;
+    }
     uint32_t value_length = vc->comment_lengths[i] - (div-comment);
-    // This should be utf-8.
     nsCString value = nsCString(div + 1, value_length);
+    if (!IsUTF8(value)) {
+      LOG(PR_LOG_DEBUG, ("Skipping vorbis comment: invalid UTF-8 in value"));
+      continue;
+    }
     tags->Put(key, value);
   }
 
