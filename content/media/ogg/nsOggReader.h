@@ -57,6 +57,9 @@ public:
     return true;
   }
 
+  // Validate a Vorbis comment header tag name.
+  static bool IsValidVorbisTagName(nsCString& name);
+
 private:
 
   // Specialized Reset() method to signal if the seek is

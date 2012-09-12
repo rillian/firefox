@@ -160,7 +160,7 @@ void nsOggReader::BuildSerialList(nsTArray<uint32_t>& aTracks)
   }
 }
 
-static bool IsValidVorbisTagName(nsCString& name)
+static bool nsOggReader::IsValidVorbisTagName(nsCString& name)
 {
   // Vorbis comment tag names must be ASCII.
   if (!IsASCII(name)) {
@@ -362,6 +362,8 @@ nsresult nsOggReader::ReadMetadata(nsVideoInfo* aInfo,
     mInfo.mAudioChannels = mOpusState->mChannels > 2 ? 2 : mOpusState->mChannels;
     mOpusSerial = mOpusState->mSerial;
     mOpusPreSkip = mOpusState->mPreSkip;
+
+    *aTags = mOpusState->GetTags();
   }
 #endif
   if (mSkeletonState) {

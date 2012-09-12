@@ -339,7 +339,13 @@ public:
   // used to calculate the amount we should trim from the last packet.
   int64_t mPrevPacketGranulepos;
 
+  // Construct and return a table of tags from the metadata header.
+  nsHTMLMediaElement::MetadataTags *GetTags();
+
 private:
+
+  nsCString mVendorString;   // Encoder vendor string from the header.
+  nsTArray<nsCString> mTags; // Unparsed comment strings from the header.
 
   // Reconstructs the granulepos of Opus packets stored in the
   // mUnstamped array. mUnstamped must be filled with consecutive packets from

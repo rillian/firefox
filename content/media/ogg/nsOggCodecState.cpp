@@ -10,6 +10,7 @@
 #include "nsTraceRefcnt.h"
 #include "VideoUtils.h"
 #include "nsBuiltinDecoderReader.h"
+#include "nsOggReader.h"
 
 #include "mozilla/StandardInteger.h"
 #include "mozilla/Util.h" // DebugOnly
@@ -934,6 +935,7 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
       bytes -= 4;
       if (len > bytes)
         return false;
+      mVendorString = nsCString(reinterpret_cast<const char*>(buf), len);
       buf += len;
       bytes -= len;
       // Skip the user comments.
@@ -955,9 +957,18 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
         bytes -= 4;
         if (len > bytes)
           return false;
+        mTags.AppendElement(nsCString(reinterpret_cast<const char*>(buf), len));
         buf += len;
         bytes -= len;
       }
+
+#ifdef DEBUG
+      LOG(PR_LOG_DEBUG, ("Opus metadata header:"));
+      LOG(PR_LOG_DEBUG, ("  vendor: %s", mVendorString.Data()));
+      for (uint32_t i = 0; i < mTags.Length(); i++) {
+        LOG(PR_LOG_DEBUG, (" %s", mTags[i].Data()));
+      }
+#endif
     }
     break;
 
@@ -971,6 +982,38 @@ bool nsOpusState::DecodeHeader(ogg_packet* aPacket)
     break;
   }
   return true;
+}
+
+/* Construct and return a tags hashmap from our internal array */
+nsHTMLMediaElement::MetadataTags* nsOpusState::GetTags()
+{
+  nsHTMLMediaElement::MetadataTags* tags;
+
+  tags = new nsHTMLMediaElement::MetadataTags;
+  tags->Init();
+  for (uint32_t i = 0; i < mTags.Length(); i++) {
+    const char* comment = mTags[i].Data();
+    uint32_t length = mTags[i].Length();
+    const char* div = (char*)memchr(comment, '=', length);
+    if (!div) {
+      LOG(PR_LOG_DEBUG, ("Skipping Opus comment: no separator"));
+      continue;
+    }
+    nsCString key = nsCString(comment, div-comment);
+    if (!nsOggReader::IsValidVorbisTagName(key)) {
+      LOG(PR_LOG_DEBUG, ("Skipping Opus comment: invalid tag name"));
+      continue;
+    }
+    uint32_t value_length = length - (div-comment);
+    nsCString value = nsCString(div + 1, value_length);
+    if (!IsUTF8(value)) {
+      LOG(PR_LOG_DEBUG, ("Skipping vorbis comment: invalid UTF-8 in value"));
+      continue;
+    }
+    tags->Put(key, value);
+  }
+
+  return tags;
 }
 
 /* Return the timestamp (in microseconds) equivalent to a granulepos. */
