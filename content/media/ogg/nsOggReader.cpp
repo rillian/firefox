@@ -160,7 +160,7 @@ void nsOggReader::BuildSerialList(nsTArray<uint32_t>& aTracks)
   }
 }
 
-static bool nsOggReader::IsValidVorbisTagName(nsCString& name)
+bool nsOggReader::IsValidVorbisTagName(nsCString& name)
 {
   // Vorbis comment tag names must be ASCII.
   if (!IsASCII(name)) {
@@ -199,7 +199,7 @@ nsHTMLMediaElement::MetadataTags* TagsFromVorbisComment(vorbis_comment *vc)
       continue;
     }
     nsCString key = nsCString(comment, div-comment);
-    if (!IsValidVorbisTagName(key)) {
+    if (!nsOggReader::IsValidVorbisTagName(key)) {
       LOG(PR_LOG_DEBUG, ("Skipping vorbis comment: invalid tag name"));
       continue;
     }
