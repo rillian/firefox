@@ -14,6 +14,8 @@
 #endif
 #include <algorithm>
 
+#include <string.h>
+
 #include "mozilla/Assertions.h"
 #include "mozilla/Types.h"
 #include "MPAPI.h"
@@ -116,6 +118,7 @@ class OmxDecoder {
 #ifndef MOZ_WIDGET_GONK
   OMXClient mClient;
 #endif
+  sp<MediaExtractor> mExtractor;
   sp<MediaSource> mVideoTrack;
   sp<MediaSource> mVideoSource;
   sp<MediaSource> mAudioTrack;
@@ -131,6 +134,9 @@ class OmxDecoder {
   int32_t mAudioChannels;
   int32_t mAudioSampleRate;
   int64_t mDurationUs;
+  const char *mArtist;
+  const char *mTitle;
+  const char *mAlbum;
   MediaBuffer *mVideoBuffer;
   VideoFrame mVideoFrame;
   MediaBuffer *mAudioBuffer;
@@ -156,6 +162,7 @@ public:
   ~OmxDecoder();
 
   bool Init();
+  bool GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount);
   bool SetVideoFormat();
   bool SetAudioFormat();
 
@@ -435,6 +442,7 @@ bool OmxDecoder::Init() {
   }
 
   // set decoder state
+  mExtractor = extractor;
   mVideoTrack = videoTrack;
   mVideoSource = videoSource;
   mAudioTrack = audioTrack;
@@ -469,6 +477,40 @@ bool OmxDecoder::Init() {
         return false;
     }
   }
+  return true;
+}
+
+bool OmxDecoder::GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount)
+{
+  const char **tags, **values;
+  uint32_t count = 0;
+  const char *value;
+
+  tags = new const char* [3];
+  values = new const char* [3];
+
+  // Ask stagefright for container-level metadata.
+  sp<MetaData> meta = mExtractor->getMetaData();
+  if (meta->findCString(kKeyArtist, &value)) {
+    tags[count] = strdup("artist");
+    values[count] = strdup(value);
+    count++;
+  }
+  if (!meta->findCString(kKeyTitle, &value)) {
+    tags[count] = strdup("title");
+    values[count] = strdup(value);
+    count++;
+  }
+  if (!meta->findCString(kKeyAlbum, &value)) {
+    tags[count] = strdup("album");
+    values[count] = strdup(value);
+    count++;
+  }
+
+  *aTags = tags;
+  *aValues = values;
+  *aCount = count;
+
   return true;
 }
 
@@ -821,6 +863,10 @@ static void GetAudioParameters(Decoder *aDecoder, int32_t *numChannels, int32_t 
   cast(aDecoder)->GetAudioParameters(numChannels, sampleRate);
 }
 
+static void GetTags(Decoder *aDecoder, const char ***aTags, const char ***aValues, uint32_t *aCount) {
+  cast(aDecoder)->GetTags(aTags, aValues, aCount);
+}
+
 static bool HasVideo(Decoder *aDecoder) {
   return cast(aDecoder)->HasVideo();
 }
@@ -883,6 +929,7 @@ static bool CreateDecoder(PluginHost *aPluginHost, Decoder *aDecoder, const char
   aDecoder->GetDuration = GetDuration;
   aDecoder->GetVideoParameters = GetVideoParameters;
   aDecoder->GetAudioParameters = GetAudioParameters;
+  aDecoder->GetTags = GetTags;
   aDecoder->HasVideo = HasVideo;
   aDecoder->HasAudio = HasAudio;
   aDecoder->ReadVideo = ReadVideo;

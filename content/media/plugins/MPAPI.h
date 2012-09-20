@@ -112,6 +112,7 @@ struct Decoder {
   void (*GetDuration)(Decoder *aDecoder, int64_t *durationUs);
   void (*GetVideoParameters)(Decoder *aDecoder, int32_t *aWidth, int32_t *aHeight);
   void (*GetAudioParameters)(Decoder *aDecoder, int32_t *aNumChannels, int32_t *aSampleRate);
+  void (*GetTags)(Decoder *aDecoder, const char ***aTags, const char ***aValues, uint32_t *aCount);
   bool (*HasVideo)(Decoder *aDecoder);
   bool (*HasAudio)(Decoder *aDecoder);
   bool (*ReadVideo)(Decoder *aDecoder, VideoFrame *aFrame, int64_t aSeekTimeUs);
