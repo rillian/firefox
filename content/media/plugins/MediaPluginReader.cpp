@@ -15,6 +15,13 @@
 
 namespace mozilla {
 
+#ifdef PR_LOGGING
+extern PRLogModuleInfo* gMediaDecoderLog;
+#define LOG(type, msg) PR_LOG(gMediaDecoderLog, type, msg)
+#else
+#define LOG(type, msg)
+#endif
+
 MediaPluginReader::MediaPluginReader(AbstractMediaDecoder *aDecoder,
                                      const nsACString& aContentType) :
   MediaDecoderReader(aDecoder),
@@ -36,6 +43,13 @@ MediaPluginReader::~MediaPluginReader()
 nsresult MediaPluginReader::Init(MediaDecoderReader* aCloneDonor)
 {
   return NS_OK;
+}
+
+static PLDHashOperator printTag(nsCStringHashKey::KeyType aKey,
+                                nsCString aValue, void* aData)
+{
+  LOG(PR_LOG_DEBUG, ("tag %s: %s", aKey.Data(), aValue.Data()));
+  return PL_DHASH_NEXT;
 }
 
 nsresult MediaPluginReader::ReadMetadata(VideoInfo* aInfo,
@@ -93,8 +107,52 @@ nsresult MediaPluginReader::ReadMetadata(VideoInfo* aInfo,
   }
 
  *aInfo = mInfo;
- *aTags = nullptr;
+  LOG(PR_LOG_DEBUG, ("Calling MediaPluginReader::GetTags()"));
+ *aTags = GetTags();
+  LOG(PR_LOG_DEBUG, ("Returned from MediaPluginReader::GetTags()"));
+
+  (*aTags)->EnumerateRead(printTag, NULL);
+
   return NS_OK;
+}
+
+MetadataTags* MediaPluginReader::GetTags()
+{
+  LOG(PR_LOG_DEBUG, ("in MediaPluginReader::GetTags()"));
+  NS_ASSERTION(mPlugin, ("need a decoder to query tags"));
+  MetadataTags* tags;
+  tags = new MetadataTags;
+  tags->Init();
+
+  const char **keys, **values;
+  uint32_t count = 0;
+  LOG(PR_LOG_DEBUG, (" calling mPlugin->GetTags()"));
+  mPlugin->GetTags(mPlugin, &keys, &values, &count);
+  LOG(PR_LOG_DEBUG, (" mPlugin->GetTags() returned %d entries", count));
+  for (uint32_t i = 0; i < count; i++) {
+    nsCString key = nsCString(keys[i]);
+    if (key.IsVoid() || key.IsEmpty() || !IsUTF8(key)) {
+      LOG(PR_LOG_DEBUG, (" skipping invalid tag"));
+      continue;
+    }
+    nsCString value = nsCString(values[i]);
+    // stagefright should return utf-8, but check.
+    if (IsASCII(value)) {
+      LOG(PR_LOG_DEBUG, (" value for tag '%s' is ASCII", key.get()));
+    }
+    if (value.IsVoid() || !IsUTF8(value)) {
+      LOG(PR_LOG_DEBUG, (" skipping tag '%s' with invalid value '%s'", key.get(), value.get()));
+      const char *v = value.get();
+      LOG(PR_LOG_DEBUG, ("   %02x %02x %02x %02x %02x %02x %02x %02x",
+            v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]));
+      continue;
+    }
+    LOG(PR_LOG_DEBUG, ("  %s: %s", key.get(), value.get()));
+    tags->Put(key, value);
+  }
+  LOG(PR_LOG_DEBUG, (" done adding; returning the hash table..."));
+
+  return tags;
 }
 
 // Resets all state related to decoding, emptying all buffers etc.

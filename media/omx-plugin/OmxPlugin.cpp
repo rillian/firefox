@@ -14,6 +14,8 @@
 #endif
 #include <algorithm>
 
+#include <string.h>
+
 #include "mozilla/Assertions.h"
 #include "mozilla/Types.h"
 #include "MPAPI.h"
@@ -111,6 +113,7 @@ class OmxDecoder {
 #ifndef MOZ_WIDGET_GONK
   OMXClient mClient;
 #endif
+  sp<MediaExtractor> mExtractor;
   sp<MediaSource> mVideoTrack;
   sp<MediaSource> mVideoSource;
   sp<MediaSource> mAudioTrack;
@@ -126,6 +129,9 @@ class OmxDecoder {
   int32_t mAudioChannels;
   int32_t mAudioSampleRate;
   int64_t mDurationUs;
+  const char *mArtist;
+  const char *mTitle;
+  const char *mAlbum;
   MediaBuffer *mVideoBuffer;
   VideoFrame mVideoFrame;
   MediaBuffer *mAudioBuffer;
@@ -151,6 +157,7 @@ public:
   ~OmxDecoder();
 
   bool Init();
+  bool GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount);
   bool SetVideoFormat();
   bool SetAudioFormat();
 
@@ -436,6 +443,7 @@ bool OmxDecoder::Init() {
   }
 
   // set decoder state
+  mExtractor = extractor;
   mVideoTrack = videoTrack;
   mVideoSource = videoSource;
   mAudioTrack = audioTrack;
@@ -470,6 +478,62 @@ bool OmxDecoder::Init() {
         return false;
     }
   }
+  return true;
+}
+
+// Build a map from libstagefright Metadata keys to generic tag names.
+struct tagmap {
+  const uint32_t key;
+  const char *name;
+};
+
+bool OmxDecoder::GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount)
+{
+  const struct tagmap map[] = {
+    { kKeyAlbum, "album" },
+    { kKeyArtist, "artist" },
+    { kKeyAlbumArtist, "albumArtist" },
+    { kKeyComposer, "composer" },
+    { kKeyGenre, "genre" },
+    { kKeyTitle, "title" },
+    { kKeyYear, "year" },
+    { kKeyAlbumArt, "albumArt" },
+    { kKeyAlbumArtMIME, "albumArtMIME" },
+    { kKeyAuthor, "author" },
+    { kKeyCDTrackNumber, "cdTrackNumber" },
+    { kKeyDiscNumber, "discNumber" },
+    { kKeyDate, "date" },
+    { kKeyWriter, "writer" },
+    { kKeyCompilation, "compilation" },
+#if !defined(MOZ_ANDROID_GB) && !defined(MOZ_ANDROID_HC)
+    // Location is only available in Android ICS and later.
+    // Well, I don't actually know about HoneyComb, but
+    // it's not available in Gingerbread.
+    { kKeyLocation, "location" },
+#endif
+  };
+  const int key_count = sizeof(map)/sizeof(map[0]);
+  const char **tags, **values;
+  uint32_t count = 0;
+  const char *value;
+
+  tags = new const char* [3];
+  values = new const char* [3];
+
+  // Ask stagefright for container-level metadata.
+  sp<MetaData> meta = mExtractor->getMetaData();
+  for (int i = 0; i < key_count; i++) {
+    if (meta->findCString(map[i].key, &value)) {
+      tags[count] = strdup(map[i].name);
+      values[count] = strdup(value);
+      count++;
+    }
+  }
+
+  *aTags = tags;
+  *aValues = values;
+  *aCount = count;
+
   return true;
 }
 
@@ -827,6 +891,10 @@ static void GetAudioParameters(Decoder *aDecoder, int32_t *numChannels, int32_t 
   cast(aDecoder)->GetAudioParameters(numChannels, sampleRate);
 }
 
+static void GetTags(Decoder *aDecoder, const char ***aTags, const char ***aValues, uint32_t *aCount) {
+  cast(aDecoder)->GetTags(aTags, aValues, aCount);
+}
+
 static bool HasVideo(Decoder *aDecoder) {
   return cast(aDecoder)->HasVideo();
 }
@@ -889,6 +957,7 @@ static bool CreateDecoder(PluginHost *aPluginHost, Decoder *aDecoder, const char
   aDecoder->GetDuration = GetDuration;
   aDecoder->GetVideoParameters = GetVideoParameters;
   aDecoder->GetAudioParameters = GetAudioParameters;
+  aDecoder->GetTags = GetTags;
   aDecoder->HasVideo = HasVideo;
   aDecoder->HasAudio = HasAudio;
   aDecoder->ReadVideo = ReadVideo;

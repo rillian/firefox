@@ -1487,6 +1487,8 @@ nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
 {
   MetadataIterCx* args = static_cast<MetadataIterCx*>(aUserArg);
 
+  LOG(PR_LOG_DEBUG, ("Adding tag '%s': '%s'", aKey.Data(), aValue.Data()));
+
   nsString wideValue = NS_ConvertUTF8toUTF16(aValue);
   JSString* string = JS_NewUCStringCopyZ(args->cx, wideValue.Data());
   JS::Value value = STRING_TO_JSVAL(string);
