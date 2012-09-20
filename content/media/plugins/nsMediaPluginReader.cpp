@@ -13,6 +13,20 @@
 
 using namespace mozilla;
 
+#ifdef PR_LOGGING
+extern PRLogModuleInfo* gBuiltinDecoderLog;
+#define LOG(type, msg) PR_LOG(gBuiltinDecoderLog, type, msg)
+#ifdef SEEK_LOGGING
+#define SEEK_LOG(type, msg) PR_LOG(gBuiltinDecoderLog, type, msg)
+#else
+#define SEEK_LOG(type, msg)
+#endif
+#else
+#error logging disabled in __FILE__
+#define LOG(type, msg)
+#define SEEK_LOG(type, msg)
+#endif
+
 nsMediaPluginReader::nsMediaPluginReader(nsBuiltinDecoder *aDecoder) :
   nsBuiltinDecoderReader(aDecoder),
   mPlugin(NULL),
@@ -33,6 +47,13 @@ nsMediaPluginReader::~nsMediaPluginReader()
 nsresult nsMediaPluginReader::Init(nsBuiltinDecoderReader* aCloneDonor)
 {
   return NS_OK;
+}
+
+static PLDHashOperator printTag(nsCStringHashKey::KeyType aKey,
+                                nsCString aValue, void* aData)
+{
+  LOG(PR_LOG_DEBUG, ("tag %s: %s", aKey.Data(), aValue.Data()));
+  return PL_DHASH_NEXT;
 }
 
 nsresult nsMediaPluginReader::ReadMetadata(nsVideoInfo* aInfo,
@@ -90,8 +111,26 @@ nsresult nsMediaPluginReader::ReadMetadata(nsVideoInfo* aInfo,
   }
 
  *aInfo = mInfo;
- *aTags = nullptr;
+ *aTags = GetTags();
+
+  uint32_t ret = (*aTags)->EnumerateRead(printTag, NULL);
+  if (ret == PL_DHASH_STOP) {
+    NS_WARNING("metadata tag enumerator stopped unexpectedly");
+  }
+
   return NS_OK;
+}
+
+nsHTMLMediaElement::MetadataTags* nsMediaPluginReader::GetTags()
+{
+  LOG(PR_LOG_DEBUG, ("nsMediaPluginReader::GetTags() called"));
+  nsHTMLMediaElement::MetadataTags* tags;
+  tags = new nsHTMLMediaElement::MetadataTags;
+  tags->Init();
+  tags->Put(nsCString("test"),
+            nsCString("test comment from nsMediaPluginReader"));
+
+  return tags;
 }
 
 // Resets all state related to decoding, emptying all buffers etc.

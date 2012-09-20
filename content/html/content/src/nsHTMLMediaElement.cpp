@@ -1434,6 +1434,7 @@ nsHTMLMediaElement::GetMozSampleRate(uint32_t *aMozSampleRate)
 typedef struct {
   JSContext* cx;
   JSObject*  tags;
+  bool error;
 } MetadataIterCx;
 
 PLDHashOperator
@@ -1443,12 +1444,15 @@ nsHTMLMediaElement::BuildObjectFromTags(nsCStringHashKey::KeyType aKey,
 {
   MetadataIterCx* args = static_cast<MetadataIterCx*>(aUserArg);
 
+  LOG(PR_LOG_DEBUG, ("Adding tag '%s': '%s'", aKey.Data(), aValue.Data()));
+
   nsString wideValue = NS_ConvertUTF8toUTF16(aValue);
   JSString* string = JS_NewUCStringCopyZ(args->cx, wideValue.Data());
   JS::Value value = STRING_TO_JSVAL(string);
   if (!JS_DefineProperty(args->cx, args->tags, aKey.Data(), value,
                          NULL, NULL, JSPROP_ENUMERATE)) {
     NS_WARNING("Failed to set metadata property");
+    args->error = true;
     return PL_DHASH_STOP;
   }
 
@@ -1467,11 +1471,11 @@ nsHTMLMediaElement::MozGetMetadata(JSContext* cx, JS::Value* aValue)
     return NS_ERROR_FAILURE;
   }
   if (mTags) {
-    MetadataIterCx iter = {cx, tags};
-    uint32_t ret = mTags->EnumerateRead(BuildObjectFromTags,
+    MetadataIterCx iter = {cx, tags, false};
+    uint32_t count = mTags->EnumerateRead(BuildObjectFromTags,
                                         static_cast<void*>(&iter));
-    LOG(PR_LOG_DEBUG, ("tag enumerator returned %d", ret));
-    if (ret == PL_DHASH_STOP) {
+    LOG(PR_LOG_DEBUG, ("tag enumerator returned %d", count));
+    if (iter.error) {
       NS_WARNING("couldn't create metadata object!");
       return NS_ERROR_FAILURE;
     }
