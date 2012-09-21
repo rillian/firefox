@@ -1473,7 +1473,7 @@ nsHTMLMediaElement::MozGetMetadata(JSContext* cx, JS::Value* aValue)
   if (mTags) {
     MetadataIterCx iter = {cx, tags, false};
     uint32_t count = mTags->EnumerateRead(BuildObjectFromTags,
-                                        static_cast<void*>(&iter));
+                                          static_cast<void*>(&iter));
     LOG(PR_LOG_DEBUG, ("tag enumerator returned %d", count));
     if (iter.error) {
       NS_WARNING("couldn't create metadata object!");
