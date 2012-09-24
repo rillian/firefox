@@ -150,6 +150,7 @@ public:
   ~OmxDecoder();
 
   bool Init();
+  bool GetTags(char **anArtist, char **aTitle);
   bool SetVideoFormat();
   bool SetAudioFormat();
 
@@ -420,6 +421,14 @@ bool OmxDecoder::Init() {
         return false;
     }
   }
+  return true;
+}
+
+bool OmxDecoder::GetTags(char **anArtist, char **aTitle)
+{
+  *anArtist = "OmxDecoder artist test";
+  *aTitle = "OmxDecoder title test";
+
   return true;
 }
 
@@ -762,6 +771,10 @@ static void GetAudioParameters(Decoder *aDecoder, int32_t *numChannels, int32_t 
   cast(aDecoder)->GetAudioParameters(numChannels, sampleRate);
 }
 
+static void GetTags(Decoder *aDecoder, char **anArtist, char **aTitle) {
+  cast(aDecoder)->GetTags(anArtist, aTitle);
+}
+
 static bool HasVideo(Decoder *aDecoder) {
   return cast(aDecoder)->HasVideo();
 }
@@ -822,6 +835,7 @@ static bool CreateDecoder(PluginHost *aPluginHost, Decoder *aDecoder, const char
   aDecoder->GetDuration = GetDuration;
   aDecoder->GetVideoParameters = GetVideoParameters;
   aDecoder->GetAudioParameters = GetAudioParameters;
+  aDecoder->GetTags = GetTags;
   aDecoder->HasVideo = HasVideo;
   aDecoder->HasAudio = HasAudio;
   aDecoder->ReadVideo = ReadVideo;

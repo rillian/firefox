@@ -123,12 +123,17 @@ nsresult nsMediaPluginReader::ReadMetadata(nsVideoInfo* aInfo,
 
 nsHTMLMediaElement::MetadataTags* nsMediaPluginReader::GetTags()
 {
-  LOG(PR_LOG_DEBUG, ("nsMediaPluginReader::GetTags() called"));
+  NS_ASSERTION(mPlugin, "need a decoder to query tags");
   nsHTMLMediaElement::MetadataTags* tags;
   tags = new nsHTMLMediaElement::MetadataTags;
   tags->Init();
   tags->Put(nsCString("test"),
             nsCString("test comment from nsMediaPluginReader"));
+
+  char *artist, *title;
+  mPlugin->GetTags(mPlugin, &artist, &title);
+  tags->Put(nsCString("artist"), nsCString(artist));
+  tags->Put(nsCString("title"), nsCString(title));
 
   return tags;
 }
