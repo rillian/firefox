@@ -111,29 +111,38 @@ nsresult nsMediaPluginReader::ReadMetadata(nsVideoInfo* aInfo,
   }
 
  *aInfo = mInfo;
+  LOG(PR_LOG_DEBUG, ("Calling nsMediaPluginReader::GetTags()"));
  *aTags = GetTags();
+  LOG(PR_LOG_DEBUG, ("Returned from nsMediaPluginReader::GetTags()"));
 
-  uint32_t ret = (*aTags)->EnumerateRead(printTag, NULL);
-  if (ret == PL_DHASH_STOP) {
-    NS_WARNING("metadata tag enumerator stopped unexpectedly");
-  }
+  (*aTags)->EnumerateRead(printTag, NULL);
 
   return NS_OK;
 }
 
 nsHTMLMediaElement::MetadataTags* nsMediaPluginReader::GetTags()
 {
-  NS_ASSERTION(mPlugin, "need a decoder to query tags");
+  LOG(PR_LOG_DEBUG, ("in nsMediaPluginReader::GetTags()"));
+  NS_ASSERTION(mPlugin, ("need a decoder to query tags"));
   nsHTMLMediaElement::MetadataTags* tags;
   tags = new nsHTMLMediaElement::MetadataTags;
   tags->Init();
   tags->Put(nsCString("test"),
             nsCString("test comment from nsMediaPluginReader"));
 
-  char *artist, *title;
-  mPlugin->GetTags(mPlugin, &artist, &title);
+  LOG(PR_LOG_DEBUG, (" added test tag"));
+  char *artist, *title, *album;
+  LOG(PR_LOG_DEBUG, (" calling mPlugin->GetTags()"));
+  mPlugin->GetTags(mPlugin, &artist, &title, &album);
+  LOG(PR_LOG_DEBUG, (" mPlugin->GetTags() returned"));
+  LOG(PR_LOG_DEBUG, ("  artist: %s", artist));
+  LOG(PR_LOG_DEBUG, ("   title: %s", artist));
+  LOG(PR_LOG_DEBUG, ("   album: %s", album));
+  LOG(PR_LOG_DEBUG, (" adding to the hash table..."));
   tags->Put(nsCString("artist"), nsCString(artist));
   tags->Put(nsCString("title"), nsCString(title));
+  tags->Put(nsCString("album"), nsCString(album));
+  LOG(PR_LOG_DEBUG, (" done adding; returning the hash table..."));
 
   return tags;
 }

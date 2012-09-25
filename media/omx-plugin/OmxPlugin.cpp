@@ -110,6 +110,7 @@ class OmxDecoder {
 #ifndef MOZ_WIDGET_GONK
   OMXClient mClient;
 #endif
+  sp<MediaExtractor> mExtractor;
   sp<MediaSource> mVideoTrack;
   sp<MediaSource> mVideoSource;
   sp<MediaSource> mAudioTrack;
@@ -125,6 +126,9 @@ class OmxDecoder {
   int32_t mAudioChannels;
   int32_t mAudioSampleRate;
   int64_t mDurationUs;
+  const char *mArtist;
+  const char *mTitle;
+  const char *mAlbum;
   MediaBuffer *mVideoBuffer;
   VideoFrame mVideoFrame;
   MediaBuffer *mAudioBuffer;
@@ -150,7 +154,7 @@ public:
   ~OmxDecoder();
 
   bool Init();
-  bool GetTags(char **anArtist, char **aTitle);
+  bool GetTags(char **anArtist, char **aTitle, char **anAlbum);
   bool SetVideoFormat();
   bool SetAudioFormat();
 
@@ -387,6 +391,7 @@ bool OmxDecoder::Init() {
   }
 
   // set decoder state
+  mExtractor = extractor;
   mVideoTrack = videoTrack;
   mVideoSource = videoSource;
   mAudioTrack = audioTrack;
@@ -424,10 +429,23 @@ bool OmxDecoder::Init() {
   return true;
 }
 
-bool OmxDecoder::GetTags(char **anArtist, char **aTitle)
+bool OmxDecoder::GetTags(char **anArtist, char **aTitle, char **anAlbum)
 {
-  *anArtist = "OmxDecoder artist test";
-  *aTitle = "OmxDecoder title test";
+  // Ask stagefright for container-level metadata.
+  sp<MetaData> meta = mExtractor->getMetaData();
+  if (!meta->findCString(kKeyArtist, &mArtist)) {
+    mArtist = "query failed in GetTags";
+  }
+  if (!meta->findCString(kKeyTitle, &mTitle)) {
+    mTitle = "query failed in GetTags";
+  }
+  if (!meta->findCString(kKeyAlbum, &mAlbum)) {
+    mAlbum = "query failed in GetTags";
+  }
+
+  *anArtist = const_cast<char*>(mArtist);
+  *aTitle = const_cast<char*>(mTitle);
+  *anAlbum = const_cast<char*>(mAlbum);
 
   return true;
 }
@@ -771,8 +789,8 @@ static void GetAudioParameters(Decoder *aDecoder, int32_t *numChannels, int32_t 
   cast(aDecoder)->GetAudioParameters(numChannels, sampleRate);
 }
 
-static void GetTags(Decoder *aDecoder, char **anArtist, char **aTitle) {
-  cast(aDecoder)->GetTags(anArtist, aTitle);
+static void GetTags(Decoder *aDecoder, char **anArtist, char **aTitle, char **anAlbum) {
+  cast(aDecoder)->GetTags(anArtist, aTitle, anAlbum);
 }
 
 static bool HasVideo(Decoder *aDecoder) {
