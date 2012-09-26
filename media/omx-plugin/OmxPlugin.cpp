@@ -13,6 +13,8 @@
 #include <stagefright/OMXClient.h>
 #endif
 
+#include <string.h>
+
 #include "mozilla/Assertions.h"
 #include "mozilla/Types.h"
 #include "MPAPI.h"
@@ -154,7 +156,7 @@ public:
   ~OmxDecoder();
 
   bool Init();
-  bool GetTags(char **anArtist, char **aTitle, char **anAlbum);
+  bool GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount);
   bool SetVideoFormat();
   bool SetAudioFormat();
 
@@ -429,23 +431,36 @@ bool OmxDecoder::Init() {
   return true;
 }
 
-bool OmxDecoder::GetTags(char **anArtist, char **aTitle, char **anAlbum)
+bool OmxDecoder::GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount)
 {
+  const char **tags, **values;
+  uint32_t count = 0;
+  const char *value;
+
+  tags = new const char* [3];
+  values = new const char* [3];
+
   // Ask stagefright for container-level metadata.
   sp<MetaData> meta = mExtractor->getMetaData();
-  if (!meta->findCString(kKeyArtist, &mArtist)) {
-    mArtist = "query failed in GetTags";
+  if (meta->findCString(kKeyArtist, &value)) {
+    tags[count] = strdup("artist");
+    values[count] = strdup(value);
+    count++;
   }
-  if (!meta->findCString(kKeyTitle, &mTitle)) {
-    mTitle = "query failed in GetTags";
+  if (!meta->findCString(kKeyTitle, &value)) {
+    tags[count] = strdup("title");
+    values[count] = strdup(value);
+    count++;
   }
-  if (!meta->findCString(kKeyAlbum, &mAlbum)) {
-    mAlbum = "query failed in GetTags";
+  if (!meta->findCString(kKeyAlbum, &value)) {
+    tags[count] = strdup("album");
+    values[count] = strdup(value);
+    count++;
   }
 
-  *anArtist = const_cast<char*>(mArtist);
-  *aTitle = const_cast<char*>(mTitle);
-  *anAlbum = const_cast<char*>(mAlbum);
+  *aTags = tags;
+  *aValues = values;
+  *aCount = count;
 
   return true;
 }
@@ -789,8 +804,8 @@ static void GetAudioParameters(Decoder *aDecoder, int32_t *numChannels, int32_t 
   cast(aDecoder)->GetAudioParameters(numChannels, sampleRate);
 }
 
-static void GetTags(Decoder *aDecoder, char **anArtist, char **aTitle, char **anAlbum) {
-  cast(aDecoder)->GetTags(anArtist, aTitle, anAlbum);
+static void GetTags(Decoder *aDecoder, const char ***aTags, const char ***aValues, uint32_t *aCount) {
+  cast(aDecoder)->GetTags(aTags, aValues, aCount);
 }
 
 static bool HasVideo(Decoder *aDecoder) {

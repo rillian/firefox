@@ -127,21 +127,37 @@ nsHTMLMediaElement::MetadataTags* nsMediaPluginReader::GetTags()
   nsHTMLMediaElement::MetadataTags* tags;
   tags = new nsHTMLMediaElement::MetadataTags;
   tags->Init();
-  tags->Put(nsCString("test"),
-            nsCString("test comment from nsMediaPluginReader"));
 
-  LOG(PR_LOG_DEBUG, (" added test tag"));
-  char *artist, *title, *album;
+  const char **keys, **values;
+  uint32_t count = 0;
   LOG(PR_LOG_DEBUG, (" calling mPlugin->GetTags()"));
-  mPlugin->GetTags(mPlugin, &artist, &title, &album);
+  mPlugin->GetTags(mPlugin, &keys, &values, &count);
   LOG(PR_LOG_DEBUG, (" mPlugin->GetTags() returned"));
-  LOG(PR_LOG_DEBUG, ("  artist: %s", artist));
-  LOG(PR_LOG_DEBUG, ("   title: %s", artist));
-  LOG(PR_LOG_DEBUG, ("   album: %s", album));
-  LOG(PR_LOG_DEBUG, (" adding to the hash table..."));
-  tags->Put(nsCString("artist"), nsCString(artist));
-  tags->Put(nsCString("title"), nsCString(title));
-  tags->Put(nsCString("album"), nsCString(album));
+  for (uint32_t i = 0; i < count; i++) {
+    nsCString key = nsCString(keys[i]);
+    if (key.IsVoid() || key.IsEmpty() || !IsUTF8(key)) {
+      LOG(PR_LOG_DEBUG, (" skipping invalid tag"));
+      continue;
+    }
+    nsCString value = nsCString(values[i]);
+#if 0
+    if (IsUTF16(value)) {
+      LOG(PR_LOG_DEBUG, (" value for tag '%s' is UTF-16", key.get()));
+    }
+#endif
+    if (IsASCII(value)) {
+      LOG(PR_LOG_DEBUG, (" value for tag '%s' is ASCII", key.get()));
+    }
+    if (value.IsVoid() || !IsUTF8(value)) {
+      LOG(PR_LOG_DEBUG, (" skipping tag '%s' with invalid value '%s'", key.get(), value.get()));
+      const char *v = value.get();
+      LOG(PR_LOG_DEBUG, ("   %02x %02x %02x %02x %02x %02x %02x %02x",
+            v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]));
+      continue;
+    }
+    LOG(PR_LOG_DEBUG, ("  %s: %s", key.get(), value.get()));
+    tags->Put(key, value);
+  }
   LOG(PR_LOG_DEBUG, (" done adding; returning the hash table..."));
 
   return tags;
