@@ -407,6 +407,7 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
   }
   return NS_OK;
 }
+#define MOZ_OPUS
 #ifdef MOZ_OPUS
 nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(aPacket->granulepos != -1, "Must know opus granulepos!");
@@ -503,12 +504,11 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
     if (channels > 8)
       return NS_ERROR_FAILURE;
 
-#ifdef MOZ_SAMPLE_TYPE_FLOAT32
     uint32_t out_channels;
     out_channels = 2;
-
     // dBuffer stores the downmixed sample data.
     nsAutoArrayPtr<AudioDataValue> dBuffer(new AudioDataValue[frames * out_channels]);
+#ifdef MOZ_SAMPLE_TYPE_FLOAT32
     // Downmix matrix for channels up to 8, normalized to 2.0.
     static const float dmatrix[6][8][2]= {
         /*3*/{ {0.5858f,0}, {0.4142f,0.4142f}, {0,0.5858f}},
@@ -528,11 +528,31 @@ nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
       dBuffer[i*out_channels]=sampL;
       dBuffer[i*out_channels+1]=sampR;
     }
+#else
+    // Downmix matrix for channels up to 8, normalized to 2.0
+    static const int16_t dmatrix[6][8][2]= {
+        /*3*/{{9598, 0},{6786,6786},{0,   9598}},
+        /*4*/{{6924, 0},{0,   6924},{5996,3464},{3464,5996}},
+        /*5*/{{10666,0},{7537,7537},{0,  10666},{9234,5331},{5331,9234}},
+        /*6*/{{8668, 0},{6129,6129},{0,   8668},{7507,4335},{4335,7507},{6129,6129}},
+        /*7*/{{7459, 0},{5275,5275},{0,   7459},{6460,3731},{3731,6460},{4568,4568},{5275,5275}},
+        /*8*/{{6368, 0},{4502,4502},{0,   6368},{5515,3183},{3183,5515},{5515,3183},{3183,5515},{4502,4502}}
+    };
+    for (int32_t i = 0; i < frames; i++) {
+      int32_t sampL = 0;
+      int32_t sampR = 0;
+      for (uint32_t j = 0; j < channels; j++) {
+        sampL+=buffer[i*channels+j]*dmatrix[channels-3][j][0];
+        sampR+=buffer[i*channels+j]*dmatrix[channels-3][j][1];
+      }
+      sampL = (sampL + 32768)>>16;
+      buffer[i*out_channels]   = static_cast<AudioDataValue>(MOZ_CLIP_TO_15(sampL));
+      sampR = (sampR + 32768)>>16;
+      buffer[i*out_channels+1] = static_cast<AudioDataValue>(MOZ_CLIP_TO_15(sampR));
+    }
+#endif
     channels = out_channels;
     buffer = dBuffer;
-#else
-  return NS_ERROR_FAILURE;
-#endif
   }
 
   LOG(PR_LOG_DEBUG, ("Opus decoder pushing %d frames", frames));
