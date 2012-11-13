@@ -808,7 +808,6 @@ nsresult nsVorbisState::ReconstructVorbisGranulepos()
 
   return NS_OK;
 }
-#define MOZ_OPUS
 #ifdef MOZ_OPUS
 nsOpusState::nsOpusState(ogg_page* aBosPage) :
   nsOggCodecState(aBosPage, true),

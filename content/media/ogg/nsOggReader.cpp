@@ -407,7 +407,6 @@ nsresult nsOggReader::DecodeVorbis(ogg_packet* aPacket) {
   }
   return NS_OK;
 }
-#define MOZ_OPUS
 #ifdef MOZ_OPUS
 nsresult nsOggReader::DecodeOpus(ogg_packet* aPacket) {
   NS_ASSERTION(aPacket->granulepos != -1, "Must know opus granulepos!");
