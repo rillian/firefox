@@ -26,7 +26,6 @@ function startTest(test, token) {
 
   var v = document.createElement('video');
   var vout = document.createElement('video');
-  vout.token = token;
 
   v.src = test.name;
   var stream = v.mozCaptureStreamUntilEnded();
@@ -34,7 +33,7 @@ function startTest(test, token) {
   vout.mozSrcObject = stream;
   is(vout.mozSrcObject, stream, test.name + " set output element .srcObject correctly");
 
-  var checkEnded = function(test, vout, stream) { return function() {
+  vout.addEventListener("ended", function() {
     is(stream.currentTime, vout.currentTime, test.name + " stream final currentTime");
     if (test.duration) {
       ok(Math.abs(vout.currentTime - test.duration) < 0.1,
@@ -46,9 +45,8 @@ function startTest(test, token) {
       checkDrawImage(vout);
     }
     vout.parentNode.removeChild(vout);
-    manager.finished(vout.token);
-  }}(test, vout, stream);
-  vout.addEventListener("ended", checkEnded, false);
+    manager.finished(token);
+  });
 
   document.body.appendChild(vout);
   v.play();

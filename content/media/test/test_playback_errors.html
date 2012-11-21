@@ -15,7 +15,7 @@ var manager = new MediaTestManager;
 function startTest(test, token) {
   var v = document.createElement('video');
   manager.started(token);
-  v._errorCount = 0;
+
   v._ignore = false;
   function endedTest(v) {
     if (v._ignore)
@@ -24,17 +24,19 @@ function startTest(test, token) {
     v.parentNode.removeChild(v);
     manager.finished(token);
   }
-  var checkError = function(test, v) { return function(evt) {
+
+  v._errorCount = 0;
+  v.addEventListener("error", function(evt) {
     v._errorCount++;
     is(v._errorCount, 1, test.name + " only one error fired");
     endedTest(v);
-  }}(test, v);
-  var checkEnded = function(test, v) { return function() {
+  });
+
+  v.addEventListener("ended", function() {
     ok(false, test.name + " successfully played");
     endedTest(v);
-  }}(test, v);
-  v.addEventListener("error", checkError, false);
-  v.addEventListener("ended", checkEnded, false);
+  });
+
   v.src = test.name;
   document.body.appendChild(v);
   v.play();

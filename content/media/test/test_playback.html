@@ -14,24 +14,24 @@ var manager = new MediaTestManager;
 
 function startTest(test, token) {
   var v = document.createElement('video');
-  v.token = token;
   manager.started(token);
 
   v.src = test.name;
-  v.name = test.name;
-  var check = function(test, v) { return function() {
-    is(test.name, v.name, "Name should match test.name #1");
+  v.addEventListener("loadedmetadata", function() {
     checkMetadata(test.name, v, test);
-  }}(test, v);
-  var noLoad = function(test, v) { return function() {
+  });
+
+  v.addEventListener("load", function() {
     ok(false, test.name + " should not fire 'load' event");
-  }}(test, v);
-  var checkEnded = function(test, v) { return function() {
+  });
+
+  // We should get "ended" and "suspend" events for every resource
+  v.addEventListener("ended", function() {
     if (test.duration) {
       ok(Math.abs(v.currentTime - test.duration) < 0.1,
-         test.name + " current time at end: " + v.currentTime + " should be: " + test.duration);
+         test.name + " current time at end: " + v.currentTime +
+         " should be: " + test.duration);
     }
-    is(test.name, v.name, "Name should match test.name #2");
     is(v.readyState, v.HAVE_CURRENT_DATA, test.name + " checking readyState");
     ok(v.readyState != v.NETWORK_LOADED, test.name + " shouldn't report NETWORK_LOADED");
     ok(v.ended, test.name + " checking playback has ended");
@@ -39,11 +39,11 @@ function startTest(test, token) {
       v.finished = true;
       v.removeEventListener("timeupdate", timeUpdate, false);
       v.parentNode.removeChild(v);
-      manager.finished(v.token);
+      manager.finished(token);
     }
-  }}(test, v);
-  var checkSuspended = function(test, v) { return function() {
-    is(test.name, v.name, "Name should match test.name #3");
+  });
+
+  v.addEventListener("suspend", function() {
     if (v.seenSuspend)
       return;
 
@@ -53,25 +53,19 @@ function startTest(test, token) {
       v.finished = true;
       v.removeEventListener("timeupdate", timeUpdate, false);
       v.parentNode.removeChild(v);
-      manager.finished(v.token);
+      manager.finished(token);
     }
-  }}(test, v);
+  });
+
   v.prevTime = 0;
-  var timeUpdate = function(test, v) { return function() {
-    is(test.name, v.name, "Name should match test.name #4");
+  function timeUpdate() {
     checkMetadata(test.name, v, test);
     ok(v.prevTime <= v.currentTime,
        test.name + " time should run forwards: p=" +
        v.prevTime + " c=" + v.currentTime);
     v.prevTime = v.currentTime;
-  }}(test, v);
-  v.addEventListener("load", noLoad, false);
-  v.addEventListener("loadedmetadata", check, false);
-  v.addEventListener("timeupdate", timeUpdate, false);
-
-  // We should get "ended" and "suspend" events for every resource
-  v.addEventListener("ended", checkEnded, false);
-  v.addEventListener("suspend", checkSuspended, false);
+  };
+  v.addEventListener("timeupdate", timeUpdate);
 
   document.body.appendChild(v);
   v.play();
