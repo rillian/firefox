@@ -137,11 +137,7 @@ MetadataTags* MediaPluginReader::GetTags()
       continue;
     }
     nsCString value = nsCString(values[i]);
-#if 0
-    if (IsUTF16(value)) {
-      LOG(PR_LOG_DEBUG, (" value for tag '%s' is UTF-16", key.get()));
-    }
-#endif
+    // stagefright should return utf-8, but check.
     if (IsASCII(value)) {
       LOG(PR_LOG_DEBUG, (" value for tag '%s' is ASCII", key.get()));
     }
