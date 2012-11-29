@@ -480,8 +480,33 @@ bool OmxDecoder::Init() {
   return true;
 }
 
+// Build a map from libstagefright Metadata keys to generic tag names.
+struct tagmap {
+  const uint32_t key;
+  const char *name;
+};
+
 bool OmxDecoder::GetTags(const char ***aTags, const char ***aValues, uint32_t *aCount)
 {
+  const struct tagmap map[] = {
+    { kKeyAlbum, "album" },
+    { kKeyArtist, "artist" },
+    { kKeyAlbumArtist, "albumArtist" },
+    { kKeyComposer, "composer" },
+    { kKeyGenre, "genre" },
+    { kKeyTitle, "title" },
+    { kKeyYear, "year" },
+    { kKeyAlbumArt, "albumArt" },
+    { kKeyAlbumArtMIME, "albumArtMIME" },
+    { kKeyAuthor, "author" },
+    { kKeyCDTrackNumber, "cdTrackNumber" },
+    { kKeyDiscNumber, "discNumber" },
+    { kKeyDate, "date" },
+    { kKeyWriter, "writer" },
+    { kKeyCompilation, "compilation" },
+    { kKeyLocation, "location" },
+  };
+  const int key_count = sizeof(map)/sizeof(map[0]);
   const char **tags, **values;
   uint32_t count = 0;
   const char *value;
@@ -491,20 +516,12 @@ bool OmxDecoder::GetTags(const char ***aTags, const char ***aValues, uint32_t *a
 
   // Ask stagefright for container-level metadata.
   sp<MetaData> meta = mExtractor->getMetaData();
-  if (meta->findCString(kKeyArtist, &value)) {
-    tags[count] = strdup("artist");
-    values[count] = strdup(value);
-    count++;
-  }
-  if (!meta->findCString(kKeyTitle, &value)) {
-    tags[count] = strdup("title");
-    values[count] = strdup(value);
-    count++;
-  }
-  if (!meta->findCString(kKeyAlbum, &value)) {
-    tags[count] = strdup("album");
-    values[count] = strdup(value);
-    count++;
+  for (int i = 0; i < key_count; i++) {
+    if (meta->findCString(map[i].key, &value)) {
+      tags[count] = strdup(map[i].name);
+      values[count] = strdup(value);
+      count++;
+    }
   }
 
   *aTags = tags;

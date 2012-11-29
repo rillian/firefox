@@ -129,7 +129,7 @@ MetadataTags* MediaPluginReader::GetTags()
   uint32_t count = 0;
   LOG(PR_LOG_DEBUG, (" calling mPlugin->GetTags()"));
   mPlugin->GetTags(mPlugin, &keys, &values, &count);
-  LOG(PR_LOG_DEBUG, (" mPlugin->GetTags() returned"));
+  LOG(PR_LOG_DEBUG, (" mPlugin->GetTags() returned %d entries", count));
   for (uint32_t i = 0; i < count; i++) {
     nsCString key = nsCString(keys[i]);
     if (key.IsVoid() || key.IsEmpty() || !IsUTF8(key)) {
