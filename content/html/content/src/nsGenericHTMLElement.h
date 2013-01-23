@@ -13,6 +13,7 @@
 #include "nsGkAtoms.h"
 #include "nsContentCreatorFunctions.h"
 #include "mozilla/ErrorResult.h"
+#include "nsContentUtils.h"
 #include "nsIDOMHTMLMenuElement.h"
 #include "mozilla/dom/ValidityState.h"
 
@@ -23,6 +24,7 @@ class nsIFrame;
 class nsIStyleRule;
 class nsChildContentList;
 class nsDOMCSSDeclaration;
+class nsHTMLMenuElement;
 class nsIDOMCSSStyleDeclaration;
 class nsIURI;
 class nsIFormControlFrame;
@@ -715,7 +717,7 @@ public:
 
   virtual bool IsLabelable() const;
 
-  static bool TouchEventsEnabled(JSContext* /* unused */, JSObject* /* unused */);
+  static bool PrefEnabled();
 
   static inline bool
   ShouldExposeIdAsHTMLDocumentProperty(Element* aElement)
@@ -1973,6 +1975,10 @@ NS_DECLARE_NS_NEW_HTML_ELEMENT(Tfoot)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Thead)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Time)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Title)
+#if defined(MOZ_MEDIA)
+NS_DECLARE_NS_NEW_HTML_ELEMENT(Track)
+#endif
+NS_DECLARE_NS_NEW_HTML_ELEMENT(UList)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Unknown)
 #if defined(MOZ_MEDIA)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Video)

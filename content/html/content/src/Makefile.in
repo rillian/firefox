@@ -168,6 +168,11 @@ CPPSRCS		+= \
 		HTMLSourceElement.cpp \
 		TimeRanges.cpp \
 		HTMLVideoElement.cpp \
+		HTMLTrackElement.cpp \
+		$(NULL)
+
+EXPORTS_mozilla/dom += \
+		HTMLTrackElement.h \
 		$(NULL)
 endif
 
