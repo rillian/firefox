@@ -27,6 +27,9 @@
 #include "DecoderTraits.h"
 #include "MediaMetadataManager.h"
 #include "AudioChannelAgent.h"
+//XXXhumph: commented out in rillian's original...
+//#include "mozilla/dom/TextTrack.h"
+#include "webvtt.h"
 
 // Define to output information on decoding and painting framerate
 /* #define DEBUG_FRAME_RATE 1 */
@@ -905,6 +908,13 @@ protected:
 
   // An agent used to join audio channel service.
   nsCOMPtr<nsIAudioChannelAgent> mAudioChannelAgent;
+
+  //XXXhumph: commented out in ralph's original patch
+  // Contains a list of our attached text track objects.
+  //nsTArray<nsRefPtr<TextTrack>> mTextTracks;
+
+public:
+  webvtt_cue *mCues;
 };
 
 #endif
