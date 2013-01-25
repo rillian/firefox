@@ -35,7 +35,6 @@
 #include "webvtt.h"
 
 #ifdef PR_LOGGING
-#warning enabling nspr logging
 static PRLogModuleInfo* gTrackElementLog;
 #define LOG(type, msg) PR_LOG(gTrackElementLog, type, msg)
 #else
