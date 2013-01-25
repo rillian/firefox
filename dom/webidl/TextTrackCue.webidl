@@ -7,8 +7,9 @@
  * http://www.whatwg.org/specs/web-apps/current-work/#texttrackcue
  */
 
-// XXXhumph: https://www.w3.org/Bugs/Public/show_bug.cgi?id=20651
-//enum AutoKeyword { "auto" };
+enum AutoKeyword { "auto" };
+
+interface TextTrack;
 
 [Constructor(double startTime, double endTime, DOMString text)]
 interface TextTrackCue : EventTarget {
