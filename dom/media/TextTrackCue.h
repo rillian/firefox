@@ -194,6 +194,14 @@ public:
   IMPL_EVENT_HANDLER(exit)
 
 private:
+  void CueChanged()
+  {
+    if (mTrack) {
+      // XXXhumph: need this on TextTrack (dale)
+      // mTrack->CueChanged(this);
+    }
+  }
+
   nsCOMPtr<nsISupports> mGlobal;
 
   nsRefPtr<TextTrack> mTrack;
