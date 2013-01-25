@@ -98,8 +98,8 @@ public:
 
   TextTrack* Track()
   {
-    // XXXhumph: todo
-    return nullptr;
+    // XXXhumph: where to set this?
+    return mTrack;
   }
 
   virtual nsresult Clone(nsINodeInfo *aNodeInfo, nsINode **aResult) const;
@@ -109,17 +109,17 @@ public:
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
   virtual nsresult BindToTree(nsIDocument *aDocument, nsIContent *aParent,
-			      nsIContent *aBindingParent,
-			      bool aCompileEventHandlers);
+                              nsIContent *aBindingParent, bool aCompileEventHandlers);
 
   PRUint32 GetCurrentLoadID() { return mCurrentLoadID; }
 
 protected:
   virtual JSObject* WrapNode(JSContext *aCx, JSObject *aScope,
-			     bool *aTriedToWrap) MOZ_OVERRIDE;
+                             bool *aTriedToWrap) MOZ_OVERRIDE;
 
   class LoadListener;
   PRUint32 mCurrentLoadID;
+  nsRefPtr<TextTrack> mTrack;
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
   uint16_t mReadyState;
