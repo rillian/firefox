@@ -29,60 +29,28 @@ public:
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrack)
   NS_FORWARD_NSIDOMEVENTTARGET(nsDOMEventTargetHelper::)
 
-  TextTrack(nsISupports *aParent);
+  TextTrack(nsISupports *aParent,
+      const nsAString& aKind,
+      const nsAString& aLabel,
+      const nsAString& aLanguage);
   ~TextTrack();
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
 			       bool* aTriedToWrap);
 
-  nsISupports* GetParentObject()
-  {
-    return mParent;
-  }
+  nsISupports* GetParentObject();
 
-  void GetKind(nsAString& aKind)
-  {
-    aKind = mKind;
-  }
+  void GetKind(nsAString& aKind);
+  void GetLabel(nsAString& aLabel);
+  void GetLanguage(nsAString& aLanguage);
+  void GetInBandMetadataTrackDispatchType(nsAString& aType);
 
-  void GetLabel(nsAString& aLabel)
-  {
-    aLabel = mLabel;
-  }
+  TextTrackCueList* GetCues();
+  TextTrackCueList* GetActiveCues();
 
-  void GetLanguage(nsAString& aLanguage)
-  {
-    aLanguage = mLanguage;
-  }
-
-  void GetInBandMetadataTrackDispatchType(nsAString& aType)
-  {
-    aType = mType;
-  }
-
-  TextTrackCueList*
-  GetCues()
-  {
-    // XXXhumph: todo
-    return nullptr;
-  }
-
-  TextTrackCueList*
-  GetActiveCues()
-  {
-    // XXXhumph: todo
-    return nullptr;
-  }
-
-  void AddCue(TextTrackCue& cue)
-  {
-    // XXXhumph: todo
-  }
-
-  void RemoveCue(TextTrackCue& cue)
-  {
-    // XXXhumph: todo
-  }
+  void AddCue(TextTrackCue& cue);
+  void RemoveCue(TextTrackCue& cue);
+  void CueChanged(TextTrackCue& cue);
 
   IMPL_EVENT_HANDLER(cuechange)
 
@@ -93,8 +61,15 @@ private:
   nsString mLabel;
   nsString mLanguage;
   nsString mType;
+  nsString mMode;
 
-  // XXXhumph: need list of cues, active cues...
+  //XXX: TextTrackMode mMode needs to be
+  // implemented...
+  // spec says its an enum
+
+  nsRefPtr<TextTrackCueList> mCueList;
+  nsRefPtr<TextTrackCueList> mActiveCueList;
+
 };
 
 } // namespace dom
