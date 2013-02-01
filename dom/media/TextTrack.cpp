@@ -32,7 +32,7 @@ NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(TextTrack)
 NS_INTERFACE_MAP_END
 
 TextTrack::TextTrack(nsISupports *aParent,
-    const nsAString& aKind)
+    const nsAString& aKind,
     const nsAString& aLabel,
     const nsAString& aLanguage) :
   mParent(aParent),
