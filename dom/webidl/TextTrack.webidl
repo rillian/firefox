@@ -7,8 +7,11 @@
  * http://www.whatwg.org/specs/web-apps/current-work/#texttrack
  */
 
-// XXXhumph: todo
-//enum TextTrackMode { "disabled", "hidden", "showing" };
+enum TextTrackMode {
+  "disabled",
+  "hidden",
+  "showing"
+};
 
 interface TextTrack : EventTarget {
   readonly attribute DOMString kind;
@@ -16,8 +19,7 @@ interface TextTrack : EventTarget {
   readonly attribute DOMString language;
   readonly attribute DOMString inBandMetadataTrackDispatchType;
 
-// XXXhumph: todo
-//           attribute TextTrackMode mode;
+  attribute TextTrackMode mode;
 
   readonly attribute TextTrackCueList? cues;
   readonly attribute TextTrackCueList? activeCues;

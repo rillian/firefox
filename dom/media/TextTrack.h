@@ -7,7 +7,7 @@
 #ifndef mozilla_dom_TextTrack_h
 #define mozilla_dom_TextTrack_h
 
-//#include "mozilla/dom/TextTrackBinding.h"
+#include "mozilla/dom/TextTrackBinding.h"
 #include "TextTrackCue.h"
 #include "TextTrackCueList.h"
 #include "nsWrapperCache.h"
@@ -21,6 +21,8 @@ namespace dom {
 
 class TextTrackCue;
 class TextTrackCueList;
+
+typedef TextTrackModeValues::valuelist TextTrackMode;
 
 class TextTrack MOZ_FINAL : public nsDOMEventTargetHelper
 {
@@ -61,11 +63,7 @@ private:
   nsString mLabel;
   nsString mLanguage;
   nsString mType;
-  nsString mMode;
-
-  //XXX: TextTrackMode mMode needs to be
-  // implemented...
-  // spec says its an enum
+  TextTrackMode mMode;
 
   nsRefPtr<TextTrackCueList> mCueList;
   nsRefPtr<TextTrackCueList> mActiveCueList;
