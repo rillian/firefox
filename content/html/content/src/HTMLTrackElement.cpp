@@ -41,14 +41,7 @@ static PRLogModuleInfo* gTrackElementLog;
 #define LOG(type, msg)
 #endif
 
-// XXXhumph: doing this manually, since
-// NS_IMPL_NS_NEW_HTML_ELEMENT(Track) assumes names with nsHTML* vs. HTML*
-nsGenericHTMLElement*
-NS_NewHTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo,
-		       mozilla::dom::FromParser aFromParser)
-{
-  return new mozilla::dom::HTMLTrackElement(aNodeInfo);
-}
+NS_IMPL_NS_NEW_HTML_ELEMENT(Track)
 
 namespace mozilla {
 namespace dom {
@@ -186,7 +179,7 @@ HTMLTrackElement::LoadListener::AsyncOnChannelRedirect(
 
 NS_IMETHODIMP
 HTMLTrackElement::LoadListener::GetInterface(const nsIID &aIID,
-					     void **aResult)
+					     void** aResult)
 {
   return QueryInterface(aIID, aResult);
 }
@@ -228,7 +221,7 @@ HTMLTrackElement::WrapNode(JSContext* cx, JSObject* scope, bool* triedToWrap)
 }
 
 nsresult
-HTMLTrackElement::SetAcceptHeader(nsIHttpChannel *aChannel)
+HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
 {
 #ifdef MOZ_WEBVTT
   nsCAutoString value(
@@ -334,9 +327,9 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 }
 
 nsresult
-HTMLTrackElement::BindToTree(nsIDocument *aDocument,
-			     nsIContent *aParent,
-			     nsIContent *aBindingParent,
+HTMLTrackElement::BindToTree(nsIDocument* aDocument,
+			     nsIContent* aParent,
+			     nsIContent* aBindingParent,
 			     bool aCompileEventHandlers)
 {
   nsresult rv = nsGenericHTMLElement::BindToTree(aDocument,

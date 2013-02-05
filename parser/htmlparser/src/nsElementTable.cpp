@@ -1247,7 +1247,7 @@ const nsHTMLElement gHTMLElements[] = {
     /*special props, prop-range*/       0, kDefaultPropRange,
     /*special parents,kids*/            0,0,
   },
-#if defined(MOZ_MEDIA)
+#if defined(MOZ_WEBVTT)
   {
     /*tag*/                             eHTMLTag_track,
     /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,
