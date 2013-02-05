@@ -159,7 +159,7 @@ HTML_TAG(time, Time)
 HTML_TAG(title, Title)
 HTML_TAG(tr, TableRow)
 HTML_HTMLELEMENT_TAG(tt)
-#if defined(MOZ_MEDIA)
+#if defined(MOZ_WEBVTT)
 HTML_TAG(track, Track)
 #endif
 HTML_HTMLELEMENT_TAG(u)

@@ -20,13 +20,8 @@ namespace dom {
 
 class TextTrack;
 
-/**
- * XXXhumph: there are some places where HTMLElements are assumed to be named
- * using nsHTML*Element as the prefix vs. HTML*Element.  For example, see:
- * NS_IMPL_NS_NEW_HTML_ELEMENT in content/html/content/src/nsGenericHTMLElement.h.
- */
-class HTMLTrackElement : public nsGenericHTMLElement,
-			 public nsIDOMHTMLElement
+class HTMLTrackElement MOZ_FINAL : public nsGenericHTMLElement,
+                                   public nsIDOMHTMLElement
 {
 public:
   HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo);
@@ -49,36 +44,36 @@ public:
   {
     GetHTMLAttr(nsGkAtoms::kind, aKind);
   }
-  void SetKind(const nsAString& aKind, mozilla::ErrorResult& aError)
+  void SetKind(const nsAString& aKind)
   {
-    SetHTMLAttr(nsGkAtoms::kind, aKind, aError);
+    SetHTMLAttr(nsGkAtoms::kind, aKind);
   }
 
   void GetSrc(nsString& aSrc)
   {
     GetHTMLAttr(nsGkAtoms::src, aSrc);
   }
-  void SetSrc(const nsAString& aSrc, mozilla::ErrorResult& aError)
+  void SetSrc(const nsAString& aSrc)
   {
-    SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
+    SetHTMLAttr(nsGkAtoms::src, aSrc);
   }
 
   void GetSrclang(nsString& aSrclang)
   {
     GetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
-  void SetSrclang(const nsAString& aSrclang, mozilla::ErrorResult& aError)
+  void SetSrclang(const nsAString& aSrclang)
   {
-    SetHTMLAttr(nsGkAtoms::srclang, aSrclang, aError);
+    SetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
 
   void GetLabel(nsString& aLabel)
   {
     GetHTMLAttr(nsGkAtoms::label, aLabel);
   }
-  void SetLabel(const nsAString& aLabel, mozilla::ErrorResult& aError)
+  void SetLabel(const nsAString& aLabel)
   {
-    SetHTMLAttr(nsGkAtoms::label, aLabel, aError);
+    SetHTMLAttr(nsGkAtoms::label, aLabel);
   }
 
   bool Default()
@@ -102,20 +97,20 @@ public:
     return mTrack;
   }
 
-  virtual nsresult Clone(nsINodeInfo *aNodeInfo, nsINode **aResult) const;
+  virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const;
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
   virtual nsIDOMNode* AsDOMNode() { return this; }
 
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
-  virtual nsresult BindToTree(nsIDocument *aDocument, nsIContent *aParent,
-                              nsIContent *aBindingParent, bool aCompileEventHandlers);
+  virtual nsresult BindToTree(nsIDocument* aDocument, nsIContent* aParent,
+                              nsIContent* aBindingParent, bool aCompileEventHandlers);
 
   PRUint32 GetCurrentLoadID() { return mCurrentLoadID; }
 
 protected:
-  virtual JSObject* WrapNode(JSContext *aCx, JSObject *aScope,
-                             bool *aTriedToWrap) MOZ_OVERRIDE;
+  virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope,
+                             bool* aTriedToWrap) MOZ_OVERRIDE;
 
   class LoadListener;
   PRUint32 mCurrentLoadID;

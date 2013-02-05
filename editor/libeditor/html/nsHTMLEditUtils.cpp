@@ -755,7 +755,7 @@ static const nsElementInfo kElements[eHTMLTag_userdefined] = {
   ELEM(time, true, false, GROUP_PHRASE, GROUP_INLINE_ELEMENT),
   ELEM(title, true, false, GROUP_HEAD_CONTENT, GROUP_LEAF),
   ELEM(tr, true, false, GROUP_TBODY_CONTENT, GROUP_TR_CONTENT),
-#if defined(MOZ_MEDIA)
+#if defined(MOZ_WEBVTT)
   ELEM(track, false, false, GROUP_NONE, GROUP_NONE),
 #endif
   ELEM(tt, true, true, GROUP_FONTSTYLE, GROUP_INLINE_ELEMENT),
