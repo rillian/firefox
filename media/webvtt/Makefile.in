@@ -1,0 +1,38 @@
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DEPTH           = ../..
+topsrcdir       = @top_srcdir@
+srcdir          = @srcdir@
+VPATH           = @srcdir@
+
+DIRS            = src
+
+include $(DEPTH)/config/autoconf.mk
+
+MODULE            = webvtt
+LIBRARY_NAME      = webvtt
+
+#Doesn't seem to matter
+#FORCE_STATIC_LIB = 1
+
+EXPORTS_NAMESPACES = webvtt
+EXPORTS_webvtt = \
+  include/webvtt/cue.h \
+  include/webvtt/error.h \
+  include/webvtt/parser.h \
+  include/webvtt/string.h \
+  include/webvtt/util.h \
+  $(NULL)
+
+CSRCS = \
+  src/alloc.c \
+  src/cue.c \
+  src/cuetext.c \
+  src/error.c \
+  src/lexer.c \
+  src/parser.c \
+  src/string.c \
+  $(NULL)
+
+include $(topsrcdir)/config/rules.mk
