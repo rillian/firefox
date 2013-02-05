@@ -139,6 +139,12 @@ tier_platform_dirs += \
 		$(NULL)
 endif
 
+ifdef MOZ_WEBVTT
+tier_platform_dirs += \
+		media/webvtt \
+		$(NULL)
+endif
+
 ifdef MOZ_WEBRTC
 tier_platform_dirs += \
   media/webrtc \

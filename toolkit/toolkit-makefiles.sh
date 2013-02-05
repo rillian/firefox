@@ -1681,6 +1681,12 @@ if [ "$MOZ_VP8" ]; then
   fi
 fi
 
+if [ "$MOZ_WEBVTT" ]; then
+  add_makefiles "
+    media/webvtt/Makefile
+  "
+fi
+
 if [ "$MOZ_MEDIA_PLUGINS" ]; then
   add_makefiles "
     content/media/plugins/Makefile
