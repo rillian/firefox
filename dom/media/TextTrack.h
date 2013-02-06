@@ -22,8 +22,6 @@ namespace dom {
 class TextTrackCue;
 class TextTrackCueList;
 
-typedef TextTrackModeValues::valuelist TextTrackMode;
-
 class TextTrack MOZ_FINAL : public nsDOMEventTargetHelper
 {
 public:
