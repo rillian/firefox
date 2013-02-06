@@ -47,6 +47,9 @@ public:
   void GetLanguage(nsAString& aLanguage);
   void GetInBandMetadataTrackDispatchType(nsAString& aType);
 
+  TextTrackMode Mode();
+  void SetMode(TextTrackMode value);
+
   TextTrackCueList* GetCues();
   TextTrackCueList* GetActiveCues();
 
