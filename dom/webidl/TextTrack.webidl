@@ -19,7 +19,7 @@ interface TextTrack : EventTarget {
   readonly attribute DOMString language;
   readonly attribute DOMString inBandMetadataTrackDispatchType;
 
-  attribute TextTrackMode mode;
+           attribute TextTrackMode mode;
 
   readonly attribute TextTrackCueList? cues;
   readonly attribute TextTrackCueList? activeCues;
