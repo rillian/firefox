@@ -38,8 +38,8 @@ TextTrack::TextTrack(nsISupports *aParent,
   mParent(aParent),
   mKind(aKind),
   mLabel(aLabel),
-  mLanguage(aLanguage)
-  //XXX:mMode(WEBVTT_MODE_HIDDEN),
+  mLanguage(aLanguage),
+  mMode(TextTrackMode::hidden)
   //XXX:mCueList(new cue list goes here),
   //XXX:mActiveCueList(new active cue list)
 {
@@ -93,6 +93,18 @@ void
 TextTrack::GetInBandMetadataTrackDispatchType(nsAString& aType)
 {
   aType = mType;
+}
+
+TextTrackMode
+TextTrack::Mode()
+{
+  return mMode;
+}
+
+void
+TextTrack::SetMode(TextTrackMode value)
+{
+  mMode = value;
 }
 
 TextTrackCueList*
