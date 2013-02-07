@@ -47,5 +47,17 @@ TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
   return TextTrackCueListBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
+void
+TextTrackCueList::AddCue(TextTrackCue& cue)
+{
+  //XXX: todo
+}
+
+void
+TextTrackCueList::RemoveCue(TextTrackCue& cue)
+{
+  //XXX: todo
+}
+
 } // namespace dom
 } // namespace mozilla
