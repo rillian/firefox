@@ -53,6 +53,9 @@ public:
     return nullptr;
   }
 
+  void AddCue(TextTrackCue& cue);
+  void RemoveCue(TextTrackCue& cue);
+
 private:
   nsCOMPtr<nsISupports> mParent;
 

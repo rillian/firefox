@@ -40,16 +40,18 @@ TextTrack::TextTrack(nsISupports *aParent,
   mLabel(aLabel),
   mLanguage(aLanguage),
   mMode(TextTrackMode::Hidden)
+{
   //XXX:mCueList(new cue list goes here),
   //XXX:mActiveCueList(new active cue list)
-{
+  //XXX: populate both cue lists
+
   //XXX: any asserts done here?
   //XXX: dom spec says to set
   //certain strings as default
   //if they are empty. label
   //and language are optional
+
   SetIsDOMBinding();
-  //XXX: populate both cue lists
 }
 
 TextTrack::~TextTrack()
@@ -123,9 +125,7 @@ void
 TextTrack::AddCue(TextTrackCue& cue)
 {
   //XXX: if cue exists, remove
-  //XXX: add cue
-  //mCueList->addCue(cue);
-  
+  mCueList->AddCue(cue);
 }
 
 void
@@ -133,8 +133,7 @@ TextTrack::RemoveCue(TextTrackCue& cue)
 {
   //XXX: if cue does not exists throw
   //a NotFoundError exception
-  //XXX: remove cue
-  //mCueList->removeCue(cue);
+  mCueList->RemoveCue(cue);
 }
 
 void
