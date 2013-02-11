@@ -39,6 +39,7 @@ TextTrack::TextTrack(nsISupports *aParent,
   mKind(aKind),
   mLabel(aLabel),
   mLanguage(aLanguage),
+  mType(""),
   mMode(TextTrackMode::Hidden)
 {
   //XXX:mCueList(new cue list goes here),
