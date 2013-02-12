@@ -59,6 +59,8 @@ public:
 private:
   nsCOMPtr<nsISupports> mParent;
 
+  nsTArray<TextTrackCue> mList;
+
   uint32_t mLength;
 };
 
