@@ -110,18 +110,26 @@ TextTrack::Mode()
 void
 TextTrack::SetMode(TextTrackMode value)
 {
+  //XXX: spec seems to want strings, how to
+  //accept strings here?
   mMode = value;
 }
 
 TextTrackCueList*
 TextTrack::GetCues()
 {
+  if(mMode == TextTrackMode::Disabled) {
+    return nullptr;
+  }
   return mCueList;
 }
 
 TextTrackCueList*
 TextTrack::GetActiveCues()
 {
+  if(mMode == TextTrackMode::Disabled) {
+    return nullptr;
+  }
   return mActiveCueList;
 }
 
