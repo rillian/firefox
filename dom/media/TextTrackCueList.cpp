@@ -50,7 +50,7 @@ TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
 void
 TextTrackCueList::AddCue(TextTrackCue& cue)
 {
-  //XXX: todo
+  mList.AppendElement(cue);
 }
 
 void
