@@ -122,6 +122,17 @@ public:
     mSnapToLines = aSnapToLines;
   }
 
+  double Line()
+  {
+    return mLine;
+  }
+
+  void SetLine(double value)
+  {
+    //XXX: validate?
+    mLine = value;
+  }
+
   int32_t Position()
   {
     return mPosition;
@@ -185,6 +196,7 @@ private:
   bool mPauseOnExit;
   nsString mVertical;
   bool mSnapToLines;
+  double mLine;
   int32_t mPosition;
   int32_t mSize;
   nsString mAlign;
