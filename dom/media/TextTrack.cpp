@@ -51,7 +51,8 @@ TextTrack::TextTrack(nsISupports *aParent,
 TextTrack::~TextTrack()
 {
   mParent = nullptr;
-  //XXX: anything else need to be destroyed?
+  delete mCueList;
+  delete mActiveCueList;
 }
 
 JSObject*
