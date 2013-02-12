@@ -39,18 +39,11 @@ TextTrack::TextTrack(nsISupports *aParent,
   mKind(aKind),
   mLabel(aLabel),
   mLanguage(aLanguage),
-  mType(""),
+  mType(EmptyString()),
   mMode(TextTrackMode::Hidden)
 {
-  //XXX:mCueList(new cue list goes here),
-  //XXX:mActiveCueList(new active cue list)
-  //XXX: populate both cue lists
-
-  //XXX: any asserts done here?
-  //XXX: dom spec says to set
-  //certain strings as default
-  //if they are empty. label
-  //and language are optional
+  mCueList = new TextTrackCueList(aParent);
+  mActiveCueList = new TextTrackCueList(aParent);
 
   SetIsDOMBinding();
 }
@@ -102,6 +95,16 @@ TextTrackMode
 TextTrack::Mode()
 {
   return mMode;
+  //XXX: how to return a string here?
+  /*
+  switch (mMode) {
+    case TextTrackMode::Hidden:
+      return NS_LITERAL_STRING("hidden");
+    case TextTrackMode::Disabled:
+      return NS_LITERAL_STRING("disabled");
+    case TextTrackMode::Showing:
+      return NS_LITERAL_STRING("showing");
+  };*/
 }
 
 void
