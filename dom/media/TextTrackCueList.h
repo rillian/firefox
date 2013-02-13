@@ -41,17 +41,8 @@ public:
     return mLength;
   }
 
-  TextTrackCue* IndexedGetter(int32_t aIndex, bool& aFound)
-  {
-    // XXXhumph: todo
-    return nullptr;
-  }
-
-  TextTrackCue* GetCueById(const nsAString& id)
-  {
-    // XXXhumph: todo
-    return nullptr;
-  }
+  TextTrackCue* IndexedGetter(int32_t aIndex, bool& aFound);
+  TextTrackCue* GetCueById(const nsAString& id);
 
   void AddCue(TextTrackCue& cue);
   void RemoveCue(TextTrackCue& cue);
