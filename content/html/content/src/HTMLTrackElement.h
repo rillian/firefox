@@ -44,7 +44,7 @@ public:
   {
     GetHTMLAttr(nsGkAtoms::kind, aKind);
   }
-  void SetKind(const nsAString& aKind)
+  void SetKind(const nsAString& aKind, ErrorResult& aError)
   {
     SetHTMLAttr(nsGkAtoms::kind, aKind);
   }
@@ -53,37 +53,36 @@ public:
   {
     GetHTMLAttr(nsGkAtoms::src, aSrc);
   }
-  void SetSrc(const nsAString& aSrc)
+  void SetSrc(const nsAString& aSrc, ErrorResult& aError)
   {
-    SetHTMLAttr(nsGkAtoms::src, aSrc);
+    SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
   }
 
   void GetSrclang(nsString& aSrclang)
   {
     GetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
-  void SetSrclang(const nsAString& aSrclang)
+  void SetSrclang(const nsAString& aSrclang, ErrorResult& aError)
   {
-    SetHTMLAttr(nsGkAtoms::srclang, aSrclang);
+    SetHTMLAttr(nsGkAtoms::srclang, aSrclang, aError);
   }
 
   void GetLabel(nsString& aLabel)
   {
     GetHTMLAttr(nsGkAtoms::label, aLabel);
   }
-  void SetLabel(const nsAString& aLabel)
+  void SetLabel(const nsAString& aLabel, ErrorResult& aError)
   {
-    SetHTMLAttr(nsGkAtoms::label, aLabel);
+    SetHTMLAttr(nsGkAtoms::label, aLabel, aError);
   }
 
   bool Default()
   {
-    return mDefault;
+    return GetBoolAttr(nsGkAtoms::_default);
   }
-
-  void SetDefault(bool aDefault)
+  void SetDefault(bool aDefault, ErrorResult& aError)
   {
-    mDefault = aDefault;
+    SetHTMLBoolAttr(nsGkAtoms::_default, aDefault, aError);
   }
 
   uint16_t ReadyState()
@@ -118,7 +117,6 @@ protected:
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
   uint16_t mReadyState;
-  bool mDefault;
 
   nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
   nsresult LoadResource(nsIURI* aURI);
