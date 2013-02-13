@@ -47,16 +47,40 @@ TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
   return TextTrackCueListBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
+TextTrackCue*
+TextTrackCueList::IndexedGetter(int32_t aIndex, bool& aFound)
+{
+  aFound = (mList[aIndex] == nullptr) ? false : true;
+  return aFound ? &mList[aIndex] : nullptr;
+}
+
+TextTrackCue*
+TextTrackCueList::GetCueById(const nsAString& id)
+{
+  if(id.EqualsLiteral("")) return nullptr;
+  for (PRUint32 i = 0; i < mList.Length(); i++) {
+    nsString tid;
+    mList[i].GetId(tid);
+    if (id.Equals(tid)) {
+      return &mList[i];
+    }
+  }
+  return nullptr;
+}
+
 void
 TextTrackCueList::AddCue(TextTrackCue& cue)
 {
   mList.AppendElement(cue);
+  mLength++;
 }
 
 void
 TextTrackCueList::RemoveCue(TextTrackCue& cue)
 {
   //XXX: todo
+  mList.RemoveElement(cue);
+  mLength--;
 }
 
 } // namespace dom

@@ -183,6 +183,13 @@ public:
     return nullptr;
   }
 
+  bool
+  operator==(const TextTrackCue& rhs) const
+  {
+    //XXX compare real values
+    return false;
+  }
+
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)
 
