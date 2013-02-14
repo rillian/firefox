@@ -190,6 +190,8 @@ public:
     return false;
   }
 
+  bool operator==(const TextTrackCue& rhs) const;
+
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)
 

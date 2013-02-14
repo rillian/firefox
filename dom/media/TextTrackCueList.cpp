@@ -50,7 +50,7 @@ TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
 TextTrackCue*
 TextTrackCueList::IndexedGetter(int32_t aIndex, bool& aFound)
 {
-  aFound = (mList[aIndex] == nullptr) ? false : true;
+  aFound = aIndex < mLength;
   return aFound ? &mList[aIndex] : nullptr;
 }
 
@@ -58,6 +58,7 @@ TextTrackCue*
 TextTrackCueList::GetCueById(const nsAString& id)
 {
   if(id.EqualsLiteral("")) return nullptr;
+  /*
   for (PRUint32 i = 0; i < mList.Length(); i++) {
     nsString tid;
     mList[i].GetId(tid);
@@ -65,6 +66,7 @@ TextTrackCueList::GetCueById(const nsAString& id)
       return &mList[i];
     }
   }
+  */
   return nullptr;
 }
 
@@ -78,7 +80,6 @@ TextTrackCueList::AddCue(TextTrackCue& cue)
 void
 TextTrackCueList::RemoveCue(TextTrackCue& cue)
 {
-  //XXX: todo
   mList.RemoveElement(cue);
   mLength--;
 }
