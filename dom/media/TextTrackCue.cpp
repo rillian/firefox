@@ -245,5 +245,11 @@ TextTrackCue::GetCueAsHTML()
   return nullptr;
 }
 
+bool
+TextTrackCue::operator==(const TextTrackCue& rhs) const {
+  //XXX: todo
+  return false;
+}
+
 } // namespace dom
 } // namespace mozilla
