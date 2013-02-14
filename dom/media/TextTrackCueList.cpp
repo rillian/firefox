@@ -58,7 +58,6 @@ TextTrackCue*
 TextTrackCueList::GetCueById(const nsAString& id)
 {
   if(id.EqualsLiteral("")) return nullptr;
-  /*
   for (PRUint32 i = 0; i < mList.Length(); i++) {
     nsString tid;
     mList[i].GetId(tid);
@@ -66,7 +65,6 @@ TextTrackCueList::GetCueById(const nsAString& id)
       return &mList[i];
     }
   }
-  */
   return nullptr;
 }
 
