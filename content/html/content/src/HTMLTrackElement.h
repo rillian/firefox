@@ -40,7 +40,7 @@ public:
   NS_FORWARD_NSIDOMHTMLELEMENT_TO_GENERIC
 
   // HTMLTrackElement WebIDL
-  void GetKind(nsString& aKind)
+  void GetKind(nsAString& aKind)
   {
     GetHTMLAttr(nsGkAtoms::kind, aKind);
   }
@@ -49,7 +49,7 @@ public:
     SetHTMLAttr(nsGkAtoms::kind, aKind);
   }
 
-  void GetSrc(nsString& aSrc)
+  void GetSrc(nsAString& aSrc)
   {
     GetHTMLAttr(nsGkAtoms::src, aSrc);
   }
@@ -58,7 +58,7 @@ public:
     SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
   }
 
-  void GetSrclang(nsString& aSrclang)
+  void GetSrclang(nsAString& aSrclang)
   {
     GetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
@@ -67,7 +67,7 @@ public:
     SetHTMLAttr(nsGkAtoms::srclang, aSrclang, aError);
   }
 
-  void GetLabel(nsString& aLabel)
+  void GetLabel(nsAString& aLabel)
   {
     GetHTMLAttr(nsGkAtoms::label, aLabel);
   }
@@ -99,6 +99,15 @@ public:
   virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const;
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
   virtual nsIDOMNode* AsDOMNode() { return this; }
+
+  // For Track, ItemValue reflects the src attribute
+  virtual void GetItemValueText(nsAString& text) {
+    GetSrc(text);
+  }
+  virtual void SetItemValueText(const nsAString& text) {
+    ErrorResult rv;
+    SetSrc(text, rv);
+  }
 
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
