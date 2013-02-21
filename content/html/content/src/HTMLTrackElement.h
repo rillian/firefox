@@ -46,7 +46,7 @@ public:
   }
   void SetKind(const nsAString& aKind, ErrorResult& aError)
   {
-    SetHTMLAttr(nsGkAtoms::kind, aKind);
+    SetHTMLAttr(nsGkAtoms::kind, aKind, aError);
   }
 
   void GetSrc(nsAString& aSrc)
@@ -114,14 +114,14 @@ public:
   virtual nsresult BindToTree(nsIDocument* aDocument, nsIContent* aParent,
                               nsIContent* aBindingParent, bool aCompileEventHandlers);
 
-  PRUint32 GetCurrentLoadID() { return mCurrentLoadID; }
+  uint32_t GetCurrentLoadID() { return mCurrentLoadID; }
 
 protected:
   virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope,
                              bool* aTriedToWrap) MOZ_OVERRIDE;
 
   class LoadListener;
-  PRUint32 mCurrentLoadID;
+  uint32_t mCurrentLoadID;
   nsRefPtr<TextTrack> mTrack;
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
