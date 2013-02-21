@@ -85,15 +85,15 @@ TextTrack::Mode()
 }
 
 void
-TextTrack::SetMode(TextTrackMode value)
+TextTrack::SetMode(TextTrackMode aValue)
 {
-  mMode = value;
+  mMode = aValue;
 }
 
 TextTrackCueList*
 TextTrack::GetCues()
 {
-  if(mMode == TextTrackMode::Disabled) {
+  if (mMode == TextTrackMode::Disabled) {
     return nullptr;
   }
   return mCueList;
@@ -102,29 +102,29 @@ TextTrack::GetCues()
 TextTrackCueList*
 TextTrack::GetActiveCues()
 {
-  if(mMode == TextTrackMode::Disabled) {
+  if (mMode == TextTrackMode::Disabled) {
     return nullptr;
   }
   return mActiveCueList;
 }
 
 void
-TextTrack::AddCue(TextTrackCue& cue)
+TextTrack::AddCue(TextTrackCue& aCue)
 {
   //XXX: if cue exists, remove
-  mCueList->AddCue(cue);
+  mCueList->AddCue(aCue);
 }
 
 void
-TextTrack::RemoveCue(TextTrackCue& cue)
+TextTrack::RemoveCue(TextTrackCue& aCue)
 {
   //XXX: if cue does not exists throw
   //a NotFoundError exception
-  mCueList->RemoveCue(cue);
+  mCueList->RemoveCue(aCue);
 }
 
 void
-TextTrack::CueChanged(TextTrackCue& cue)
+TextTrack::CueChanged(TextTrackCue& aCue)
 {
   //XXX: cue changed handling
 }
