@@ -61,11 +61,11 @@ class HTMLTrackElement::LoadListener MOZ_FINAL : public nsIStreamListener,
 
 public:
   LoadListener(HTMLTrackElement *aElement)
-    : mElement(aElement),
-      mLoadID(aElement->GetCurrentLoadID())
-    {
-      NS_ABORT_IF_FALSE(mElement, "Must pass an element to the callback");
-    }
+    : mElement(aElement)
+    , mLoadID(aElement->GetCurrentLoadID())
+  {
+    NS_ABORT_IF_FALSE(mElement, "Must pass an element to the callback");
+  }
 
 private:
   nsRefPtr<HTMLTrackElement> mElement;
@@ -117,9 +117,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
   printf("Track got data! %u bytes at offset %llu\n", aCount, aOffset);
 
   nsresult rv;
-  uint64_t available;
   bool blocking;
-
   rv = aStream->IsNonBlocking(&blocking);
   NS_ENSURE_SUCCESS(rv,rv);
 
@@ -128,6 +126,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
   else
     printf("Track data stream is BLOCKING!\n");
 
+  uint64_t available;
   rv = aStream->Available(&available);
   NS_ENSURE_SUCCESS(rv, rv);
   printf("Track has %llu bytes available\n", available);
