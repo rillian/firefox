@@ -186,7 +186,7 @@ HTMLTrackElement::LoadListener::GetInterface(const nsIID &aIID,
 
 /** HTMLTrackElement */
 HTMLTrackElement::HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo)
-    : nsGenericHTMLElement(aNodeInfo)
+  : nsGenericHTMLElement(aNodeInfo)
 {
 #ifdef PR_LOGGING
   if (!gTrackElementLog) {
@@ -214,9 +214,9 @@ NS_HTML_CONTENT_INTERFACE_MAP_END
 NS_IMPL_ELEMENT_CLONE(HTMLTrackElement)
 
 JSObject*
-HTMLTrackElement::WrapNode(JSContext* cx, JSObject* scope, bool* triedToWrap)
+HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope, bool* aTriedToWrap)
 {
-  return HTMLTrackElementBinding::Wrap(cx, scope, this, triedToWrap);
+  return HTMLTrackElementBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
 nsresult
