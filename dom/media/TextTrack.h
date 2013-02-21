@@ -46,14 +46,14 @@ public:
   void GetInBandMetadataTrackDispatchType(nsAString& aType);
 
   TextTrackMode Mode();
-  void SetMode(TextTrackMode value);
+  void SetMode(TextTrackMode aValue);
 
   TextTrackCueList* GetCues();
   TextTrackCueList* GetActiveCues();
 
-  void AddCue(TextTrackCue& cue);
-  void RemoveCue(TextTrackCue& cue);
-  void CueChanged(TextTrackCue& cue);
+  void AddCue(TextTrackCue& aCue);
+  void RemoveCue(TextTrackCue& aCue);
+  void CueChanged(TextTrackCue& aCue);
 
   IMPL_EVENT_HANDLER(cuechange)
 
@@ -68,7 +68,6 @@ private:
 
   nsRefPtr<TextTrackCueList> mCueList;
   nsRefPtr<TextTrackCueList> mActiveCueList;
-
 };
 
 } // namespace dom

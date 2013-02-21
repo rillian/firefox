@@ -81,8 +81,9 @@ TextTrackCue::GetId(nsAString& aId) const
 void
 TextTrackCue::SetId(const nsAString& aId)
 {
-  if (mId == aId)
+  if (mId == aId) {
     return;
+  }
 
   mId = aId;
   CueChanged();
@@ -214,8 +215,9 @@ void
 TextTrackCue::SetAlign(const nsAString& aAlign)
 {
   // XXXhumph: validate?
-  if (mAlign == aAlign)
+  if (mAlign == aAlign) {
     return;
+  }
 
   mAlign = aAlign;
   CueChanged();
