@@ -28,7 +28,7 @@ TextTrack::TextTrack(nsISupports *aParent,
   mKind(aKind),
   mLabel(aLabel),
   mLanguage(aLanguage),
-  mType(EmptyString()),
+  mType(),
   mMode(TextTrackMode::Hidden)
 {
   mCueList = new TextTrackCueList(aParent);
@@ -39,9 +39,6 @@ TextTrack::TextTrack(nsISupports *aParent,
 
 TextTrack::~TextTrack()
 {
-  mParent = nullptr;
-  delete mCueList;
-  delete mActiveCueList;
 }
 
 JSObject*
@@ -85,23 +82,11 @@ TextTrackMode
 TextTrack::Mode()
 {
   return mMode;
-  //XXX: how to return a string here?
-  /*
-  switch (mMode) {
-    case TextTrackMode::Hidden:
-      return NS_LITERAL_STRING("hidden");
-    case TextTrackMode::Disabled:
-      return NS_LITERAL_STRING("disabled");
-    case TextTrackMode::Showing:
-      return NS_LITERAL_STRING("showing");
-  };*/
 }
 
 void
 TextTrack::SetMode(TextTrackMode value)
 {
-  //XXX: spec seems to want strings, how to
-  //accept strings here?
   mMode = value;
 }
 
