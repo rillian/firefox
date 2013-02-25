@@ -60,7 +60,7 @@ class HTMLTrackElement::LoadListener MOZ_FINAL : public nsIStreamListener,
   NS_DECL_NSIINTERFACEREQUESTOR
 
 public:
-  LoadListener(HTMLTrackElement *aElement)
+  LoadListener(HTMLTrackElement* aElement)
     : mElement(aElement)
     , mLoadID(aElement->GetCurrentLoadID())
   {
@@ -79,7 +79,7 @@ NS_IMPL_ISUPPORTS5(HTMLTrackElement::LoadListener, nsIRequestObserver,
 
 NS_IMETHODIMP
 HTMLTrackElement::LoadListener::Observe(nsISupports* aSubject,
-					const char *aTopic,
+					const char* aTopic,
 					const PRUnichar* aData)
 {
   nsContentUtils::UnregisterShutdownObserver(this);
@@ -109,7 +109,7 @@ HTMLTrackElement::LoadListener::OnStopRequest(nsIRequest* aRequest,
 
 NS_IMETHODIMP
 HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
-						nsISupports *aContext,
+						nsISupports* aContext,
 						nsIInputStream* aStream,
 						uint64_t aOffset,
 						uint32_t aCount)
@@ -131,7 +131,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
   NS_ENSURE_SUCCESS(rv, rv);
   printf("Track has %llu bytes available\n", available);
 
-  char *buf = (char *)malloc(aCount);
+  char* buf = (char*)malloc(aCount);
   if (buf) {
     uint32_t read;
     rv = aStream->Read(buf, aCount, &read);
