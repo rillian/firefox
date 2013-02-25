@@ -131,7 +131,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
   NS_ENSURE_SUCCESS(rv, rv);
   printf("Track has %llu bytes available\n", available);
 
-  char* buf = (char*)malloc(aCount);
+  char* buf = static_cast<char*>(moz_malloc(aCount));
   if (buf) {
     uint32_t read;
     rv = aStream->Read(buf, aCount, &read);
