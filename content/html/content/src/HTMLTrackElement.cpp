@@ -223,9 +223,7 @@ nsresult
 HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
 {
 #ifdef MOZ_WEBVTT
-  nsCAutoString value(
-      "text/webvtt"
-      );
+  NS_NAMED_LITERAL_CSTRING(value, "text/webvtt");
 
   return aChannel->SetRequestHeader(NS_LITERAL_CSTRING("Accept"),
 				    value,
