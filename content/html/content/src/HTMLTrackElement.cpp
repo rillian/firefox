@@ -74,13 +74,13 @@ private:
 };
 
 NS_IMPL_ISUPPORTS5(HTMLTrackElement::LoadListener, nsIRequestObserver,
-		   nsIStreamListener, nsIChannelEventSink,
-		   nsIInterfaceRequestor, nsIObserver)
+                   nsIStreamListener, nsIChannelEventSink,
+                   nsIInterfaceRequestor, nsIObserver)
 
 NS_IMETHODIMP
 HTMLTrackElement::LoadListener::Observe(nsISupports* aSubject,
-					const char* aTopic,
-					const PRUnichar* aData)
+                                        const char* aTopic,
+                                        const PRUnichar* aData)
 {
   nsContentUtils::UnregisterShutdownObserver(this);
 
@@ -267,6 +267,9 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   NS_ENSURE_SUCCESS(rv, rv);
   if (csp) {
     channelPolicy = do_CreateInstance("@mozilla.org/nschannelpolicy;1");
+    if (!channelPolicy) {
+      return NS_ERROR_FAILURE;
+    }
     channelPolicy->SetContentSecurityPolicy(csp);
     channelPolicy->SetLoadType(nsIContentPolicy::TYPE_MEDIA);
   }
