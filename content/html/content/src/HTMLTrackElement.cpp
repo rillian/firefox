@@ -278,7 +278,7 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 		     nullptr,
 		     nsICachingChannel::LOAD_BYPASS_LOCAL_CACHE_IF_BUSY,
 		     channelPolicy);
-  NS_ENSURE_SUCCESS(rv,rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsRefPtr<LoadListener> listener = new LoadListener(this);
   channel->SetNotificationCallbacks(listener);
@@ -304,8 +304,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 						 aParent,
 						 aBindingParent,
 						 aCompileEventHandlers);
-  if(NS_FAILED(rv))
-    return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   LOG(PR_LOG_DEBUG, ("Track Element bound to tree."));
   fprintf(stderr, "Track element bound to tree.\n");
