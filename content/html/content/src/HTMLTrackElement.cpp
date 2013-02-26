@@ -325,8 +325,8 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 
   if (GetAttr(kNameSpaceID_None, nsGkAtoms::src, src)) {
     nsCOMPtr<nsIURI> uri;
-    nsresult rv = NewURIFromString(src, getter_AddRefs(uri));
-    if (NS_SUCCEEDED(rv)) {
+    nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
+    if (NS_SUCCEEDED(rvTwo)) {
       LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
 	     NS_ConvertUTF16toUTF8(src).get()));
       printf("%p Trying to load from src=%s\n", this,
