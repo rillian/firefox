@@ -334,9 +334,9 @@ ifdef MOZ_WEBVTT
 webidl_files += \
   HTMLTrackElement.webidl \
   TextTrack.webidl \
-	TextTrackCue.webidl \
-	TextTrackCueList.webidl \
-	$(NULL)
+  TextTrackCue.webidl \
+  TextTrackCueList.webidl \
+  $(NULL)
 endif
 
 ifdef ENABLE_TESTS
