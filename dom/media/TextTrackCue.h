@@ -32,7 +32,8 @@ public:
 	      const nsAString& aText,
 	      ErrorResult& aRv)
   {
-    nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal);
+    nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal, aStartTime,
+                                                    aEndTime, aText);
     ttcue->Init(aStartTime, aEndTime, aText, aRv);
     if (aRv.Failed()) {
       return nullptr;
@@ -190,7 +191,6 @@ public:
     return false;
   }
 
-  bool operator==(const TextTrackCue& rhs) const;
 
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)
