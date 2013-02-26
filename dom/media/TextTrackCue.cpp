@@ -185,9 +185,13 @@ TextTrackCue::Size()
 void
 TextTrackCue::SetSize(int32_t aSize)
 {
-  // XXXhumph: validate?
-  if (mSize == aSize)
+  if (mSize == aSize) {
     return;
+  }
+
+  if (aSize < 0 || aSize > 100) {
+    //XXX:throw IndexSizeError;
+  }
 
   mSize = aSize;
   CueChanged();
@@ -232,13 +236,12 @@ DocumentFragment*
 TextTrackCue::GetCueAsHTML()
 {
   // XXXhumph: todo
-  return nullptr;
+  return nullptr; //already_AddRefed<DocumentFragment>;
 }
 
 bool
 TextTrackCue::operator==(const TextTrackCue& rhs) const {
-  //XXX: todo
-  return false;
+  return (mId.Equals(rhs.mId));
 }
 
 } // namespace dom
