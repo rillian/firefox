@@ -33,9 +33,7 @@ XPIDLSRCS = \
   nsIMediaManager.idl \
   $(NULL)
 
-EXPORTS_NAMESPACES = \
-	mozilla \
-	$(NULL)
+EXPORTS_NAMESPACES = mozilla
 
 EXPORTS_mozilla = \
   MediaManager.h \
@@ -47,8 +45,8 @@ CPPSRCS = \
 
 ifdef MOZ_WEBVTT
 EXPORTS_NAMESPACES += \
-	mozilla/dom \
-	$(NULL)
+  mozilla/dom \
+  $(NULL)
 EXPORTS_mozilla/dom = \
   TextTrack.h \
   TextTrackCue.h \
