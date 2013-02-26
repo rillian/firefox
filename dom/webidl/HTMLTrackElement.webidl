@@ -8,16 +8,16 @@
  */
 
 interface HTMLTrackElement : HTMLElement {
-     [SetterThrows]
-	   attribute DOMString kind;
-     [SetterThrows]
-	   attribute DOMString src;
-     [SetterThrows]
-	   attribute DOMString srclang;
-     [SetterThrows]
-	   attribute DOMString label;
-     [SetterThrows]
-	   attribute boolean default;
+  [SetterThrows]
+  attribute DOMString kind;
+  [SetterThrows]
+  attribute DOMString src;
+  [SetterThrows]
+  attribute DOMString srclang;
+  [SetterThrows]
+  attribute DOMString label;
+  [SetterThrows]
+  attribute boolean default;
 
   const unsigned short NONE = 0;
   const unsigned short LOADING = 1;
