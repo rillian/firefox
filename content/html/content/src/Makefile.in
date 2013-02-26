@@ -165,6 +165,7 @@ CPPSRCS		+= \
 		HTMLTrackElement.cpp \
 		WebVTTLoadListener.cpp \
 		nsHTMLVideoElement.cpp \
+		WebVTTLoadListener.cpp \
 		$(NULL)
 
 EXPORTS_mozilla/dom += \
