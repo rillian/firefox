@@ -20,16 +20,16 @@ NS_INTERFACE_MAP_END
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            const double aStartTime,
-	                         const double aEndTime,
-	                         const nsAString& aText)
-  : mGlobal(aGlobal),
-    mText(aText),
-    mStartTime(aStartTime),
-    mEndTime(aEndTime),
-    mPosition(50),
-    mSize(100),
-    mPauseOnExit(false),
-    mSnapToLines(true)
+                           const double aEndTime,
+                           const nsAString& aText)
+  : mGlobal(aGlobal)
+  , mText(aText)
+  , mStartTime(aStartTime)
+  , mEndTime(aEndTime)
+  , mPosition(50)
+  , mSize(100)
+  , mPauseOnExit(false)
+  , mSnapToLines(true)
 {
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();

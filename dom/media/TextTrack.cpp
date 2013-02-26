@@ -24,12 +24,12 @@ TextTrack::TextTrack(nsISupports *aParent,
                      const nsAString& aKind,
                      const nsAString& aLabel,
                      const nsAString& aLanguage)
-  : mParent(aParent),
-    mKind(aKind),
-    mLabel(aLabel),
-    mLanguage(aLanguage),
-    mType(),
-    mMode(TextTrackMode::Hidden)
+  : mParent(aParent)
+  , mKind(aKind)
+  , mLabel(aLabel)
+  , mLanguage(aLanguage)
+  , mType()
+  , mMode(TextTrackMode::Hidden)
 {
   mCueList = new TextTrackCueList(aParent);
   mActiveCueList = new TextTrackCueList(aParent);
