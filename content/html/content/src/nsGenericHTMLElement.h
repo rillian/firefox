@@ -783,6 +783,8 @@ protected:
 
   virtual const nsAttrName* InternalGetExistingAttrNameFromQName(const nsAString& aStr) const;
 
+  nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
+
   void GetHTMLAttr(nsIAtom* aName, nsAString& aResult) const
   {
     GetAttr(kNameSpaceID_None, aName, aResult);

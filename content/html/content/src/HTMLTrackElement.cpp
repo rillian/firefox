@@ -233,35 +233,6 @@ HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
 #endif
 }
 
-/** copied from nsHTMLMediaElement::NewURIFromString */
-nsresult
-HTMLTrackElement::NewURIFromString(const nsAutoString& aURISpec,
-				   nsIURI** aURI)
-{
-  NS_ENSURE_ARG_POINTER(aURI);
-
-  *aURI = nullptr;
-
-  nsCOMPtr<nsIDocument> doc = OwnerDoc();
-
-  nsCOMPtr<nsIURI> baseURI = GetBaseURI();
-  nsresult rv = nsContentUtils::NewURIWithDocumentCharset(aURI, aURISpec,
-							  doc, baseURI);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool equal;
-  if (aURISpec.IsEmpty() &&
-      doc->GetDocumentURI() &&
-      NS_SUCCEEDED(doc->GetDocumentURI()->Equals(*aURI, &equal)) &&
-      equal) {
-    // give up
-    NS_RELEASE(*aURI);
-    return NS_ERROR_DOM_INVALID_STATE_ERR;
-  }
-
-  return NS_OK;
-}
-
 nsresult
 HTMLTrackElement::LoadResource(nsIURI* aURI)
 {
