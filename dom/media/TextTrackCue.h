@@ -48,7 +48,7 @@ public:
 	    const nsAString& aText, ErrorResult& aRv);
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-			       bool* aTriedToWrap);
+      bool* aTriedToWrap);
 
   nsISupports*
   GetParentObject()

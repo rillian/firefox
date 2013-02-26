@@ -239,6 +239,14 @@ TextTrackCue::GetCueAsHTML()
   return nullptr; //already_AddRefed<DocumentFragment>;
 }
 
+void
+TextTrackCue::CueChanged()
+{
+  if (mTrack) {
+    mTrack->CueChanged(*this);
+  }
+}
+
 bool
 TextTrackCue::operator==(const TextTrackCue& rhs) const {
   return (mId.Equals(rhs.mId));
