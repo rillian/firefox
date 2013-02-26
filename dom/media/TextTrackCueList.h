@@ -26,19 +26,20 @@ public:
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrackCueList)
 
   // TextTrackCueList WebIDL
-  TextTrackCueList(nsISupports *aParent);
+  TextTrackCueList(nsISupports* aParent);
   ~TextTrackCueList();
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-			       bool* aTriedToWrap);
+                               bool* aTriedToWrap);
 
   nsISupports* GetParentObject()
   {
     return mParent;
   }
 
-  uint32_t Length()
+  uint32_t
+  Length()
   {
-    return mLength;
+    return mList.Length();
   }
 
   TextTrackCue* IndexedGetter(uint32_t aIndex, bool& aFound);
@@ -51,8 +52,6 @@ private:
   nsCOMPtr<nsISupports> mParent;
 
   nsTArray<TextTrackCue> mList;
-
-  uint32_t mLength;
 };
 
 } // namespace dom

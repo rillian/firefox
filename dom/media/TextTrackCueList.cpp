@@ -39,7 +39,7 @@ TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
 TextTrackCue*
 TextTrackCueList::IndexedGetter(uint32_t aIndex, bool& aFound)
 {
-  aFound = aIndex < mLength;
+  aFound = aIndex < mList.Length();
   return aFound ? &mList[aIndex] : nullptr;
 }
 
@@ -64,14 +64,12 @@ void
 TextTrackCueList::AddCue(TextTrackCue& cue)
 {
   mList.AppendElement(cue);
-  mLength++;
 }
 
 void
 TextTrackCueList::RemoveCue(TextTrackCue& cue)
 {
   mList.RemoveElement(cue);
-  mLength--;
 }
 
 } // namespace dom
