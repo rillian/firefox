@@ -9,18 +9,7 @@
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN(TextTrackCueList)
-  NS_IMPL_CYCLE_COLLECTION_UNLINK_PRESERVED_WRAPPER
-NS_IMPL_CYCLE_COLLECTION_UNLINK_END
-
-NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN(TextTrackCueList)
-  NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mParent)
-  NS_IMPL_CYCLE_COLLECTION_TRAVERSE_SCRIPT_OBJECTS
-NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
-
-NS_IMPL_CYCLE_COLLECTION_TRACE_BEGIN(TextTrackCueList)
-  NS_IMPL_CYCLE_COLLECTION_TRACE_PRESERVED_WRAPPER
-NS_IMPL_CYCLE_COLLECTION_TRACE_END
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrackCueList, mParent)
 
 NS_IMPL_CYCLE_COLLECTING_ADDREF(TextTrackCueList)
 NS_IMPL_CYCLE_COLLECTING_RELEASE(TextTrackCueList)
@@ -30,7 +19,7 @@ NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(TextTrackCueList)
   NS_INTERFACE_MAP_ENTRY(nsISupports)
 NS_INTERFACE_MAP_END
 
-TextTrackCueList::TextTrackCueList(nsISupports *aParent) : mParent(aParent)
+TextTrackCueList::TextTrackCueList(nsISupports* aParent) : mParent(aParent)
 {
   SetIsDOMBinding();
 }
@@ -42,13 +31,13 @@ TextTrackCueList::~TextTrackCueList()
 
 JSObject*
 TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
-			     bool* aTriedToWrap)
+                             bool* aTriedToWrap)
 {
   return TextTrackCueListBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
 TextTrackCue*
-TextTrackCueList::IndexedGetter(int32_t aIndex, bool& aFound)
+TextTrackCueList::IndexedGetter(uint32_t aIndex, bool& aFound)
 {
   aFound = aIndex < mLength;
   return aFound ? &mList[aIndex] : nullptr;
@@ -57,7 +46,10 @@ TextTrackCueList::IndexedGetter(int32_t aIndex, bool& aFound)
 TextTrackCue*
 TextTrackCueList::GetCueById(const nsAString& id)
 {
-  if(id.EqualsLiteral("")) return nullptr;
+  if(id.EqualsLiteral("")) {
+    return nullptr;
+  }
+
   for (PRUint32 i = 0; i < mList.Length(); i++) {
     nsString tid;
     mList[i].GetId(tid);

@@ -41,7 +41,7 @@ public:
     return mLength;
   }
 
-  TextTrackCue* IndexedGetter(int32_t aIndex, bool& aFound);
+  TextTrackCue* IndexedGetter(uint32_t aIndex, bool& aFound);
   TextTrackCue* GetCueById(const nsAString& id);
 
   void AddCue(TextTrackCue& cue);
