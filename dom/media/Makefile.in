@@ -36,8 +36,8 @@ CPPSRCS = \
 
 ifdef MOZ_WEBVTT
 EXPORTS_NAMESPACES += \
-	mozilla/dom \
-	$(NULL)
+  mozilla/dom \
+  $(NULL)
 EXPORTS_mozilla/dom = \
   TextTrack.h \
   TextTrackCue.h \
