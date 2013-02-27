@@ -10,9 +10,6 @@
 
 interface nsIDOMMediaStream;
 
-interface TextTrackList;
-interface TextTrack;
-
 /**
  * The nsIDOMHTMLMediaElement interface is an interface to be implemented by the HTML
  * <audio> and <video> elements.
@@ -83,8 +80,8 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
            attribute boolean defaultMuted;
 
   // tracks
-  readonly attribute TextTrackList textTracks;
-  TextTrack addTextTrack(in DOMString kind, [optional] in DOMString label, [optional] in DOMString language);
+  //readonly attribute TextTrackList textTracks;
+  //TextTrack addTextTrack(in DOMString kind, [optional] in DOMString label, [optional] in DOMString language);
 
   // Mozilla extension: stream capture
   nsIDOMMediaStream mozCaptureStream();
