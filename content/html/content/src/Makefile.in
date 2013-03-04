@@ -27,6 +27,7 @@ EXPORTS		= \
 EXPORTS_NAMESPACES = mozilla/dom
 
 EXPORTS_mozilla/dom = \
+		HTMLAreaElement.h \
 		HTMLAnchorElement.h \
 		HTMLBodyElement.h \
 		HTMLBRElement.h \
