@@ -26,13 +26,13 @@ public:
 
   // TextTrackCue WebIDL
   static already_AddRefed<TextTrackCue>
-  Constructor(nsISupports* aGlobal,
+  Constructor(GlobalObject& aGlobal,
 	      const double aStartTime,
 	      const double aEndTime,
 	      const nsAString& aText,
 	      ErrorResult& aRv)
   {
-    nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal, aStartTime,
+    nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal.Get(), aStartTime,
                                                     aEndTime, aText);
     ttcue->Init(aStartTime, aEndTime, aText, aRv);
     if (aRv.Failed()) {
