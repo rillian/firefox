@@ -159,14 +159,9 @@ CPPSRCS		+= \
 		nsHTMLAudioElement.cpp \
 		nsHTMLMediaElement.cpp \
 		MediaError.cpp \
-		nsMediaError.cpp \
 		nsMediaFragmentURIParser.cpp \
 		HTMLSourceElement.cpp \
 		TimeRanges.cpp \
-		nsHTMLSourceElement.cpp \
-		nsTimeRanges.cpp \
-		HTMLTrackElement.cpp \
-		nsTimeRanges.cpp \
 		HTMLTrackElement.cpp \
 		nsHTMLVideoElement.cpp \
 		$(NULL)
