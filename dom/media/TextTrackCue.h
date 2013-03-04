@@ -41,7 +41,8 @@ public:
     return ttcue.forget();
   }
 
-  TextTrackCue(nsISupports* aGlobal);
+  TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
+               const double aEndTime, const nsAString& aText);
   ~TextTrackCue();
 
   void Init(const double aStartTime, const double aEndTime,
@@ -241,12 +242,7 @@ public:
   IMPL_EVENT_HANDLER(exit)
 
 private:
-  void CueChanged()
-  {
-    if (mTrack) {
-      mTrack->CueChanged(*this);
-    }
-  }
+  void CueChanged();
 
   nsCOMPtr<nsISupports> mGlobal;
 
