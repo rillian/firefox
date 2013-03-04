@@ -68,7 +68,12 @@ public:
 
   void SetId(const nsAString& aId)
   {
+    if (mId == aId) {
+      return;
+    }
+
     mId = aId;
+    CueChanged();
   }
 
   double StartTime() const
@@ -79,7 +84,11 @@ public:
   void SetStartTime(const double aStartTime)
   {
     //XXXhumph: validate?
+    if (mStartTime == aStartTime)
+      return;
+
     mStartTime = aStartTime;
+    CueChanged();
   }
 
   double EndTime() const
@@ -90,7 +99,11 @@ public:
   void SetEndTime(const double aEndTime)
   {
     //XXXhumph: validate?
+    if (mEndTime == aEndTime)
+      return;
+
     mEndTime = aEndTime;
+    CueChanged();
   }
 
   bool PauseOnExit()
@@ -100,7 +113,11 @@ public:
 
   void SetPauseOnExit(const bool aPauseOnExit)
   {
+    if (mPauseOnExit == aPauseOnExit)
+      return;
+
     mPauseOnExit = aPauseOnExit;
+    CueChanged();
   }
 
   void GetVertical(nsAString& aVertical)
@@ -110,7 +127,11 @@ public:
 
   void SetVertical(const nsAString& aVertical)
   {
+    if (mVertical == aVertical)
+      return;
+
     mVertical = aVertical;
+    CueChanged();
   }
 
   bool SnapToLines()
@@ -120,7 +141,11 @@ public:
 
   void SetSnapToLines(bool aSnapToLines)
   {
+    if (mSnapToLines == aSnapToLines)
+      return;
+
     mSnapToLines = aSnapToLines;
+    CueChanged();
   }
 
   double Line()
@@ -142,7 +167,11 @@ public:
   void SetPosition(int32_t aPosition)
   {
     // XXXhumph: validate?
+    if (mPosition == aPosition)
+      return;
+
     mPosition = aPosition;
+    CueChanged();
   }
 
   int32_t Size()
@@ -152,8 +181,16 @@ public:
 
   void SetSize(int32_t aSize)
   {
-    // XXXhumph: validate?
+    if (mSize == aSize) {
+      return;
+    }
+
+    if (aSize < 0 || aSize > 100) {
+      //XXX:throw IndexSizeError;
+    }
+
     mSize = aSize;
+    CueChanged();
   }
 
   void GetAlign(nsAString& aAlign)
@@ -164,7 +201,12 @@ public:
   void SetAlign(const nsAString& aAlign)
   {
     // XXXhumph: validate?
+    if (mAlign == aAlign) {
+      return;
+    }
+
     mAlign = aAlign;
+    CueChanged();
   }
 
   void GetText(nsAString& aText)
@@ -175,7 +217,11 @@ public:
   void SetText(const nsAString& aText)
   {
     // XXXhumph: validate?
+    if (mText == aText)
+      return;
+
     mText = aText;
+    CueChanged();
   }
 
   DocumentFragment* GetCueAsHTML()
@@ -187,8 +233,7 @@ public:
   bool
   operator==(const TextTrackCue& rhs) const
   {
-    //XXX compare real values
-    return false;
+    return (mId.Equals(rhs.mId));
   }
 
 
@@ -199,8 +244,7 @@ private:
   void CueChanged()
   {
     if (mTrack) {
-      // XXXhumph: need this on TextTrack (dale)
-      // mTrack->CueChanged(this);
+      mTrack->CueChanged(*this);
     }
   }
 
