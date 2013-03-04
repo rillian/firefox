@@ -31,7 +31,9 @@
 #include "mozilla/ErrorResult.h"
 //XXXhumph: commented out in rillian's original...
 //#include "mozilla/dom/TextTrack.h"
-#include "webvtt.h"
+#define WEBVTT_STATIC 1
+#define WEBVTT_NO_CONFIG_H 1
+#include <webvtt/parser.h>
 
 // Define to output information on decoding and painting framerate
 /* #define DEBUG_FRAME_RATE 1 */
