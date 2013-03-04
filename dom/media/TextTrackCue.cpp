@@ -42,5 +42,12 @@ TextTrackCue::WrapObject(JSContext* aCx, JSObject* aScope,
   return TextTrackCueBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
+void
+TextTrackCue::CueChanged()
+{
+  if (mTrack) {
+    mTrack->CueChanged(*this);
+  }
+}
 } // namespace dom
 } // namespace mozilla
