@@ -189,12 +189,12 @@ public:
     CueChanged();
   }
 
-  void GetAlign(nsAString& aAlign)
+  TextTrackCueAlign Align()
   {
-    aAlign = mAlign;
+    return mAlign;
   }
 
-  void SetAlign(const nsAString& aAlign)
+  void SetAlign(TextTrackCueAlign& aAlign)
   {
     mAlign = aAlign;
     CueChanged();
@@ -246,7 +246,7 @@ private:
   double mLine;
   int32_t mPosition;
   int32_t mSize;
-  nsString mAlign;
+  TextTrackCueAlign mAlign;
   nsString mText;
 };
 
