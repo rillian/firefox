@@ -127,7 +127,6 @@ protected:
   nsCOMPtr<nsIContent> mMediaParent;
   uint16_t mReadyState;
 
-  nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
   nsresult LoadResource(nsIURI* aURI);
 };
 
