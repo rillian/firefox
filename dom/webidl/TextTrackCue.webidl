@@ -9,6 +9,16 @@
 
 enum AutoKeyword { "auto" };
 
+/* Non-spec: Request to add this enum to spec
+ * can be found here: https://www.w3.org/Bugs/Public/show_bug.cgi?id=20996 */
+enum TextTrackCueAlign {
+  "start",
+  "middle",
+  "end",
+  "left",
+  "right"
+};
+
 interface TextTrack;
 
 [Constructor(double startTime, double endTime, DOMString text)]
