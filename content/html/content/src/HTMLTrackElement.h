@@ -40,7 +40,7 @@ public:
   NS_FORWARD_NSIDOMHTMLELEMENT_TO_GENERIC
 
   // HTMLTrackElement WebIDL
-  void GetKind(nsAString& aKind)
+  void GetKind(nsAString& aKind) const
   {
     GetHTMLAttr(nsGkAtoms::kind, aKind);
   }
@@ -49,7 +49,7 @@ public:
     SetHTMLAttr(nsGkAtoms::kind, aKind, aError);
   }
 
-  void GetSrc(nsAString& aSrc)
+  void GetSrc(nsAString& aSrc) const
   {
     GetHTMLAttr(nsGkAtoms::src, aSrc);
   }
@@ -58,7 +58,7 @@ public:
     SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
   }
 
-  void GetSrclang(nsAString& aSrclang)
+  void GetSrclang(nsAString& aSrclang) const
   {
     GetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
@@ -67,7 +67,7 @@ public:
     SetHTMLAttr(nsGkAtoms::srclang, aSrclang, aError);
   }
 
-  void GetLabel(nsAString& aLabel)
+  void GetLabel(nsAString& aLabel) const
   {
     GetHTMLAttr(nsGkAtoms::label, aLabel);
   }
@@ -76,7 +76,7 @@ public:
     SetHTMLAttr(nsGkAtoms::label, aLabel, aError);
   }
 
-  bool Default()
+  bool Default() const
   {
     return GetBoolAttr(nsGkAtoms::_default);
   }
@@ -85,12 +85,12 @@ public:
     SetHTMLBoolAttr(nsGkAtoms::_default, aDefault, aError);
   }
 
-  uint16_t ReadyState()
+  uint16_t ReadyState() const
   {
     return mReadyState;
   }
 
-  TextTrack* Track()
+  TextTrack* Track() const
   {
     // XXXhumph: where to set this?
     return mTrack;
@@ -101,7 +101,8 @@ public:
   virtual nsIDOMNode* AsDOMNode() { return this; }
 
   // For Track, ItemValue reflects the src attribute
-  virtual void GetItemValueText(nsAString& text) {
+  virtual void GetItemValueText(nsAString& text) const
+  {
     GetSrc(text);
   }
   virtual void SetItemValueText(const nsAString& text) {
