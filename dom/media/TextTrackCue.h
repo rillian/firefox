@@ -196,11 +196,6 @@ public:
 
   void SetAlign(const nsAString& aAlign)
   {
-    // XXXhumph: validate?
-    if (mAlign == aAlign) {
-      return;
-    }
-
     mAlign = aAlign;
     CueChanged();
   }
