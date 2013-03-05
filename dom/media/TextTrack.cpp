@@ -51,64 +51,10 @@ TextTrack::WrapObject(JSContext* aCx, JSObject* aScope,
   return TextTrackBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
 
-nsISupports*
-TextTrack::GetParentObject()
-{
-  return mParent;
-}
-
-void
-TextTrack::GetKind(nsAString& aKind)
-{
-  aKind = mKind;
-}
-
-void
-TextTrack::GetLabel(nsAString& aLabel)
-{
-  aLabel = mLabel;
-}
-
-void
-TextTrack::GetLanguage(nsAString& aLanguage)
-{
-  aLanguage = mLanguage;
-}
-
-void
-TextTrack::GetInBandMetadataTrackDispatchType(nsAString& aType)
-{
-  aType = mType;
-}
-
-TextTrackMode
-TextTrack::Mode()
-{
-  return mMode;
-}
-
 void
 TextTrack::SetMode(TextTrackMode aValue)
 {
   mMode = aValue;
-}
-
-TextTrackCueList*
-TextTrack::GetCues()
-{
-  if (mMode == TextTrackMode::Disabled) {
-    return nullptr;
-  }
-  return mCueList;
-}
-
-TextTrackCueList*
-TextTrack::GetActiveCues()
-{
-  if (mMode == TextTrackMode::Disabled) {
-    return nullptr;
-  }
-  return mActiveCueList;
 }
 
 void

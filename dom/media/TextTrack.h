@@ -37,18 +37,49 @@ public:
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
 			       bool* aTriedToWrap);
 
-  nsISupports* GetParentObject();
+  nsISupports* GetParentObject() const
+  {
+    return mParent;
+  }
 
-  void GetKind(nsAString& aKind);
-  void GetLabel(nsAString& aLabel);
-  void GetLanguage(nsAString& aLanguage);
-  void GetInBandMetadataTrackDispatchType(nsAString& aType);
+  void GetKind(nsAString& aKind) const
+  {
+    aKind = mKind;
+  }
+  void GetLabel(nsAString& aLabel) const
+  {
+    aLabel = mLabel;
+  }
+  void GetLanguage(nsAString& aLanguage) const
+  {
+    aLanguage = mLanguage;
+  }
+  void GetInBandMetadataTrackDispatchType(nsAString& aType) const
+  {
+    aType = mType;
+  }
 
-  TextTrackMode Mode();
+  TextTrackMode Mode() const
+  {
+    return mMode;
+  }
   void SetMode(TextTrackMode aValue);
 
-  TextTrackCueList* GetCues();
-  TextTrackCueList* GetActiveCues();
+  TextTrackCueList* GetCues() const
+  {
+    if (mMode == TextTrackMode::Disabled) {
+      return nullptr;
+    }
+    return mCueList;
+  }
+
+  TextTrackCueList* GetActiveCues() const
+  {
+    if (mMode == TextTrackMode::Disabled) {
+      return nullptr;
+    }
+    return mActiveCueList;
+  }
 
   void AddCue(TextTrackCue& aCue);
   void RemoveCue(TextTrackCue& aCue);
