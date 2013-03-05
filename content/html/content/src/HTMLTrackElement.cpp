@@ -316,7 +316,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   }
 
   // Store our parent so we can look up its frame for display
-  mMediaParent = getter_AddRefs(aParent);
+  mMediaParent = do_QueryInterface(aParent);
 
   nsHTMLMediaElement* media = static_cast<nsHTMLMediaElement*>(aParent);
   // TODO: separate notification for 'alternate' tracks?
