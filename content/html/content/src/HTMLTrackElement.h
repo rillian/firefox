@@ -96,9 +96,11 @@ public:
     return mTrack;
   }
 
-  virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const;
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
-  virtual nsIDOMNode* AsDOMNode() { return this; }
+
+  // Superclass for Clone() and AsDOMNode() is nsINode
+  virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const MOZ_OVERRIDE;
+  virtual nsIDOMNode* AsDOMNode() MOZ_OVERRIDE { return this; }
 
   // For Track, ItemValue reflects the src attribute
   virtual void GetItemValueText(nsAString& text) const
