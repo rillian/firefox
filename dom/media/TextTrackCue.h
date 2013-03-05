@@ -43,7 +43,9 @@ public:
 
   TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
                const double aEndTime, const nsAString& aText);
-  ~TextTrackCue();
+  ~TextTrackCue()
+  {
+  }
 
   void Init(const double aStartTime, const double aEndTime,
 	    const nsAString& aText, ErrorResult& aRv);
