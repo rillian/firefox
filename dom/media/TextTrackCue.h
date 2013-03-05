@@ -34,10 +34,6 @@ public:
   {
     nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal.Get(), aStartTime,
                                                     aEndTime, aText);
-    ttcue->Init(aStartTime, aEndTime, aText, aRv);
-    if (aRv.Failed()) {
-      return nullptr;
-    }
     return ttcue.forget();
   }
 
@@ -46,9 +42,6 @@ public:
   ~TextTrackCue()
   {
   }
-
-  void Init(const double aStartTime, const double aEndTime,
-	    const nsAString& aText, ErrorResult& aRv);
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
       bool* aTriedToWrap);
