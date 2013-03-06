@@ -43,6 +43,10 @@ public:
 
   TextTrack* IndexedGetter(uint32_t aIndex, bool& aFound);
 
+  already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,
+                                           const nsAString& aLabel,
+                                           const nsAString& aLanguage);
+
   IMPL_EVENT_HANDLER(addtrack)
   IMPL_EVENT_HANDLER(removetrack)
 
