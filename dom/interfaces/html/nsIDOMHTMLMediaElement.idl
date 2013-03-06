@@ -7,8 +7,12 @@
 #include "nsIDOMHTMLElement.idl"
 #include "nsIDOMMediaError.idl"
 #include "nsIDOMTimeRanges.idl"
+//#include "TextTrack.h"
+//#include "TextTrackList.h"
 
 interface nsIDOMMediaStream;
+//interface TextTrack;
+//interface TextTrackList;
 
 /**
  * The nsIDOMHTMLMediaElement interface is an interface to be implemented by the HTML
@@ -155,4 +159,9 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
   // * onmozinterruptbegin - called when the media element is interrupted
   //   because of the audiochannel manager.
   // * onmozinterruptend - called when the interruption is concluded
+
+  readonly attribute nsISupports textTracks;
+  nsISupports addTextTrack(           in DOMString kind,
+                           [optional] in DOMString label,
+                           [optional] in DOMString language);
 };
