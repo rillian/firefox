@@ -35,7 +35,7 @@ interface TextTrackCue : EventTarget {
 //           attribute (long or AutoKeyword) line;
 	   attribute long position;
 	   attribute long size;
-	   attribute DOMString align;
+	   attribute TextTrackCueAlign align;
 	   attribute DOMString text;
   DocumentFragment getCueAsHTML();
 
