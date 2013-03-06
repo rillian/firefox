@@ -3713,5 +3713,23 @@ NS_IMETHODIMP HTMLMediaElement::CanPlayChanged(bool canPlay)
   return NS_OK;
 }
 
+/* readonly attribute nsISupports textTracks; */
+NS_IMETHODIMP nsHTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
+{
+  NS_ADDREF(*aTextTracks = mTextTracks.get());
+  return NS_OK;
+}
+
+/* nsISupports addTextTrack (in DOMString kind, [optional] in DOMString label,
+                             [optional] in DOMString language); */
+NS_IMETHODIMP nsHTMLMediaElement::AddTextTrack(const nsAString& kind,
+                                               const nsAString& label,
+                                               const nsAString& language,
+                                               nsISupports** _retval)
+{
+  // XXX: todo
+  return NS_OK;
+}
+
 } // namespace dom
 } // namespace mozilla

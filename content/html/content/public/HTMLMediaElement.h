@@ -31,6 +31,7 @@
 #include "mozilla/ErrorResult.h"
 //XXXhumph: commented out in rillian's original...
 //#include "mozilla/dom/TextTrack.h"
+#include "mozilla/dom/TextTrackList.h"
 #define WEBVTT_STATIC 1
 #define WEBVTT_NO_CONFIG_H 1
 #include <webvtt/parser.h>
@@ -1090,9 +1091,8 @@ protected:
   // An agent used to join audio channel service.
   nsCOMPtr<nsIAudioChannelAgent> mAudioChannelAgent;
 
-  //XXXhumph: commented out in ralph's original patch
-  // Contains a list of our attached text track objects.
-  //nsTArray<nsRefPtr<TextTrack>> mTextTracks;
+  // List of our attached text track objects.
+  nsRefPtr<mozilla::dom::TextTrackList> mTextTracks;
 
 public:
   webvtt_cue *mCues;

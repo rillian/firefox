@@ -40,11 +40,13 @@ EXPORTS_NAMESPACES += \
   $(NULL)
 EXPORTS_mozilla/dom = \
   TextTrack.h \
+  TextTrackList.h \
   TextTrackCue.h \
   TextTrackCueList.h \
   $(NULL)
 CPPSRCS += \
   TextTrack.cpp \
+  TextTrackList.cpp \
   TextTrackCue.cpp \
   TextTrackCueList.cpp \
   $(NULL)
