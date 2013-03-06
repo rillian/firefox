@@ -28,14 +28,14 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrack)
 
-  TextTrack(nsISupports *aParent,
+  TextTrack(nsISupports* aParent,
             const nsAString& aKind,
             const nsAString& aLabel,
             const nsAString& aLanguage);
   ~TextTrack();
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-			       bool* aTriedToWrap);
+                               bool* aTriedToWrap);
 
   nsISupports* GetParentObject() const
   {
