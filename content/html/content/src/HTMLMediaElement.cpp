@@ -3722,12 +3722,12 @@ NS_IMETHODIMP nsHTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
 
 /* nsISupports addTextTrack (in DOMString kind, [optional] in DOMString label,
                              [optional] in DOMString language); */
-NS_IMETHODIMP nsHTMLMediaElement::AddTextTrack(const nsAString& kind,
-                                               const nsAString& label,
-                                               const nsAString& language,
+NS_IMETHODIMP nsHTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                                               const nsAString& aLabel,
+                                               const nsAString& aLanguage,
                                                nsISupports** _retval)
 {
-  // XXX: todo
+  NS_ADDREF(*_retval = mTextTracks->AddTextTrack(aKind, aLabel, aLanguage).get());
   return NS_OK;
 }
 

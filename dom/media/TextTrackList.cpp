@@ -43,5 +43,18 @@ TextTrackList::IndexedGetter(uint32_t aIndex, bool& aFound)
   return aFound ? mTextTracks[aIndex] : nullptr;
 }
 
+already_AddRefed<TextTrack>
+TextTrackList::AddTextTrack(const nsAString& aKind,
+                            const nsAString& aLabel,
+                            const nsAString& aLanguage)
+{
+  nsRefPtr<TextTrack> track = new TextTrack(this, aKind, aLabel, aLanguage);
+  mTextTracks.AppendElement(track);
+  // TODO: dispatch addtrack event
+  return track.forget();
+}
+
+// TODO: RemoveTextTrack...
+
 } // namespace dom
 } // namespace mozilla
