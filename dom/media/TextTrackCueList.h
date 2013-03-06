@@ -17,7 +17,6 @@ namespace dom {
 
 class TextTrackCue;
 
-// XXXhumph: should this follow what MediaStreamList does, and use NonRefcountedDOMObject?
 class TextTrackCueList MOZ_FINAL : public nsISupports,
 				   public nsWrapperCache
 {
