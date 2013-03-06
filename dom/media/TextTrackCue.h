@@ -7,6 +7,7 @@
 #ifndef mozilla_dom_TextTrackCue_h
 #define mozilla_dom_TextTrackCue_h
 
+#include "mozilla/dom/TextTrackCueBinding.h"
 #include "TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
 #include "mozilla/dom/DocumentFragment.h"
@@ -189,7 +190,7 @@ public:
     CueChanged();
   }
 
-  TextTrackCueAlign Align()
+  TextTrackCueAlign Align() const
   {
     return mAlign;
   }
@@ -200,7 +201,7 @@ public:
     CueChanged();
   }
 
-  void GetText(nsAString& aText)
+  void GetText(nsAString& aText) const
   {
     aText = mText;
   }
@@ -215,7 +216,7 @@ public:
     CueChanged();
   }
 
-  DocumentFragment* GetCueAsHTML()
+  already_AddRefed<DocumentFragment> GetCueAsHTML() const
   {
     // XXXhumph: todo
     return nullptr;
