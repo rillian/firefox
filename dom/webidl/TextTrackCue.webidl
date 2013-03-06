@@ -25,23 +25,23 @@ interface TextTrack;
 interface TextTrackCue : EventTarget {
   readonly attribute TextTrack? track;
 
-	   attribute DOMString id;
-	   attribute double startTime;
-	   attribute double endTime;
-	   attribute boolean pauseOnExit;
-	   attribute DOMString vertical;
-	   attribute boolean snapToLines;
-// XXXhumph: https://www.w3.org/Bugs/Public/show_bug.cgi?id=20651
-//           attribute (long or AutoKeyword) line;
-	   attribute long position;
-	   attribute long size;
-	   attribute TextTrackCueAlign align;
-	   attribute DOMString text;
+  attribute DOMString id;
+  attribute double startTime;
+  attribute double endTime;
+  attribute boolean pauseOnExit;
+  attribute DOMString vertical;
+  attribute boolean snapToLines;
+  // XXXhumph: https://www.w3.org/Bugs/Public/show_bug.cgi?id=20651
+  // attribute (long or AutoKeyword) line;
+  attribute long position;
+  attribute long size;
+  attribute TextTrackCueAlign align;
+  attribute DOMString text;
   DocumentFragment getCueAsHTML();
 
-	   [SetterThrows]
-	   attribute EventHandler onenter;
+  [SetterThrows]
+    attribute EventHandler onenter;
 
-	   [SetterThrows]
-	   attribute EventHandler onexit;
+  [SetterThrows]
+    attribute EventHandler onexit;
 };
