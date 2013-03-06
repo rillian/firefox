@@ -28,10 +28,10 @@ public:
   // TextTrackCue WebIDL
   static already_AddRefed<TextTrackCue>
   Constructor(GlobalObject& aGlobal,
-	      const double aStartTime,
-	      const double aEndTime,
-	      const nsAString& aText,
-	      ErrorResult& aRv)
+              const double aStartTime,
+              const double aEndTime,
+              const nsAString& aText,
+              ErrorResult& aRv)
   {
     nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal.Get(), aStartTime,
                                                     aEndTime, aText);
@@ -47,8 +47,7 @@ public:
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
       bool* aTriedToWrap);
 
-  nsISupports*
-  GetParentObject()
+  nsISupports* GetParentObject()
   {
     return mGlobal;
   }
