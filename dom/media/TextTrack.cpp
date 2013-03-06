@@ -23,7 +23,7 @@ NS_INTERFACE_MAP_END
 NS_IMPL_ADDREF_INHERITED(TextTrack, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrack, nsDOMEventTargetHelper)
 
-TextTrack::TextTrack(nsISupports *aParent,
+TextTrack::TextTrack(nsISupports* aParent,
                      const nsAString& aKind,
                      const nsAString& aLabel,
                      const nsAString& aLanguage)
@@ -46,7 +46,7 @@ TextTrack::~TextTrack()
 
 JSObject*
 TextTrack::WrapObject(JSContext* aCx, JSObject* aScope,
-		      bool* aTriedToWrap)
+                      bool* aTriedToWrap)
 {
   return TextTrackBinding::Wrap(aCx, aScope, this, aTriedToWrap);
 }
