@@ -63,13 +63,13 @@ TextTrackCueList::GetCueById(const nsAString& id)
 void
 TextTrackCueList::AddCue(TextTrackCue& cue)
 {
-  mList.AppendElement(cue);
+  //mList.AppendElement(cue);
 }
 
 void
 TextTrackCueList::RemoveCue(TextTrackCue& cue)
 {
-  mList.RemoveElement(cue);
+  //mList.RemoveElement(cue);
 }
 
 } // namespace dom
