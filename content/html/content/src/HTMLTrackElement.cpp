@@ -93,7 +93,8 @@ NS_IMETHODIMP
 HTMLTrackElement::LoadListener::OnStartRequest(nsIRequest* aRequest,
 					       nsISupports* aContext)
 {
-  printf("track got start request\n");
+  LOG(PR_LOG_DEBUG, ("track got start request"));
+
   return NS_OK;
 }
 
@@ -102,7 +103,7 @@ HTMLTrackElement::LoadListener::OnStopRequest(nsIRequest* aRequest,
 					      nsISupports* aContext,
 					      nsresult aStatus)
 {
-  printf("track got stop request\n");
+  LOG(PR_LOG_DEBUG, ("track got stop request"));
   nsContentUtils::UnregisterShutdownObserver(this);
   return NS_OK;
 }
@@ -114,7 +115,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
 						uint64_t aOffset,
 						uint32_t aCount)
 {
-  printf("Track got data! %u bytes at offset %llu\n", aCount, aOffset);
+  LOG(PR_LOG_DEBUG, ("Track got data! %u bytes at offset %llu\n", aCount, aOffset));
 
   nsresult rv;
   bool blocking;
@@ -122,14 +123,14 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
   NS_ENSURE_SUCCESS(rv,rv);
 
   if (blocking)
-    printf("Track data stream is non blocking\n");
+    LOG(PR_LOG_DEBUG, ("Track data stream is non blocking"));
   else
-    printf("Track data stream is BLOCKING!\n");
+    LOG(PR_LOG_DEBUG, ("Track data stream is BLOCKING!"));
 
   uint64_t available;
   rv = aStream->Available(&available);
   NS_ENSURE_SUCCESS(rv, rv);
-  printf("Track has %llu bytes available\n", available);
+  LOG(PR_LOG_DEBUG, ("Track has %llu bytes available\n", available));
 
   char* buf = static_cast<char*>(moz_malloc(aCount));
   if (buf) {
@@ -139,7 +140,7 @@ HTMLTrackElement::LoadListener::OnDataAvailable(nsIRequest* aRequest,
     if (read >= aCount)
       read = aCount - 1;
     buf[read] = '\0';
-    printf("Track data:\n%s\n", buf);
+    LOG(PR_LOG_DEBUG, ("Track data:\n%s\n", buf));
 
     // webvtt_parser *webvtt = webvtt_parse_new();
     // NS_ENSURE_TRUE(webvtt, NS_ERROR_FAILURE);
@@ -286,7 +287,7 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   nsRefPtr<LoadListener> listener = new LoadListener(this);
   channel->SetNotificationCallbacks(listener);
 
-  printf("opening webvtt channel\n");
+  LOG(PR_LOG_DEBUG, ("opening webvtt channel"));
   rv = channel->AsyncOpen(listener, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -310,7 +311,6 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   NS_ENSURE_SUCCESS(rv, rv);
 
   LOG(PR_LOG_DEBUG, ("Track Element bound to tree."));
-  fprintf(stderr, "Track element bound to tree.\n");
   if (!aParent || !aParent->IsNodeOfType(nsINode::eMEDIA)) {
     return NS_OK;
   }
@@ -332,8 +332,6 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
     if (NS_SUCCEEDED(rvTwo)) {
       LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
 	     NS_ConvertUTF16toUTF8(src).get()));
-      printf("%p Trying to load from src=%s\n", this,
-	     NS_ConvertUTF16toUTF8(src).get());
       LoadResource(uri);
     }
   }
