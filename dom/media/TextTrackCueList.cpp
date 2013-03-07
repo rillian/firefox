@@ -40,7 +40,7 @@ TextTrackCue*
 TextTrackCueList::IndexedGetter(uint32_t aIndex, bool& aFound)
 {
   aFound = aIndex < mList.Length();
-  return aFound ? &mList[aIndex] : nullptr;
+  return aFound ? mList[aIndex] : nullptr;
 }
 
 TextTrackCue*
@@ -52,9 +52,9 @@ TextTrackCueList::GetCueById(const nsAString& id)
 
   for (uint32_t i = 0; i < mList.Length(); i++) {
     nsString tid;
-    mList[i].GetId(tid);
+    mList[i]->GetId(tid);
     if (id.Equals(tid)) {
-      return &mList[i];
+      return mList[i];
     }
   }
   return nullptr;
