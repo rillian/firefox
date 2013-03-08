@@ -3668,3 +3668,21 @@ NS_IMETHODIMP nsHTMLMediaElement::CanPlayChanged(bool canPlay)
   UpdateChannelMuteState(canPlay);
   return NS_OK;
 }
+
+/* readonly attribute nsISupports textTracks; */
+NS_IMETHODIMP nsHTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
+{
+  NS_ADDREF(*aTextTracks = mTextTracks.get());
+  return NS_OK;
+}
+
+/* nsISupports addTextTrack (in DOMString kind, [optional] in DOMString label,
+                             [optional] in DOMString language); */
+NS_IMETHODIMP nsHTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                                               const nsAString& aLabel,
+                                               const nsAString& aLanguage,
+                                               nsISupports** _retval)
+{
+  NS_ADDREF(*_retval = mTextTracks->AddTextTrack(aKind, aLabel, aLanguage).get());
+  return NS_OK;
+}

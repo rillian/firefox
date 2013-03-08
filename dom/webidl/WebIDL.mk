@@ -258,6 +258,7 @@ ifdef MOZ_WEBVTT
 webidl_files += \
   HTMLTrackElement.webidl \
   TextTrack.webidl \
+  TextTrackList.webidl \
   TextTrackCue.webidl \
   TextTrackCueList.webidl \
   $(NULL)
