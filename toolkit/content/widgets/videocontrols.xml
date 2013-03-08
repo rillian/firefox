@@ -473,8 +473,10 @@
                 },
 
                 handleCustomEvents : function (e) {
-                    if (!e.isTrusted)
+                    if (!e.isTrusted) {
+                        console.log('untrusted custom media event');
                         return;
+                    }
                     this.showStatistics(e.detail);
                 },
 
