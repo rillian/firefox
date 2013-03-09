@@ -103,13 +103,13 @@ public:
   virtual nsIDOMNode* AsDOMNode() MOZ_OVERRIDE { return this; }
 
   // For Track, ItemValue reflects the src attribute
-  virtual void GetItemValueText(nsAString& text) const
+  virtual void GetItemValueText(nsAString& aText)
   {
-    GetSrc(text);
+    GetSrc(aText);
   }
-  virtual void SetItemValueText(const nsAString& text) {
+  virtual void SetItemValueText(const nsAString& aText) {
     ErrorResult rv;
-    SetSrc(text, rv);
+    SetSrc(aText, rv);
   }
 
   // Override BindToTree() so that we can trigger a load when we add a

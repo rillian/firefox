@@ -235,19 +235,19 @@ private:
   void CueChanged();
 
   nsCOMPtr<nsISupports> mGlobal;
+  nsString mText;
+  double mStartTime;
+  double mEndTime;
 
   nsRefPtr<TextTrack> mTrack;
   nsString mId;
-  double mStartTime;
-  double mEndTime;
-  bool mPauseOnExit;
-  nsString mVertical;
-  bool mSnapToLines;
-  double mLine;
   int32_t mPosition;
   int32_t mSize;
+  bool mPauseOnExit;
+  bool mSnapToLines;
+  nsString mVertical;
+  double mLine;
   TextTrackCueAlign mAlign;
-  nsString mText;
 };
 
 } // namespace dom
