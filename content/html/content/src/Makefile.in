@@ -169,6 +169,7 @@ CPPSRCS		+= \
 		TimeRanges.cpp \
 		HTMLVideoElement.cpp \
 		HTMLTrackElement.cpp \
+		WebVTTLoadListener.cpp \
 		$(NULL)
 
 EXPORTS_mozilla/dom += \
