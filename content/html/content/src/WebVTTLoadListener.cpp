@@ -185,7 +185,7 @@ TextTrackCue
 WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
 {
   // TODO: What to pass in for aGlobal?
-  TextTrackCue textTrackCue(/* nsISupports *aGlobal here */,
+  TextTrackCue textTrackCue(/* nsISupports *aGlobal here */, 
                             aCue->from, aCue->until,
                             webvtt_string_text(NS_ConvertUTF8toUTF16(aCue->id)));
   
@@ -221,31 +221,31 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
     return nullptr;
   }
 
-  HTMLElement htmlElement;
-  for (int i = 0; i < aNode->data->internal_data.length; i++)
-  {
-    htmlElement = CNodeToHtmlElement(aNode->data->internal_data.children[i]);
-    frag.appendChild(htmlElement);
+  for (int i = 0; i < aNode->data->internal_data.length; i++) {
+    frag.appendChild(ConvertNodeToCueTextContent(
+      aNode->data->internal_data.children[i]));
   }
 
   return frag;
 }
 
-HTMLElement
-WebVTTLoadListener::ConvertNodeToHtmlElement(const webvtt_node *aWebVttNode)
+nsISupports
+WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
 {
-  // TODO: Change to iterative solution instead of recursive
-
-  nsAString htmlNamespace = NS_LITERAL_STRING("html");
-
-  nsAString qualifiedName;
-  // TODO: Is this the correct way to be passing in a node info? If we need an 
-  //       objects node info, than whose?
   already_AddRefed<nsINodeInfo> nodeInfo;
-  HTMLElement htmlElement(nodeInfo);
+  nsCOMPtr<nsISupports> cueTextContent;
   
   if (WEBVTT_IS_VALID_INTERNAL_NODE(aWebVttNode->kind))
   {
+    // TODO: Change to iterative solution instead of recursive
+    nsAString htmlNamespace = NS_LITERAL_STRING("html");
+
+    nsAString qualifiedName;
+  
+    // TODO: Is this the correct way to be passing in a node info? If we need an 
+    //       objects node info, than whose? 
+    HTMLElement htmlElement(nodeInfo);
+    
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
         qualifiedName = NS_LITERAL_STRING("span");
@@ -279,17 +279,25 @@ WebVTTLoadListener::ConvertNodeToHtmlElement(const webvtt_node *aWebVttNode)
     htmlElement.SetAttributeNS(htmlNamespace, qualifiedName, 
                                NS_LITERAL_STRING(""));
 
-    for (int i = 0; i < aWebVttNode->data.internal_data->length; i++)
-    {
+    for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
       htmlElement.appendChild(
-        CNodeToHtmlElement(aWebVttNode->data.internal_data->children[i]);
+        ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
     }
   }
   else if (WEBVTT_IS_VALID_LEAF_NODE(aWebVttNode->kind))
   {
     switch (aWebVttNode->kind) {
       case WEBVTT_TEXT:
-        // TODO: Need to create a Text Node
+        nsCOMPtr<nsIContent> content;
+        
+        NS_NewTextNode(content, mElement->GetNodeInfoManager());
+        
+        if (!content) {
+          return nullptr;
+        }
+        content->SetText(NS_ConvertUTF8toUTF16(aWebVttNode->data.text), false);
+        
+        cueTextContent = do_QueryInterface(content);
         break;
       case WEBVTT_TIME_STAMP:
         // TODO: Need to create a "ProcessingInstruction?"
@@ -297,7 +305,7 @@ WebVTTLoadListener::ConvertNodeToHtmlElement(const webvtt_node *aWebVttNode)
     }
   }
 
-  return htmlElement;
+  return cueTextContent;
 }
 
 static void WEBVTT_CALLBACK
