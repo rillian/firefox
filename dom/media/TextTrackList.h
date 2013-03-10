@@ -46,6 +46,7 @@ public:
   already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,
                                            const nsAString& aLabel,
                                            const nsAString& aLanguage);
+  void RemoveTextTrack(const TextTrack& aTrack);
 
   IMPL_EVENT_HANDLER(addtrack)
   IMPL_EVENT_HANDLER(removetrack)

@@ -54,7 +54,11 @@ TextTrackList::AddTextTrack(const nsAString& aKind,
   return track.forget();
 }
 
-// TODO: RemoveTextTrack...
+void
+TextTrackList::RemoveTextTrack(const TextTrack& aTrack)
+{
+  mTextTracks.RemoveElement(&aTrack);
+}
 
 } // namespace dom
 } // namespace mozilla
