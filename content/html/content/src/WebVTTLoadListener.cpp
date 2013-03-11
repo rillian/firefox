@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsHTMLMediaElement.h"
 #include "WebVTTLoadListener.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackCue.h"
@@ -215,9 +216,9 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
     return nullptr;
   }
 
-  for (int i = 0; i < aNode->data->internal_data.length; i++) {
+  for (int i = 0; i < aNode->data.internal_data->length; i++) {
     frag.appendChild(ConvertNodeToCueTextContent(
-      aNode->data->internal_data.children[i]));
+      aNode->data.internal_data->children[i]));
   }
 
   return frag;
