@@ -33,6 +33,7 @@
 #include "nsIFrame.h"
 #include "nsVideoFrame.h"
 #include "nsISupportsImpl.h"
+#include "WebVTTLoadListener.h"
 #include "webvtt/parser.h"
 
 #ifdef PR_LOGGING
@@ -149,7 +150,7 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 		     channelPolicy);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsRefPtr<LoadListener> listener = new LoadListener(this);
+  nsRefPtr<WebVTTLoadListener> listener = new WebVTTLoadListener(this);
   channel->SetNotificationCallbacks(listener);
 
   LOG(PR_LOG_DEBUG, ("opening webvtt channel"));
