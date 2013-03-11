@@ -184,8 +184,7 @@ WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
 {
   const char* text = reinterpret_cast<const char *>(webvtt_string_text(&aCue->id));
   
-  // TODO: What to pass in for aGlobal?
-  TextTrackCue textTrackCue(/* nsISupports *aGlobal here */, 
+  TextTrackCue textTrackCue(mElement->OwnerDoc()->GetParentObject(),
                             aCue->from, aCue->until,
                             NS_ConvertUTF8toUTF16(text);
   
