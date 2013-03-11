@@ -163,7 +163,6 @@ CPPSRCS		+= \
 		HTMLSourceElement.cpp \
 		TimeRanges.cpp \
 		HTMLTrackElement.cpp \
-		WebVTTLoadListener.cpp \
 		nsHTMLVideoElement.cpp \
 		WebVTTLoadListener.cpp \
 		$(NULL)
