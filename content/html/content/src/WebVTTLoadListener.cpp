@@ -186,7 +186,7 @@ WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
   
   TextTrackCue textTrackCue(mElement->OwnerDoc()->GetParentObject(),
                             aCue->from, aCue->until,
-                            NS_ConvertUTF8toUTF16(text);
+                            NS_ConvertUTF8toUTF16(text));
   
   textTrackCue.SetSnapToLines(aCue->snap_to_lines);
   textTrackCue.SetSize(aCue->settings.size);
