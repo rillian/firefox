@@ -6,6 +6,10 @@
 #ifndef mozilla_dom_WebVTTLoadListener_h
 #define mozilla_dom_WebVTTLoadListener_h
 
+#include "nsIStreamListener.h"
+#include "nsIChannelEventSink.h"
+#include "nsIInterfaceRequestor.h"
+#include "nsIObserver.h"
 #include "HTMLTrackElement.h"
 #include "webvtt/parser.h"
 #include "webvtt/util.h"
@@ -14,7 +18,14 @@
 namespace mozilla {
 namespace dom {
 
-class WEBVTTLoadListener MOZ_FINAL : public nsIStreamListener,
+// We might want to look into using #if defined(MOZ_WEBVTT)
+class nsAutoRefTraits<webvtt_parser_t> : public nsPointerRefTraits<webvtt_parser_t>
+{
+public:
+  static void Release(webvtt_parser_t aParser) { webvtt_delete_parser(&aParser); }
+};
+
+class WebVTTLoadListener MOZ_FINAL : public nsIStreamListener,
                                      public nsIChannelEventSink,
                                      public nsIInterfaceRequestor,
                                      public nsIObserver
@@ -30,19 +41,6 @@ public:
   WebVTTLoadListener(HTMLTrackElement *aElement);
   ~WebVTTLoadListener();
   nsresult LoadResource();
-  NS_IMETHODIMP Observe(nsISupports* aSubject, const char *aTopic,
-                        const PRUnichar* aData);
-  NS_IMETHODIMP OnStartRequest(nsIRequest* aRequest, nsISupports* aContext);
-  NS_IMETHODIMP OnStopRequest(nsIRequest* aRequest, nsISupports* aContext,
-                              nsresult aStatus);
-  NS_IMETHODIMP OnDataAvailable(nsIRequest* aRequest, nsISupports *aContext,
-                                nsIInputStream* aStream, uint64_t aOffset,
-                                uint32_t aCount);
-  NS_IMETHODIMP AsyncOnChannelRedirect(nsIChannel* aOldChannel, 
-                                       nsIChannel* aNewChannel,
-                                       uint32_t aFlags,
-                                       nsIAsyncVerifyRedirectCallback* cb);
-  NS_IMETHODIMP GetInterface(const nsIID &aIID, void **aResult);
 
 private:
   NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
@@ -58,7 +56,7 @@ private:
   nsRefPtr<HTMLTrackElement> mElement;
   nsCOMPtr<nsIStreamListener> mNextListener;
   uint32_t mLoadID;
-  nsAutoRef<webvtt_parser> mParser;
+  nsAutoRef<webvtt_parser_t> mParser;
 };
 
 static void WEBVTT_CALLBACK OnParsedCueWebVTTCallBack(void *aUserData, 

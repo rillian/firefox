@@ -10,13 +10,6 @@
 #include "nsAutoRefTraits.h"
 #include "webvtt/string.h"
 
-// We might want to look into using #if defined(MOZ_WEBVTT)
-class nsAutoRefTraits<webvtt_parser> : public nsPointerRefTraits<webvtt_parser>
-{
-public:
-  static void Release(webvtt_parser aParser) { webvtt_delete_parser(aParser); }
-};
-
 namespace mozilla {
 namespace dom {
 
@@ -24,7 +17,7 @@ NS_IMPL_ISUPPORTS5(WebVTTLoadListener, nsIRequestObserver,
                    nsIStreamListener, nsIChannelEventSink,
                    nsIInterfaceRequestor, nsIObserver)
 
-WebVTTLoadListener(HTMLTrackElement *aElement)
+WebVTTLoadListener::WebVTTLoadListener(HTMLTrackElement *aElement)
   : mElement(aElement),
     mLoadID(aElement->GetCurrentLoadID())
 {
@@ -41,24 +34,24 @@ WebVTTLoadListener::~WebVTTLoadListener()
 nsresult
 WebVTTLoadListener::LoadResource()
 {
-  webvtt_parser *parser;
+  webvtt_parser_t *parser = 0;
   webvtt_status status;
 
   status = webvtt_create_parser(&OnParsedCueWebVTTCallBack, 
                                 &OnReportErrorWebVTTCallBack, 
-                                this, parser);
+                                this, &parser);
 
   if (status != WEBVTT_SUCCESS) {
     NS_ENSURE_TRUE(status == WEBVTT_OUT_OF_MEMORY,
                    NS_ERROR_OUT_OF_MEMORY);
-    NS_ENSURE_TRUE(status == WEBVTT_INVALID_ARGUMENT,
+    NS_ENSURE_TRUE(status == WEBVTT_INVALID_PARAM,
                    NS_ERROR_INVALID_ARG);
     return NS_ERROR_FAILURE;
   }
 
   NS_ENSURE_TRUE(parser != nullptr, NS_ERROR_FAILURE);
 
-  mParser.own(parser);
+  mParser.own(*parser);
   NS_ENSURE_TRUE(mParser != nullptr, NS_ERROR_FAILURE);
 
   return NS_OK;
