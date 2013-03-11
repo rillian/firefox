@@ -50,7 +50,7 @@ WebVTTLoadListener::LoadResource()
 
   NS_ENSURE_TRUE(parser != nullptr, NS_ERROR_FAILURE);
 
-  mParser.own(*parser);
+  mParser.own(parser);
   NS_ENSURE_TRUE(mParser != nullptr, NS_ERROR_FAILURE);
 
   return NS_OK;
@@ -128,8 +128,10 @@ WebVTTLoadListener::ParseChunk(nsIInputStream *aInStream, void *aClosure,
                                const char *aFromSegment, uint32_t aToOffset,
                                uint32_t aCount, uint32_t *aWriteCount)
 {
+  WebVTTLoadListener* loadListener = static_cast<WebVTTLoadListener *>(aClosure);
+  
   // How to determine if this is the final chunk?
-  if (!webvtt_parse_chunk(mParser, aFromSegment, aCount, 0)) {
+  if (!webvtt_parse_chunk(loadListener->mParser, aFromSegment, aCount)) {
     // TODO: Handle error
   }
   *aWriteCount = aCount;
@@ -141,10 +143,10 @@ void
 WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue) 
 {
   TextTrackCue textTrackCue = ConvertCueToTextTrackCue(aCue);
-  mElement.Track.AddCue(textTrackCue);
+  mElement.mTrack.AddCue(textTrackCue);
 
   ErrorResult rv;
-  already_AddRefed<DocumentFragment> frag = ConvertNodeListToDomFragment(aCue, rv);
+  already_AddRefed<DocumentFragment> frag = ConvertNodeListToDocFragment(aCue->node_head, rv);
   if (!frag || rv.Failed()) {
     // TODO: Do something with rv.ErrorCode here.
   }
@@ -186,14 +188,14 @@ WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
   textTrackCue.SetPosition(aCue->settings.position);
   
   //TODO: need to convert webvtt enums to strings
-  textTrackCue.SetVertical();
-  textTrackCue.SetAlign();
+  // textTrackCue.SetVertical();
+  // textTrackCue.SetAlign();
 
   // TODO: Id is the text in the parser so do we need this?
-  textTrackCue.SetId();
+  // textTrackCue.SetId();
 
   // TODO: Not specified in webvtt so we may not need this.
-  textTrackCue.SetPauseOnExit();
+  // textTrackCue.SetPauseOnExit();
 
   return textTrackCue;
 }

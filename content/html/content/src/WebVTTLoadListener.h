@@ -15,15 +15,16 @@
 #include "webvtt/util.h"
 #include "nsAutoRef.h"
 
-namespace mozilla {
-namespace dom {
-
 // We might want to look into using #if defined(MOZ_WEBVTT)
+template <>
 class nsAutoRefTraits<webvtt_parser_t> : public nsPointerRefTraits<webvtt_parser_t>
 {
 public:
-  static void Release(webvtt_parser_t aParser) { webvtt_delete_parser(&aParser); }
+  static void Release(webvtt_parser_t *aParser) { webvtt_delete_parser(aParser); }
 };
+
+namespace mozilla {
+namespace dom {
 
 class WebVTTLoadListener MOZ_FINAL : public nsIStreamListener,
                                      public nsIChannelEventSink,
@@ -43,9 +44,9 @@ public:
   nsresult LoadResource();
 
 private:
-  NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
-                     const char *aFromSegment, uint32_t aToOffset,
-                     uint32_t aCount, uint32_t *aWriteCount);
+  static NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
+                              const char *aFromSegment, uint32_t aToOffset,
+                              uint32_t aCount, uint32_t *aWriteCount);
   void OnParsedCue(webvtt_cue *cue);
   void OnReportError(uint32_t line, uint32_t col, webvtt_error error);
   TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
