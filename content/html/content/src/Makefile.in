@@ -16,6 +16,9 @@ ifndef _MSC_VER
 FAIL_ON_WARNINGS = 1
 endif # !_MSC_VER
 
+DEFINES += \
+  -DWEBVTT_NO_CONFIG_H=1 \
+  $(NULL)
 
 EXPORTS		= \
 		HTMLPropertiesCollection.h \
