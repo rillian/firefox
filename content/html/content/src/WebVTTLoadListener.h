@@ -52,7 +52,7 @@ private:
   TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
   already_AddRefed<DocumentFragment> 
     ConvertNodeListToDocFragment(const webvtt_node *aNode, ErrorResult &rv);
-  nsISupports ConvertNodeToCueTextContent(const webvtt_node *aNode);
+  nsCOMPtr<nsIContent> ConvertNodeToCueTextContent(const webvtt_node *aNode);
 
   nsRefPtr<HTMLTrackElement> mElement;
   nsCOMPtr<nsIStreamListener> mNextListener;

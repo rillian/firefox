@@ -210,68 +210,79 @@ already_AddRefed<DocumentFragment>
 WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode, 
                                                  ErrorResult &rv)
 {
-  nsCOMPtr<nsIContent> content = do_QueryInterface(mElement);
+  nsCOMPtr<nsIDOMHTMLElement> domHTMLElement = do_QueryInterface(mElement);
+  nsCOMPtr<nsIContent> content = do_QueryInterface(domHTMLElement);
+  
   if (!content) {
     return nullptr;
   }
 
   // TODO: Do we need to do something with this error result?
-  already_AddRefed<DocumentFragment> frag = content.CreateDocumentFragment(rv);
+  already_AddRefed<DocumentFragment> frag = content->CreateDocumentFragment(rv);
   if (!frag.get()) {
     return nullptr;
   }
 
   nsCOMPtr<nsIDOMNode> resultNode;
   for (int i = 0; i < aNode->data.internal_data->length; i++) {
-    frag.get()->AppendChild(ConvertNodeToCueTextContent(
-      aNode->data.internal_data->children[i]), getter_AddRefs(resultNode));
+    
+    nsISupports* cueTextContent = 
+      ConvertNodeToCueTextContent(aNode->data.internal_data->children[i]);
+    
+    nsCOMPtr<nsIDOMNode> node = do_QueryInterface(cueTextContent);
+    
+    frag.get()->AppendChild(node, getter_AddRefs(resultNode));
   }
 
   return frag;
 }
 
-nsISupports
+nsCOMPtr<nsIContent>
 WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
 {
   already_AddRefed<nsINodeInfo> nodeInfo;
-  nsISupports cueTextContent;
-  
+  nsCOMPtr<nsIContent> cueTextContent;
+
   if (WEBVTT_IS_VALID_INTERNAL_NODE(aWebVttNode->kind))
   {
     // TODO: Change to iterative solution instead of recursive
-    nsAString htmlNamespace = NS_LITERAL_STRING("html");
+    nsAString *qualifiedName;
 
-    nsAString qualifiedName;
-  
     // TODO: Is this the correct way to be passing in a node info? If we need an 
-    //       objects node info, than whose? 
-    // HTMLElement htmlElement(nodeInfo);
+    //      objects node info, than whose? 
+    nsCOMPtr<nsNodeInfo> nodeInfo;
+    nodeInfo = mElement->NodeInfoManager()->GetNodeInfo(nsGkAtoms::embed, 
+                                                           nullptr,
+                                                           kNameSpaceID_XHTML,
+                                                           nsIDOMNode::ELEMENT_NODE);
+    
+    NS_NewHTMLElement(already_AddRefed(cueTextContent), nodeInfo);
     
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
-        qualifiedName = NS_LITERAL_STRING("span");
+        *qualifiedName = NS_LITERAL_STRING("span");
         break;
       case WEBVTT_ITALIC:
-        qualifiedName = NS_LITERAL_STRING("i");
+        *qualifiedName = NS_LITERAL_STRING("i");
         break;
       case WEBVTT_BOLD:
-        qualifiedName = NS_LITERAL_STRING("b");
+        *qualifiedName = NS_LITERAL_STRING("b");
         break;
       case WEBVTT_UNDERLINE:
-        qualifiedName = NS_LITERAL_STRING("u");
+        *qualifiedName = NS_LITERAL_STRING("u");
         break;
       case WEBVTT_RUBY:
-        qualifiedName = NS_LITERAL_STRING("ruby");
+        *qualifiedName = NS_LITERAL_STRING("ruby");
         break;
       case WEBVTT_RUBY_TEXT:
-        qualifiedName = NS_LITERAL_STRING("rt");
+        *qualifiedName = NS_LITERAL_STRING("rt");
         break;
       case WEBVTT_VOICE:
-        qualifiedName = NS_LITERAL_STRING("span");
+        *qualifiedName = NS_LITERAL_STRING("span");
         
         const char* text = 
           reinterpret_cast<const char *>
-          (webvtt_string_text(&aWebVttNode->data.internal_data->annotation))
+          (webvtt_string_text(&aWebVttNode->data.internal_data->annotation));
         
         // htmlElement.SetTitle(NS_ConvertUTF8toUTF16(text);
         break;
@@ -283,32 +294,27 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
     // TODO:: Need to concatenate all applicable classes separated by spaces and
     //        set them to the htmlElements class attribute
 
-    // htmlElement.SetAttributeNS(htmlNamespace, qualifiedName, 
+    // htmlElement.SetAttributeNS(NS_LITERAL_STRING("html"), &qualifiedName, 
     //                            NS_LITERAL_STRING(""));
 
     for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
-      htmlElement.AppendChild(
-        ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
+      // htmlElement.AppendChild(
+      //  ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
     }
   }
   else if (WEBVTT_IS_VALID_LEAF_NODE(aWebVttNode->kind))
   {
     switch (aWebVttNode->kind) {
       case WEBVTT_TEXT:
-        nsCOMPtr<nsIContent> content;
+        NS_NewTextNode(&cueTextContent, mElement->NodeInfoManager());
         
-        NS_NewTextNode(&content, mElement->GetNodeInfoManager());
-        
-        if (!content) {
+        if (!cueTextContent) {
           return nullptr;
         }
-        
         const char* text = reinterpret_cast<const char *>(
           webvtt_string_text(&aWebVttNode->data.text));
       
-        content->SetText(NS_ConvertUTF8toUTF16(text), false);
-        
-        cueTextContent = do_QueryInterface(content);
+        cueTextContent->SetText(NS_ConvertUTF8toUTF16(text), false);
         break;
       case WEBVTT_TIME_STAMP:
         // TODO: Need to create a "ProcessingInstruction?"
