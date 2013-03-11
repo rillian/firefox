@@ -182,10 +182,12 @@ WebVTTLoadListener::OnReportError(uint32_t aLine, uint32_t aCol,
 TextTrackCue 
 WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
 {
+  const char* text = reinterpret_cast<const char *>(webvtt_string_text(&aCue->id));
+  
   // TODO: What to pass in for aGlobal?
   TextTrackCue textTrackCue(/* nsISupports *aGlobal here */, 
                             aCue->from, aCue->until,
-                            webvtt_string_text(NS_ConvertUTF8toUTF16(aCue->id)));
+                            NS_ConvertUTF8toUTF16(text);
   
   textTrackCue.SetSnapToLines(aCue->snap_to_lines);
   textTrackCue.SetSize(aCue->settings.size);
@@ -219,9 +221,10 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
     return nullptr;
   }
 
+  nsCOMPtr<nsIDOMNode> resultNode;
   for (int i = 0; i < aNode->data.internal_data->length; i++) {
-    frag.get().AppendChild(ConvertNodeToCueTextContent(
-      aNode->data.internal_data->children[i]));
+    frag.get()->AppendChild(ConvertNodeToCueTextContent(
+      aNode->data.internal_data->children[i]), getter_AddRefs(resultNode));
   }
 
   return frag;
@@ -231,7 +234,7 @@ nsISupports
 WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
 {
   already_AddRefed<nsINodeInfo> nodeInfo;
-  nsCOMPtr<nsISupports> cueTextContent;
+  nsISupports cueTextContent;
   
   if (WEBVTT_IS_VALID_INTERNAL_NODE(aWebVttNode->kind))
   {
@@ -242,7 +245,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
   
     // TODO: Is this the correct way to be passing in a node info? If we need an 
     //       objects node info, than whose? 
-    HTMLElement htmlElement(nodeInfo);
+    // HTMLElement htmlElement(nodeInfo);
     
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
@@ -265,17 +268,23 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
         break;
       case WEBVTT_VOICE:
         qualifiedName = NS_LITERAL_STRING("span");
-        htmlElement.SetTitle(
-          NS_ConvertUTF8toUTF16(
-            webvtt_string_text(aWebVttNode->data.internal_data->annotation));
+        
+        const char* text = 
+          reinterpret_cast<const char *>
+          (webvtt_string_text(&aWebVttNode->data.internal_data->annotation))
+        
+        // htmlElement.SetTitle(NS_ConvertUTF8toUTF16(text);
+        break;
+      default:
+        // Nothing for now
         break;
     }
 
     // TODO:: Need to concatenate all applicable classes separated by spaces and
     //        set them to the htmlElements class attribute
 
-    htmlElement.SetAttributeNS(htmlNamespace, qualifiedName, 
-                               NS_LITERAL_STRING(""));
+    // htmlElement.SetAttributeNS(htmlNamespace, qualifiedName, 
+    //                            NS_LITERAL_STRING(""));
 
     for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
       htmlElement.AppendChild(
@@ -293,7 +302,11 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
         if (!content) {
           return nullptr;
         }
-        content->SetText(NS_ConvertUTF8toUTF16(aWebVttNode->data.text), false);
+        
+        const char* text = reinterpret_cast<const char *>(
+          webvtt_string_text(&aWebVttNode->data.text));
+      
+        content->SetText(NS_ConvertUTF8toUTF16(text), false);
         
         cueTextContent = do_QueryInterface(content);
         break;
@@ -309,7 +322,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
 static void WEBVTT_CALLBACK
 OnParsedCueWebVTTCallBack(void *aUserData, webvtt_cue *aCue)
 {
-  WebVTTLoadListener *self = reinterpret_cast<WebVTTLoadListener *>(userdata);
+  WebVTTLoadListener *self = reinterpret_cast<WebVTTLoadListener *>(aUserData);
   self->OnParsedCue(aCue);
 }
 
@@ -317,7 +330,7 @@ static int WEBVTT_CALLBACK
 OnReportErrorWebVTTCallBack(void *aUserData, uint32_t aLine, 
                             uint32_t aCol, webvtt_error aError)
 {
-  WebVTTLoadListener *self = reinterpret_cast<WebVTTLoadListener *>(userdata);
+  WebVTTLoadListener *self = reinterpret_cast<WebVTTLoadListener *>(aUserData);
   self->OnReportError(aLine, aCol, aError);
 }
 

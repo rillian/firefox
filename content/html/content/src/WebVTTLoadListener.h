@@ -41,14 +41,14 @@ class WebVTTLoadListener MOZ_FINAL : public nsIStreamListener,
 public:
   WebVTTLoadListener(HTMLTrackElement *aElement);
   ~WebVTTLoadListener();
+  void OnParsedCue(webvtt_cue *cue);
+  void OnReportError(uint32_t line, uint32_t col, webvtt_error error);
   nsresult LoadResource();
 
 private:
   static NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
                               const char *aFromSegment, uint32_t aToOffset,
                               uint32_t aCount, uint32_t *aWriteCount);
-  void OnParsedCue(webvtt_cue *cue);
-  void OnReportError(uint32_t line, uint32_t col, webvtt_error error);
   TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
   already_AddRefed<DocumentFragment> 
     ConvertNodeListToDocFragment(const webvtt_node *aNode, ErrorResult &rv);

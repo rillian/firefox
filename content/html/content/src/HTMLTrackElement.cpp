@@ -32,6 +32,7 @@
 #include "nsThreadUtils.h"
 #include "nsIFrame.h"
 #include "nsVideoFrame.h"
+#include "nsISupportsImpl.h"
 #include "webvtt/parser.h"
 
 #ifdef PR_LOGGING
