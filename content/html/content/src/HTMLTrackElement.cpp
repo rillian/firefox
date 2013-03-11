@@ -48,8 +48,8 @@ NS_IMPL_NS_NEW_HTML_ELEMENT(Track)
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_ISUPPORTS5(nsIRequestObserver, nsIStreamListener, nsIChannelEventSink,
-                   nsIInterfaceRequestor, nsIObserver)
+//NS_IMPL_ISUPPORTS5(HTMLTrackElement, nsIRequestObserver, nsIStreamListener,
+//    nsIChannelEventSink, nsIInterfaceRequestor, nsIObserver)
 
 /** HTMLTrackElement */
 HTMLTrackElement::HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo)
