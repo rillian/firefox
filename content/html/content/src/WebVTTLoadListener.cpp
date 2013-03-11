@@ -236,27 +236,19 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
   return frag;
 }
 
+// TODO: Change to iterative solution instead of recursive
 nsCOMPtr<nsIContent>
 WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
 {
-  already_AddRefed<nsINodeInfo> nodeInfo;
   nsCOMPtr<nsIContent> cueTextContent;
-
+  nsINodeInfo* nodeInfo;
+  
   if (WEBVTT_IS_VALID_INTERNAL_NODE(aWebVttNode->kind))
-  {
-    // TODO: Change to iterative solution instead of recursive
+  {   
+    nodeInfo = mElement->NodeInfo();
+    NS_NewHTMLElement(getter_AddRefs(cueTextContent), nodeInfo, mozilla::dom::NOT_FROM_PARSER);
+    
     nsAString *qualifiedName;
-
-    // TODO: Is this the correct way to be passing in a node info? If we need an 
-    //      objects node info, than whose? 
-    nsCOMPtr<nsNodeInfo> nodeInfo;
-    nodeInfo = mElement->NodeInfoManager()->GetNodeInfo(nsGkAtoms::embed, 
-                                                           nullptr,
-                                                           kNameSpaceID_XHTML,
-                                                           nsIDOMNode::ELEMENT_NODE);
-    
-    NS_NewHTMLElement(already_AddRefed(cueTextContent), nodeInfo);
-    
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
         *qualifiedName = NS_LITERAL_STRING("span");
@@ -305,7 +297,8 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
   {
     switch (aWebVttNode->kind) {
       case WEBVTT_TEXT:
-        NS_NewTextNode(&cueTextContent, mElement->NodeInfoManager());
+        nodeInfo = mElement->NodeInfo();
+        NS_NewTextNode(getter_AddRefs(cueTextContent), nodeInfo->NodeInfoManager());
         
         if (!cueTextContent) {
           return nullptr;
@@ -317,6 +310,9 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
         break;
       case WEBVTT_TIME_STAMP:
         // TODO: Need to create a "ProcessingInstruction?"
+        break;
+      default:
+        // Nothing for now
         break;
     }
   }
