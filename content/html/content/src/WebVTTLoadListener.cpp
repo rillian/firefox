@@ -146,18 +146,18 @@ void
 WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue) 
 {
   TextTrackCue textTrackCue = ConvertCueToTextTrackCue(aCue);
-  mElement.mTrack.AddCue(textTrackCue);
+  mElement->mTrack->AddCue(textTrackCue);
 
   ErrorResult rv;
   already_AddRefed<DocumentFragment> frag = ConvertNodeListToDocFragment(aCue->node_head, rv);
-  if (!frag || rv.Failed()) {
+  if (!frag.get() || rv.Failed()) {
     // TODO: Do something with rv.ErrorCode here.
   }
 
   nsHTMLMediaElement* parent =
       static_cast<nsHTMLMediaElement*>(mElement->mMediaParent.get());
 
-  nsIFrame* frame = mElement->mMediaParent->GetPrimaryFrame();
+  nsIFrame* frame = parent->GetPrimaryFrame();
   if (frame && frame->GetType() == nsGkAtoms::HTMLVideoFrame) {
 
     nsIContent *overlay = 
@@ -165,8 +165,9 @@ WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue)
     nsCOMPtr<nsIDOMNode> div = do_QueryInterface(overlay);
 
     if (div) {
+      nsCOMPtr<nsIDOMNode> resultNode;
       // TODO: Might need to remove previous children first
-      div->appendChild(frag);
+      div->AppendChild(frag.get(), getter_AddRefs(resultNode));
     }
   }
 }
@@ -214,12 +215,12 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
 
   // TODO: Do we need to do something with this error result?
   already_AddRefed<DocumentFragment> frag = content.CreateDocumentFragment(rv);
-  if (!frag) {
+  if (!frag.get()) {
     return nullptr;
   }
 
   for (int i = 0; i < aNode->data.internal_data->length; i++) {
-    frag.appendChild(ConvertNodeToCueTextContent(
+    frag.get().AppendChild(ConvertNodeToCueTextContent(
       aNode->data.internal_data->children[i]));
   }
 
@@ -277,7 +278,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
                                NS_LITERAL_STRING(""));
 
     for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
-      htmlElement.appendChild(
+      htmlElement.AppendChild(
         ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
     }
   }
@@ -287,7 +288,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
       case WEBVTT_TEXT:
         nsCOMPtr<nsIContent> content;
         
-        NS_NewTextNode(content, mElement->GetNodeInfoManager());
+        NS_NewTextNode(&content, mElement->GetNodeInfoManager());
         
         if (!content) {
           return nullptr;
