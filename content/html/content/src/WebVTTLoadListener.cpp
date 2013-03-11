@@ -4,10 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "WebVTTLoadListener.h"
-#include "TextTrack.h"
-#include "TextTrackCue.h"
-#include "TextTrackCueList.h"
-#include "nsAutoRefTraits.h"
+#include "mozilla/dom/TextTrack.h"
+#include "mozilla/dom/TextTrackCue.h"
+#include "mozilla/dom/TextTrackCueList.h"
 #include "webvtt/string.h"
 
 namespace mozilla {
