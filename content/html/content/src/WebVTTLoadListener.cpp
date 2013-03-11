@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsHTMLMediaElement.h"
+#include "nsVideoFrame.h"
+#include "nsIFrame.h"
 #include "WebVTTLoadListener.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackCue.h"

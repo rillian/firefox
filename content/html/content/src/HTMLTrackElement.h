@@ -123,7 +123,7 @@ protected:
   virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope,
                              bool* aTriedToWrap) MOZ_OVERRIDE;
 
-  class LoadListener;
+  friend class WebVTTLoadListener;
   uint32_t mCurrentLoadID;
   nsRefPtr<TextTrack> mTrack;
   nsCOMPtr<nsIChannel> mChannel;
