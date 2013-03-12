@@ -290,8 +290,14 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
                                 NS_LITERAL_STRING(""));
 
     for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
-      // htmlElement.AppendChild(
-      //  ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
+       nsCOMPtr<nsIDOMNode> resultNode, childNode;
+       nsCOMPtr<nsIContent> childCueTextContent;
+       
+       childCueTextContent = ConvertNodeToCueTextContent(
+        aWebVttNode->data.internal_data->children[i]);
+       
+       childNode = do_QueryInterface(childCueTextContent);
+       htmlElement->AppendChild(childNode, getter_AddRefs(resultNode));
     }
 #endif
   }
