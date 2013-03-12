@@ -48,7 +48,7 @@ TextTrackList::AddTextTrack(const nsAString& aKind,
                             const nsAString& aLabel,
                             const nsAString& aLanguage)
 {
-  nsRefPtr<TextTrack> track = new TextTrack(this, aKind, aLabel, aLanguage);
+  nsRefPtr<TextTrack> track = new TextTrack(mGlobal, aKind, aLabel, aLanguage);
   mTextTracks.AppendElement(track);
   // TODO: dispatch addtrack event
   return track.forget();
