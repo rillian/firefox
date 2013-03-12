@@ -325,7 +325,6 @@ OnParsedCueWebVTTCallBack(void *aUserData, webvtt_cue *aCue)
 {
   WebVTTLoadListener *self = reinterpret_cast<WebVTTLoadListener *>(aUserData);
   self->OnParsedCue(aCue);
-  return WEBVTT_SUCCESS;
 }
 
 static int WEBVTT_CALLBACK 
