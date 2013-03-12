@@ -127,30 +127,6 @@ nsVideoFrame::CreateAnonymousContent(nsTArray<ContentInfo>& aElements)
   if (!aElements.AppendElement(mVideoControls))
     return NS_ERROR_OUT_OF_MEMORY;
 
-  // Set up the caption overlay div for showing any TextTrack data
-  nodeInfo = nodeInfoManager->GetNodeInfo(nsGkAtoms::div,
-					  nullptr,
-					  kNameSpaceID_XHTML,
-					  nsIDOMNode::ELEMENT_NODE);
-  NS_ENSURE_TRUE(nodeInfo, NS_ERROR_OUT_OF_MEMORY);
-  element = NS_NewHTMLDivElement(nodeInfo.forget());
-  mCaptionDiv = element;
-  NS_ENSURE_TRUE(mCaptionDiv, NS_ERROR_OUT_OF_MEMORY);
-  // hang a class name on the div for default styling
-  nsresult rv = mCaptionDiv->SetAttr(kNameSpaceID_None,
-				     nsGkAtoms::_class,
-				     NS_LITERAL_STRING("captionDiv"),
-				     true);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!aElements.AppendElement(mCaptionDiv))
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  // add a test string so we can test the div
-  nsCOMPtr<nsIDOMHTMLElement> div = do_QueryInterface(mCaptionDiv);
-  rv = div->SetInnerHTML(NS_LITERAL_STRING("<p>Lorem ipsum dolor</p>"));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   return NS_OK;
 }
 
