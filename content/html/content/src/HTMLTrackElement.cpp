@@ -177,6 +177,10 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 						 aCompileEventHandlers);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  if (!aDocument) {
+    return NS_OK;
+  }
+
   LOG(PR_LOG_DEBUG, ("Track Element bound to tree."));
   if (!aParent || !aParent->IsNodeOfType(nsINode::eMEDIA)) {
     return NS_OK;
@@ -193,6 +197,8 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   // Find our 'src' url
   nsAutoString src;
 
+  // TODO: we might want to instead call LoadResource() in a
+  // SetAttr override, like we do in media element.
   if (GetAttr(kNameSpaceID_None, nsGkAtoms::src, src)) {
     nsCOMPtr<nsIURI> uri;
     nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
