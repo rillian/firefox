@@ -268,34 +268,36 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
       case WEBVTT_RUBY_TEXT:
         *qualifiedName = NS_LITERAL_STRING("rt");
         break;
-      case WEBVTT_VOICE:
+      case WEBVTT_VOICE: 
+      {
         *qualifiedName = NS_LITERAL_STRING("span");
-#if 0
-        {
-          const char* text =
-            reinterpret_cast<const char *>
-            (webvtt_string_text(&aWebVttNode->data.internal_data->annotation));
-
-          htmlElement.SetTitle(NS_ConvertUTF8toUTF16(text);
-        }
-#endif
+        
+        nsCOMPtr<nsGenericHTMLElement> htmlElement = 
+          do_QueryInterface(cueTextContent);
+        
+        const char* text = 
+          reinterpret_cast<const char *>(
+            webvtt_string_text(&aWebVttNode->data.internal_data->annotation));
+        
+          htmlElement->SetTitle(NS_ConvertUTF8toUTF16(text));
         break;
+      }
       default:
         // Nothing for now
         break;
     }
 
+    nsCOMPtr<nsIDOMHTMLElement> htmlElement = do_QueryInterface(cueTextContent);
+    
     // TODO:: Need to concatenate all applicable classes separated by spaces and
     //        set them to the htmlElements class attribute
-#if 0
-    {
-      htmlElement.SetAttributeNS(NS_LITERAL_STRING("html"), &qualifiedName,
-                                 NS_LITERAL_STRING(""));
 
-      for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
-        htmlElement.AppendChild(
-        ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
-      }
+    htmlElement->SetAttributeNS(NS_LITERAL_STRING("html"), *qualifiedName, 
+                                NS_LITERAL_STRING(""));
+
+    for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
+      // htmlElement.AppendChild(
+      //  ConvertNodeToCueTextContent(aWebVttNode->data.internal_data->children[i]);
     }
 #endif
   }
@@ -303,6 +305,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
   {
     switch (aWebVttNode->kind) {
       case WEBVTT_TEXT:
+      {
         nodeInfo = mElement->NodeInfo();
         NS_NewTextNode(getter_AddRefs(cueTextContent), nodeInfo->NodeInfoManager());
 
@@ -316,6 +319,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
           cueTextContent->SetText(NS_ConvertUTF8toUTF16(text), false);
         }
         break;
+      }
       case WEBVTT_TIME_STAMP:
         // TODO: Need to create a "ProcessingInstruction?"
         break;
