@@ -209,15 +209,9 @@ already_AddRefed<DocumentFragment>
 WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode, 
                                                  ErrorResult &rv)
 {
-  nsCOMPtr<nsIDOMHTMLElement> domHTMLElement = do_QueryInterface(mElement);
-  nsCOMPtr<nsIContent> content = do_QueryInterface(domHTMLElement);
-  
-  if (!content) {
-    return nullptr;
-  }
-
   // TODO: Do we need to do something with this error result?
-  already_AddRefed<DocumentFragment> frag = content->CreateDocumentFragment(rv);
+  already_AddRefed<DocumentFragment> frag =
+    mElement->OwnerDoc()->CreateDocumentFragment(rv);
   if (!frag.get()) {
     return nullptr;
   }
