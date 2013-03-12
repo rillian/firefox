@@ -151,6 +151,7 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsRefPtr<WebVTTLoadListener> listener = new WebVTTLoadListener(this);
+  listener->LoadResource();
   channel->SetNotificationCallbacks(listener);
 
   LOG(PR_LOG_DEBUG, ("opening webvtt channel"));
