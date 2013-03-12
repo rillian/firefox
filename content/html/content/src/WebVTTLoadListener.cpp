@@ -15,6 +15,13 @@
 namespace mozilla {
 namespace dom {
 
+#ifdef PR_LOGGING
+PRLogModuleInfo* gTextTrackLog;
+# define LOG(msg) PR_LOG(gTextTrackLog, PR_LOG_DEBUG, (msg))
+#else
+# define LOG(msg)
+#endif
+
 NS_IMPL_ISUPPORTS5(WebVTTLoadListener, nsIRequestObserver,
                    nsIStreamListener, nsIChannelEventSink,
                    nsIInterfaceRequestor, nsIObserver)
@@ -24,6 +31,12 @@ WebVTTLoadListener::WebVTTLoadListener(HTMLTrackElement *aElement)
     mLoadID(aElement->GetCurrentLoadID())
 {
   NS_ABORT_IF_FALSE(mElement, "Must pass an element to the callback");
+#ifdef PR_LOGGING
+  if (!gTextTrackLog) {
+    gTextTrackLog = PR_NewLogModule("TextTrack");
+  }
+#endif
+  LOG("WebVTTLoadListener created.");
 }
 
 WebVTTLoadListener::~WebVTTLoadListener()
@@ -31,6 +44,7 @@ WebVTTLoadListener::~WebVTTLoadListener()
   if (mParser) {
     mParser.reset();
   }
+  LOG("WebVTTLoadListener destroyed.");
 }
 
 nsresult
@@ -39,6 +53,7 @@ WebVTTLoadListener::LoadResource()
   webvtt_parser_t *parser = 0;
   webvtt_status status;
 
+  LOG("Loading text track resource.");
   status = webvtt_create_parser(&OnParsedCueWebVTTCallBack, 
                                 &OnReportErrorWebVTTCallBack, 
                                 this, &parser);
