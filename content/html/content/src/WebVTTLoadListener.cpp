@@ -257,7 +257,7 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
     nodeInfo = mElement->NodeInfo();
     NS_NewHTMLElement(getter_AddRefs(cueTextContent), nodeInfo, mozilla::dom::NOT_FROM_PARSER);
     
-    nsAString *qualifiedName;
+    nsAString *qualifiedName = nullptr;
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
         *qualifiedName = NS_LITERAL_STRING("span");
