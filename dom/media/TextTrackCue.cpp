@@ -32,7 +32,9 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   , mSnapToLines(true)
 {
   MOZ_ASSERT(aGlobal);
-  SetIsDOMBinding();    
+  SetIsDOMBinding();
+
+fprintf(stderr, "TextTrackCue::TextTrackCue aStartTime=%f aEndTime=%f", mStartTime, mEndTime);
 }
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
@@ -54,6 +56,8 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 {
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
+
+fprintf(stderr, "TextTrackCue::TextTrackCue aStartTime=%f aEndTime=%f", mStartTime, mEndTime);
 }
 
 void

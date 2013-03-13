@@ -205,9 +205,11 @@ TextTrackCue
 WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
 {
   const char* text = reinterpret_cast<const char *>(webvtt_string_text(&aCue->id));
-  
+
+fprintf(stderr, "WebVTTLoadListener::ConvertCueToTextTrackCue aCue->from=%llu, aCue->until=%llu\n", aCue->from, aCue->until);
+
   TextTrackCue textTrackCue(mElement->OwnerDoc()->GetParentObject(),
-                            aCue->from, aCue->until,
+                            (double)(aCue->from/1000), (double)(aCue->until/1000),
                             NS_ConvertUTF8toUTF16(text), mElement,
                             aCue->node_head);
   
