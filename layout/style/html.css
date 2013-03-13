@@ -728,6 +728,7 @@ audio:not([controls]) {
 
 video > div {
   text-align: center;
+  vertical-align: text-bottom;
   font-weight: bold;
   font-size: 24px;
   pointer-events: none;

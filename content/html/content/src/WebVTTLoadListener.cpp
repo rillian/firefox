@@ -211,6 +211,13 @@ fprintf(stderr, "WebVTTLoadListener::DisplayCueText failed!!!!!!!!!!!!!!");
       nsCOMPtr<nsIDOMNode> resultNode;
       // TODO: Might need to remove previous children first
 fprintf(stderr, "div->AppendChild()\n");
+
+      nsCOMPtr<nsIContent> content = do_QueryInterface(div);
+      uint32_t childCount = content->GetChildCount();
+      for (uint32_t i = 0; i < childCount; ++i) {
+        content->RemoveChildAt(i, true);
+      }
+
       div->AppendChild(frag.get(), getter_AddRefs(resultNode));
     }
   }
