@@ -80,7 +80,7 @@ public:
     }
     return mActiveCueList;
   }
-  
+
   void Update(double time);
 
   void AddCue(TextTrackCue& aCue);

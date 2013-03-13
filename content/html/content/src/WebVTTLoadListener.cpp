@@ -166,10 +166,12 @@ WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue)
 
 void
 WebVTTLoadListener::DisplayCueText(webvtt_node* head) {
+fprintf(stderr, "in WebVTTLoadListener::DisplayCueText, should get AppendChild below...\n");
   ErrorResult rv;
   already_AddRefed<DocumentFragment> frag = ConvertNodeListToDocFragment(head, rv);
   if (!frag.get() || rv.Failed()) {
     // TODO: Do something with rv.ErrorCode here.
+fprintf(stderr, "WebVTTLoadListener::DisplayCueText failed!!!!!!!!!!!!!!");
   }
 
   nsHTMLMediaElement* parent =
@@ -178,16 +180,18 @@ WebVTTLoadListener::DisplayCueText(webvtt_node* head) {
   nsIFrame* frame = parent->GetPrimaryFrame();
   if (frame && frame->GetType() == nsGkAtoms::HTMLVideoFrame) {
 
-    nsIContent *overlay = 
+    nsIContent *overlay =
       static_cast<nsVideoFrame*>(frame)->GetCaptionOverlay();
     nsCOMPtr<nsIDOMNode> div = do_QueryInterface(overlay);
 
     if (div) {
       nsCOMPtr<nsIDOMNode> resultNode;
       // TODO: Might need to remove previous children first
+fprintf(stderr, "div->AppendChild()\n");
       div->AppendChild(frag.get(), getter_AddRefs(resultNode));
     }
   }
+fprintf(stderr, "Done DisplayCueText\n");
 }
 
 void 

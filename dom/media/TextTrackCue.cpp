@@ -57,9 +57,10 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 }
 
 void
-TextTrackCue::DisplayCue() 
+TextTrackCue::DisplayCue()
 {
-  mTrackElement->DisplayCueText(mHead); 
+fprintf(stderr, "TextTrackCue::DisplayCue()");
+  mTrackElement->DisplayCueText(mHead);
 }
 
 JSObject*

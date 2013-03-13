@@ -29,11 +29,15 @@ TextTrackCueList::~TextTrackCueList()
 {
   mParent = nullptr;
 }
-void 
+void
 TextTrackCueList::Update(double time)
 {
-  for (int i = 0; i < mList.Length(); i++) {
+fprintf(stderr, "TextTrackCueList::Update()\n");
+  uint32_t i, length = mList.Length();
+  for (i = 0; i < length; i++) {
+fprintf(stderr, "  [ time=%f StartTime=%f EndTime=%f ]\n", time, mList[i]->StartTime(), mList[i]->EndTime());
     if (time > mList[i]->StartTime() && time < mList[i]->EndTime()) {
+fprintf(stderr, "calling TextTrackCue->DisplayCue\n");
       mList[i]->DisplayCue();
     }
   }
