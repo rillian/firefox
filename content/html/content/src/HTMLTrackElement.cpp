@@ -166,6 +166,32 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 }
 
 nsresult
+HTMLTrackElement::SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
+                          nsIAtom* aPrefix, const nsAString& aValue,
+                          bool aNotify)
+{
+  nsresult rv =
+    nsGenericHTMLElement::SetAttr(aNameSpaceID, aName, aPrefix, aValue,
+                                  aNotify);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  if (aNameSpaceID == kNameSpaceID_None && aName == nsGkAtoms::src) {
+    nsAutoString src(aValue);
+    nsCOMPtr<nsIURI> uri;
+    nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
+    if (NS_SUCCEEDED(rvTwo)) {
+      LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
+	     NS_ConvertUTF16toUTF8(src).get()));
+      LoadResource(uri);
+    }
+  }
+
+  return rv;
+}
+
+nsresult
 HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 			     nsIContent* aParent,
 			     nsIContent* aBindingParent,
@@ -193,21 +219,6 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   // TODO: separate notification for 'alternate' tracks?
   media->NotifyAddedSource();
   LOG(PR_LOG_DEBUG, ("Track element sent notification to parent."));
-
-  // Find our 'src' url
-  nsAutoString src;
-
-  // TODO: we might want to instead call LoadResource() in a
-  // SetAttr override, like we do in media element.
-  if (GetAttr(kNameSpaceID_None, nsGkAtoms::src, src)) {
-    nsCOMPtr<nsIURI> uri;
-    nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
-    if (NS_SUCCEEDED(rvTwo)) {
-      LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
-	     NS_ConvertUTF16toUTF8(src).get()));
-      LoadResource(uri);
-    }
-  }
 
   return NS_OK;
 }

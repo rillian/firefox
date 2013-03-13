@@ -112,6 +112,16 @@ public:
     SetSrc(aText, rv);
   }
 
+  // SetAttr override for src loading.
+  nsresult SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
+                   const nsAString& aValue, bool aNotify)
+  {
+    return SetAttr(aNameSpaceID, aName, nullptr, aValue, aNotify);
+  }
+  virtual nsresult SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
+                           nsIAtom* aPrefix, const nsAString& aValue,
+                           bool aNotify);
+
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
   virtual nsresult BindToTree(nsIDocument* aDocument, nsIContent* aParent,
