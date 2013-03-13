@@ -316,14 +316,11 @@ webvtt_string_getline( webvtt_string *src, const webvtt_byte *buffer,
   while( p < n && *p != UTF8_CARRIAGE_RETURN && *p != UTF8_LINE_FEED ) {
     ++p;
   }
-  /* Retain the new line character. */
-  if( p < n && retain_new_line ) {
-    p++;
-  }
 
   if( p < n || finish ) {
     ret = 1; /* indicate that we found EOL */
   }
+
   len = (webvtt_uint)( p - s );
   *pos += len;
   if( d->length + len + 1 >= d->alloc ) {

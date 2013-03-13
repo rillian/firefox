@@ -234,7 +234,7 @@ WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode,
   nsCOMPtr<nsIDOMNode> resultNode;
   for (webvtt_uint i = 0; i < aNode->data.internal_data->length; i++) {
     
-    nsISupports* cueTextContent = 
+    nsCOMPtr<nsIContent> cueTextContent = 
       ConvertNodeToCueTextContent(aNode->data.internal_data->children[i]);
     
     nsCOMPtr<nsIDOMNode> node = do_QueryInterface(cueTextContent);
