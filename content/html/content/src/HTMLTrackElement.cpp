@@ -126,6 +126,8 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 
   nsCOMPtr<nsILoadGroup> loadGroup = OwnerDoc()->GetDocumentLoadGroup();
 
+  CreateTextTrack();
+
   // check for a Content Security Policy to pass down to the channel
   // created to load the media content
   nsCOMPtr<nsIChannelPolicy> channelPolicy;
@@ -163,6 +165,19 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   nsContentUtils::RegisterShutdownObserver(listener);
 
   return NS_OK;
+}
+
+void
+HTMLTrackElement::CreateTextTrack()
+{
+  nsString kind, label, srcLang;
+  GetKind(kind);
+  GetSrclang(srcLang);
+  GetLabel(label);
+  mTrack = new TextTrack(OwnerDoc()->GetParentObject(),
+                         kind,
+                         label,
+                         srcLang);
 }
 
 nsresult

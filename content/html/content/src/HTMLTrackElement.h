@@ -141,6 +141,7 @@ protected:
   uint16_t mReadyState;
 
   nsresult LoadResource(nsIURI* aURI);
+  void CreateTextTrack();
 };
 
 } // namespace dom
