@@ -6,6 +6,9 @@
 #ifndef mozilla_dom_HTMLTrackElement_h
 #define mozilla_dom_HTMLTrackElement_h
 
+#define WEBVTT_NO_CONFIG_H 1
+#define WEBVTT_STATIC 1
+ 
 #include "nsIDOMHTMLElement.h"
 #include "nsIDOMEventTarget.h"
 #include "nsGenericHTMLElement.h"
@@ -14,11 +17,13 @@
 #include "nsIHttpChannel.h"
 #include "nsGkAtoms.h"
 #include "mozilla/dom/TextTrack.h"
-
+#include "webvtt/node.h"
+ 
 namespace mozilla {
 namespace dom {
 
 class TextTrack;
+class WebVTTLoadListener;
 
 class HTMLTrackElement MOZ_FINAL : public nsGenericHTMLElement,
                                    public nsIDOMHTMLElement
@@ -129,6 +134,8 @@ public:
 
   uint32_t GetCurrentLoadID() { return mCurrentLoadID; }
 
+  void DisplayCueText(webvtt_node* head);
+  
 protected:
   virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope,
                              bool* aTriedToWrap) MOZ_OVERRIDE;
@@ -136,6 +143,7 @@ protected:
   friend class WebVTTLoadListener;
   uint32_t mCurrentLoadID;
   nsRefPtr<TextTrack> mTrack;
+  nsRefPtr<WebVTTLoadListener> mLoadListener;
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
   uint16_t mReadyState;

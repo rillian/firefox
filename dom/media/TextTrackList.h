@@ -41,6 +41,8 @@ public:
     return mTextTracks.Length();
   }
 
+  void Update(double time) { mTextTracks[0]->Update(time); }
+  
   TextTrack* IndexedGetter(uint32_t aIndex, bool& aFound);
 
   already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,

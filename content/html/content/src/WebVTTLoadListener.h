@@ -43,6 +43,7 @@ public:
   ~WebVTTLoadListener();
   void OnParsedCue(webvtt_cue *cue);
   void OnReportError(uint32_t line, uint32_t col, webvtt_error error);
+  void DisplayCueText(webvtt_node* head);
   nsresult LoadResource();
 
 private:

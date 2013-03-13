@@ -7,12 +7,17 @@
 #ifndef mozilla_dom_TextTrackCue_h
 #define mozilla_dom_TextTrackCue_h
 
+#define WEBVTT_NO_CONFIG_H 1
+#define WEBVTT_STATIC 1
+ 
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
 #include "mozilla/dom/DocumentFragment.h"
+#include "HTMLTrackElement.h"
 #include "nsDOMEventTargetHelper.h"
-
+#include "webvtt/node.h"
+ 
 namespace mozilla {
 namespace dom {
 
@@ -37,9 +42,12 @@ public:
                                                     aEndTime, aText);
     return ttcue.forget();
   }
-
-  TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
+  TextTrackCue(nsISupports* aGlobal, const double aStartTime,
                const double aEndTime, const nsAString& aText);
+  
+  TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
+               const double aEndTime, const nsAString& aText,
+               HTMLTrackElement *aTrackElement, webvtt_node *head);
   ~TextTrackCue()
   {
   }
@@ -227,7 +235,8 @@ public:
     return (mId.Equals(rhs.mId));
   }
 
-
+  void DisplayCue();
+  
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)
 
@@ -240,6 +249,7 @@ private:
   double mEndTime;
 
   nsRefPtr<TextTrack> mTrack;
+  HTMLTrackElement* mTrackElement;
   nsString mId;
   int32_t mPosition;
   int32_t mSize;
@@ -247,6 +257,7 @@ private:
   bool mSnapToLines;
   nsString mVertical;
   double mLine;
+  webvtt_node *mHead;
   TextTrackCueAlign mAlign;
 };
 

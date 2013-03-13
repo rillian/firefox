@@ -5,7 +5,8 @@
 
 #include "TextTrackCueList.h"
 #include "mozilla/dom/TextTrackCueListBinding.h"
-
+#include "mozilla/dom/TextTrackCue.h"
+ 
 namespace mozilla {
 namespace dom {
 
@@ -27,6 +28,15 @@ TextTrackCueList::TextTrackCueList(nsISupports* aParent) : mParent(aParent)
 TextTrackCueList::~TextTrackCueList()
 {
   mParent = nullptr;
+}
+void 
+TextTrackCueList::Update(double time)
+{
+  for (int i = 0; i < mList.Length(); i++) {
+    if (time > mList[i]->StartTime() && time < mList[i]->EndTime()) {
+      mList[i]->DisplayCue();
+    }
+  }
 }
 
 JSObject*

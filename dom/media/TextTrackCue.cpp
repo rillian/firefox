@@ -32,7 +32,34 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   , mSnapToLines(true)
 {
   MOZ_ASSERT(aGlobal);
+  SetIsDOMBinding();    
+}
+
+TextTrackCue::TextTrackCue(nsISupports* aGlobal,
+                           const double aStartTime,
+                           const double aEndTime,
+                           const nsAString& aText,
+                           HTMLTrackElement* aTrackElement,
+                           webvtt_node* head)
+  : mGlobal(aGlobal)
+  , mText(aText)
+  , mStartTime(aStartTime)
+  , mEndTime(aEndTime)
+  , mTrackElement(aTrackElement)
+  , mHead(head)
+  , mPosition(50)
+  , mSize(100)
+  , mPauseOnExit(false)
+  , mSnapToLines(true)
+{
+  MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
+}
+
+void
+TextTrackCue::DisplayCue() 
+{
+  mTrackElement->DisplayCueText(mHead); 
 }
 
 JSObject*

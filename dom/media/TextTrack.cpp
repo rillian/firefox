@@ -44,6 +44,12 @@ TextTrack::~TextTrack()
 {
 }
 
+void 
+TextTrack::Update(double time) 
+{ 
+  mCueList->Update(time); 
+}
+
 JSObject*
 TextTrack::WrapObject(JSContext* aCx, JSObject* aScope,
                       bool* aTriedToWrap)

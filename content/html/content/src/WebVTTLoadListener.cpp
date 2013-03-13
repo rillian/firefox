@@ -162,9 +162,12 @@ WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue)
 {
   TextTrackCue textTrackCue = ConvertCueToTextTrackCue(aCue);
   mElement->mTrack->AddCue(textTrackCue);
+}
 
+void
+WebVTTLoadListener::DisplayCueText(webvtt_node* head) {
   ErrorResult rv;
-  already_AddRefed<DocumentFragment> frag = ConvertNodeListToDocFragment(aCue->node_head, rv);
+  already_AddRefed<DocumentFragment> frag = ConvertNodeListToDocFragment(head, rv);
   if (!frag.get() || rv.Failed()) {
     // TODO: Do something with rv.ErrorCode here.
   }
@@ -201,7 +204,8 @@ WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
   
   TextTrackCue textTrackCue(mElement->OwnerDoc()->GetParentObject(),
                             aCue->from, aCue->until,
-                            NS_ConvertUTF8toUTF16(text));
+                            NS_ConvertUTF8toUTF16(text), mElement,
+                            aCue->node_head);
   
   textTrackCue.SetSnapToLines(aCue->snap_to_lines);
   textTrackCue.SetSize(aCue->settings.size);

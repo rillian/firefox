@@ -152,19 +152,25 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 		     channelPolicy);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsRefPtr<WebVTTLoadListener> listener = new WebVTTLoadListener(this);
-  listener->LoadResource();
-  channel->SetNotificationCallbacks(listener);
+  mLoadListener = new WebVTTLoadListener(this);
+  mLoadListener->LoadResource();
+  channel->SetNotificationCallbacks(mLoadListener);
 
   LOG(PR_LOG_DEBUG, ("opening webvtt channel"));
-  rv = channel->AsyncOpen(listener, nullptr);
+  rv = channel->AsyncOpen(mLoadListener, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   mChannel = channel;
 
-  nsContentUtils::RegisterShutdownObserver(listener);
+  nsContentUtils::RegisterShutdownObserver(mLoadListener);
 
   return NS_OK;
+}
+
+void 
+HTMLTrackElement::DisplayCueText(webvtt_node* head) 
+{ 
+  mLoadListener->DisplayCueText(head); 
 }
 
 void
