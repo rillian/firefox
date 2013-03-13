@@ -6,6 +6,8 @@
 #include "HTMLTrackElement.h"
 #include "mozilla/dom/HTMLTrackElementBinding.h"
 
+#include "nsIDOMHTMLMediaElement.h"
+#include "nsHTMLMediaElement.h"
 #include "nsIDOMEventTarget.h"
 #include "nsGenericHTMLElement.h"
 #include "nsGkAtoms.h"
@@ -167,10 +169,10 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   return NS_OK;
 }
 
-void 
-HTMLTrackElement::DisplayCueText(webvtt_node* head) 
-{ 
-  mLoadListener->DisplayCueText(head); 
+void
+HTMLTrackElement::DisplayCueText(webvtt_node* head)
+{
+  mLoadListener->DisplayCueText(head);
 }
 
 void
@@ -184,6 +186,22 @@ HTMLTrackElement::CreateTextTrack()
                          kind,
                          label,
                          srcLang);
+
+
+/**
+  nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(aNode));
+  if (domMediaElem) {
+    nsHTMLMediaElement* mediaElem = static_cast<nsHTMLMediaElement*>(aNode);
+    mediaElem->NotifyOwnerDocumentActivityChanged();
+  }
+**/
+  nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
+  if (domMediaElem) {
+    nsHTMLMediaElement* mediaElem = static_cast<nsHTMLMediaElement*>(mMediaParent.get());
+    if (mediaElem) {
+      mediaElem->AddTextTrack(mTrack);
+    }
+  }
 }
 
 nsresult

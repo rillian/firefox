@@ -41,13 +41,21 @@ public:
     return mTextTracks.Length();
   }
 
-  void Update(double time) { mTextTracks[0]->Update(time); }
-  
+  void Update(double time) {
+    uint32_t length = Length(), i;
+    for( i = 0; i < length; i++ ) {
+      mTextTracks[i]->Update(time);
+    }
+  }
   TextTrack* IndexedGetter(uint32_t aIndex, bool& aFound);
 
   already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,
                                            const nsAString& aLabel,
                                            const nsAString& aLanguage);
+  void AddTextTrack(TextTrack* aTextTrack) {
+    mTextTracks.AppendElement(aTextTrack);
+  }
+
   void RemoveTextTrack(const TextTrack& aTrack);
 
   IMPL_EVENT_HANDLER(addtrack)
