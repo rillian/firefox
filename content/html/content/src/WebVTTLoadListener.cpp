@@ -157,11 +157,34 @@ WebVTTLoadListener::ParseChunk(nsIInputStream *aInStream, void *aClosure,
   return NS_OK;
 }
 
-void 
-WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue) 
+void
+WebVTTLoadListener::OnParsedCue(webvtt_cue *aCue)
 {
-  TextTrackCue textTrackCue = ConvertCueToTextTrackCue(aCue);
-  mElement->mTrack->AddCue(textTrackCue);
+  const char* text = reinterpret_cast<const char *>(webvtt_string_text(&aCue->id));
+
+fprintf(stderr, "WebVTTLoadListener::onParsedCue aCue->from=%llu, aCue->until=%llu\n", aCue->from, aCue->until);
+
+  nsRefPtr<TextTrackCue> textTrackCue = new TextTrackCue(mElement->OwnerDoc()->GetParentObject(),
+                                                         (double)(aCue->from/1000), (double)(aCue->until/1000),
+                                                         NS_ConvertUTF8toUTF16(text), mElement,
+                                                         aCue->node_head);
+
+  textTrackCue->SetSnapToLines(aCue->snap_to_lines);
+  textTrackCue->SetSize(aCue->settings.size);
+  textTrackCue->SetPosition(aCue->settings.position);
+
+  //TODO: need to convert webvtt enums to strings
+  // textTrackCue.SetVertical();
+  // textTrackCue.SetAlign();
+
+  // TODO: Id is the text in the parser so do we need this?
+  // textTrackCue.SetId();
+
+  // TODO: Not specified in webvtt so we may not need this.
+  // textTrackCue.SetPauseOnExit();
+
+  mElement->mTrack->AddCue(*textTrackCue.get());
+  textTrackCue.forget();
 }
 
 void
@@ -199,9 +222,11 @@ WebVTTLoadListener::OnReportError(uint32_t aLine, uint32_t aCol,
                                   webvtt_error aError)
 {
   // TODO: Handle error here, been suggessted that we just use PR_LOGGING
+fprintf(stderr, "\nOnReportError aLine=%d aCol=%d aError=%d\n", aLine, aCol, aError);
 }
 
-TextTrackCue 
+/**
+TextTrackCue
 WebVTTLoadListener::ConvertCueToTextTrackCue(const webvtt_cue *aCue)
 {
   const char* text = reinterpret_cast<const char *>(webvtt_string_text(&aCue->id));
@@ -229,6 +254,7 @@ fprintf(stderr, "WebVTTLoadListener::ConvertCueToTextTrackCue aCue->from=%llu, a
 
   return textTrackCue;
 }
+**/
 
 already_AddRefed<DocumentFragment>
 WebVTTLoadListener::ConvertNodeListToDocFragment(const webvtt_node *aNode, 

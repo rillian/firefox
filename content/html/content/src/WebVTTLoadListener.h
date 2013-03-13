@@ -50,7 +50,7 @@ private:
   static NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
                               const char *aFromSegment, uint32_t aToOffset,
                               uint32_t aCount, uint32_t *aWriteCount);
-  TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
+//  TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
   already_AddRefed<DocumentFragment> 
     ConvertNodeListToDocFragment(const webvtt_node *aNode, ErrorResult &rv);
   nsCOMPtr<nsIContent> ConvertNodeToCueTextContent(const webvtt_node *aNode);
