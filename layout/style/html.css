@@ -728,14 +728,17 @@ audio:not([controls]) {
 
 video > div {
   text-align: center;
-  vertical-align: text-bottom;
+  padding-top: 60%;
   font-weight: bold;
   font-size: 24px;
   pointer-events: none;
+  color: gold;
+ /* background-color: rgba(105,105,105,0.4); */
+ /* border: 5px solid orange; */
 }
 
 video > div p {
-  color: gold;
+  color: purple;
   background-color: rgba(105,105,105,0.4);
   pointer-events: auto;
 }
