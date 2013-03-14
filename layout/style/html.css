@@ -729,17 +729,19 @@ audio:not([controls]) {
 video > div {
   text-align: center;
   padding-top: 60%;
+  pointer-events: none;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: bold;
   font-size: 24px;
-  pointer-events: none;
-  color: gold;
- /* background-color: rgba(105,105,105,0.4); */
- /* border: 5px solid orange; */
+  color: white;
+  text-shadow:
+   -2px -2px 1px #000,
+    2px -2px 1px #000,
+    -2px 2px 1px #000,
+     2px 2px 1px #000;
 }
 
 video > div p {
-  color: purple;
-  background-color: rgba(105,105,105,0.4);
   pointer-events: auto;
 }
 
