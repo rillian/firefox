@@ -7,6 +7,7 @@
  * http://www.whatwg.org/specs/web-apps/current-work/#the-track-element
  */
 
+[Pref="media.webvtt.enabled"]
 interface HTMLTrackElement : HTMLElement {
   [SetterThrows]
   attribute DOMString kind;

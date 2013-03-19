@@ -13,6 +13,7 @@ enum TextTrackMode {
   "showing"
 };
 
+[Pref="media.webvtt.enabled"]
 interface TextTrack : EventTarget {
   readonly attribute DOMString kind;
   readonly attribute DOMString label;

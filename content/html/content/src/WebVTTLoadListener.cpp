@@ -6,6 +6,7 @@
 #include "mozilla/dom/HTMLMediaElement.h"
 #include "nsVideoFrame.h"
 #include "nsIFrame.h"
+#include "MediaDecoder.h"
 #include "WebVTTLoadListener.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackCue.h"
@@ -52,6 +53,12 @@ WebVTTLoadListener::LoadResource()
 {
   webvtt_parser_t *parser = 0;
   webvtt_status status;
+
+  if (!MediaDecoder::IsWebVTTEnabled()) {
+    NS_WARNING("WebVTT support disabled."
+               " See media.webvtt.enabled in about:config. ");
+    return NS_ERROR_FAILURE;
+  }
 
   LOG("Loading text track resource.");
   status = webvtt_create_parser(&OnParsedCueWebVTTCallBack, 

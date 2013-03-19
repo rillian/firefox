@@ -21,7 +21,8 @@ enum TextTrackCueAlign {
 
 interface TextTrack;
 
-[Constructor(double startTime, double endTime, DOMString text)]
+[Constructor(double startTime, double endTime, DOMString text),
+ Pref="media.webvtt.enabled"]
 interface TextTrackCue : EventTarget {
   readonly attribute TextTrack? track;
 

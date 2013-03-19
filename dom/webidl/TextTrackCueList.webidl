@@ -7,6 +7,7 @@
  * http://www.whatwg.org/specs/web-apps/current-work/#texttrackcuelist
  */
 
+[Pref="media.webvtt.enabled"]
 interface TextTrackCueList {
   readonly attribute unsigned long length;
   getter TextTrackCue (unsigned long index);
