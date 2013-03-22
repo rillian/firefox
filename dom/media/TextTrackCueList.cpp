@@ -44,10 +44,9 @@ fprintf(stderr, "calling TextTrackCue->DisplayCue\n");
 }
 
 JSObject*
-TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope,
-                             bool* aTriedToWrap)
+TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope)
 {
-  return TextTrackCueListBinding::Wrap(aCx, aScope, this, aTriedToWrap);
+  return TextTrackCueListBinding::Wrap(aCx, aScope, this);
 }
 
 TextTrackCue*

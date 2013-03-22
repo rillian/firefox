@@ -9,7 +9,7 @@
 
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
- 
+
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
@@ -17,7 +17,7 @@
 #include "HTMLTrackElement.h"
 #include "nsDOMEventTargetHelper.h"
 #include "webvtt/node.h"
- 
+
 namespace mozilla {
 namespace dom {
 
@@ -27,7 +27,8 @@ class TextTrackCue MOZ_FINAL : public nsDOMEventTargetHelper
 {
 public:
   NS_DECL_ISUPPORTS_INHERITED
-  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrackCue)
+  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS_INHERITED(TextTrackCue,
+                                                         nsDOMEventTargetHelper)
   NS_FORWARD_NSIDOMEVENTTARGET(nsDOMEventTargetHelper::)
 
   // TextTrackCue WebIDL
@@ -44,16 +45,16 @@ public:
   }
   TextTrackCue(nsISupports* aGlobal, const double aStartTime,
                const double aEndTime, const nsAString& aText);
-  
+
   TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
                const double aEndTime, const nsAString& aText,
                HTMLTrackElement *aTrackElement, webvtt_node *head);
+
   ~TextTrackCue()
   {
   }
 
-  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-      bool* aTriedToWrap);
+  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   nsISupports* GetParentObject()
   {

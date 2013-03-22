@@ -27,6 +27,6 @@ interface TextTrack : EventTarget {
   void addCue(TextTrackCue cue);
   void removeCue(TextTrackCue cue);
 
-	   [SetterThrows]
-	   attribute EventHandler oncuechange;
+	         [SetterThrows]
+	         attribute EventHandler oncuechange;
 };

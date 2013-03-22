@@ -8,7 +8,7 @@
 
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
- 
+
 #include "nsIDOMHTMLElement.h"
 #include "nsIDOMEventTarget.h"
 #include "nsGenericHTMLElement.h"
@@ -18,7 +18,7 @@
 #include "nsGkAtoms.h"
 #include "mozilla/dom/TextTrack.h"
 #include "webvtt/node.h"
- 
+
 namespace mozilla {
 namespace dom {
 
@@ -34,6 +34,8 @@ public:
 
   // nsISupports
   NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_CYCLE_COLLECTION_CLASS_INHERITED(HTMLTrackElement,
+                                           nsGenericHTMLElement)
 
   // nsIDOMNode
   NS_FORWARD_NSIDOMNODE_TO_NSINODE
@@ -137,10 +139,9 @@ public:
   uint32_t GetCurrentLoadID() { return mCurrentLoadID; }
 
   void DisplayCueText(webvtt_node* head);
-  
+
 protected:
-  virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope,
-                             bool* aTriedToWrap) MOZ_OVERRIDE;
+  virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   friend class WebVTTLoadListener;
   uint32_t mCurrentLoadID;

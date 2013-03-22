@@ -29,12 +29,8 @@
 #include "AudioChannelAgent.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/ErrorResult.h"
-//XXXhumph: commented out in rillian's original...
-//#include "mozilla/dom/TextTrack.h"
+#include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackList.h"
-#define WEBVTT_STATIC 1
-#define WEBVTT_NO_CONFIG_H 1
-#include <webvtt/parser.h>
 
 // Define to output information on decoding and painting framerate
 /* #define DEBUG_FRAME_RATE 1 */
@@ -1095,7 +1091,12 @@ protected:
   nsRefPtr<mozilla::dom::TextTrackList> mTextTracks;
 
 public:
-  webvtt_cue *mCues;
+
+  already_AddRefed<mozilla::dom::TextTrackList> TextTracks() const;
+
+  already_AddRefed<mozilla::dom::TextTrack> AddTextTrack(const nsAString& aKind,
+                                                         const NonNull<nsAString>& aLabel,
+                                                         const NonNull<nsAString>& aLanguage);
 
   void AddTextTrack(mozilla::dom::TextTrack* aTextTrack) {
 fprintf(stderr, "\n\nnsHTMLMediaElement::AddTextTrack\n\n");

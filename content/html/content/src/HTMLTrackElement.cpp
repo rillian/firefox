@@ -7,7 +7,7 @@
 #include "mozilla/dom/HTMLTrackElementBinding.h"
 
 #include "nsIDOMHTMLMediaElement.h"
-#include "nsHTMLMediaElement.h"
+#include "mozilla/dom/HTMLMediaElement.h"
 #include "nsIDOMEventTarget.h"
 #include "nsGenericHTMLElement.h"
 #include "nsGkAtoms.h"
@@ -20,7 +20,6 @@
 #include "nsILoadGroup.h"
 #include "nsIDocument.h"
 #include "nsICachingChannel.h"
-#include "nsHTMLMediaElement.h"
 #include "nsIHttpChannel.h"
 #include "nsNetUtil.h"
 #include "nsIStreamListener.h"
@@ -83,9 +82,9 @@ NS_HTML_CONTENT_INTERFACE_MAP_END
 NS_IMPL_ELEMENT_CLONE(HTMLTrackElement)
 
 JSObject*
-HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope, bool* aTriedToWrap)
+HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope)
 {
-  return HTMLTrackElementBinding::Wrap(aCx, aScope, this, aTriedToWrap);
+  return HTMLTrackElementBinding::Wrap(aCx, aScope, this);
 }
 
 nsresult
@@ -191,7 +190,7 @@ HTMLTrackElement::CreateTextTrack()
 fprintf(stderr, "...Trying to add mTrack to media element's TextTrackList...\n");
   nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
   if (domMediaElem) {
-    nsHTMLMediaElement* mediaElem = static_cast<nsHTMLMediaElement*>(mMediaParent.get());
+    HTMLMediaElement* mediaElem = static_cast<HTMLMediaElement*>(mMediaParent.get());
     if (mediaElem) {
       mediaElem->AddTextTrack(mTrack);
     }
@@ -252,7 +251,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   if (!mMediaParent) {
     mMediaParent = do_QueryInterface(aParent);
 
-    nsHTMLMediaElement* media = static_cast<nsHTMLMediaElement*>(aParent);
+    HTMLMediaElement* media = static_cast<HTMLMediaElement*>(aParent);
     // TODO: separate notification for 'alternate' tracks?
     media->NotifyAddedSource();
     LOG(PR_LOG_DEBUG, ("Track element sent notification to parent."));

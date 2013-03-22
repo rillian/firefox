@@ -20,15 +20,15 @@ class TextTrackList MOZ_FINAL : public nsDOMEventTargetHelper
 {
 public:
   NS_DECL_ISUPPORTS_INHERITED
-  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrackList)
+  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS_INHERITED(TextTrackList,
+                                                         nsDOMEventTargetHelper)
   NS_FORWARD_NSIDOMEVENTTARGET(nsDOMEventTargetHelper::)
 
   // TextTrackList
   TextTrackList(nsISupports* aGlobal);
   ~TextTrackList();
 
-  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-      bool* aTriedToWrap);
+  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   nsISupports* GetParentObject()
   {

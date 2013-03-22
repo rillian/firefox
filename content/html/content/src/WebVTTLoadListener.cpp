@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsHTMLMediaElement.h"
+#include "mozilla/dom/HTMLMediaElement.h"
 #include "nsVideoFrame.h"
 #include "nsIFrame.h"
 #include "WebVTTLoadListener.h"
@@ -197,8 +197,8 @@ fprintf(stderr, "in WebVTTLoadListener::DisplayCueText, should get AppendChild b
 fprintf(stderr, "WebVTTLoadListener::DisplayCueText failed!!!!!!!!!!!!!!");
   }
 
-  nsHTMLMediaElement* parent =
-      static_cast<nsHTMLMediaElement*>(mElement->mMediaParent.get());
+  HTMLMediaElement* parent =
+      static_cast<HTMLMediaElement*>(mElement->mMediaParent.get());
 
   nsIFrame* frame = parent->GetPrimaryFrame();
   if (frame && frame->GetType() == nsGkAtoms::HTMLVideoFrame) {
@@ -357,7 +357,6 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
        childNode = do_QueryInterface(childCueTextContent);
        htmlElement->AppendChild(childNode, getter_AddRefs(resultNode));
     }
-#endif
   }
   else if (WEBVTT_IS_VALID_LEAF_NODE(aWebVttNode->kind))
   {

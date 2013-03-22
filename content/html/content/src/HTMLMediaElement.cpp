@@ -3509,7 +3509,7 @@ void HTMLMediaElement::FireTimeUpdate(bool aPeriodic)
     mDecoder->SetFragmentEndTime(mFragmentEnd);
   }
 
-fprintf(stderr, "\nnsHTMLMediaElement::FireTimeUpdate time=%f\n", time);
+fprintf(stderr, "\nHTMLMediaElement::FireTimeUpdate time=%f\n", time);
   mTextTracks->Update(time);
 }
 
@@ -3719,20 +3719,33 @@ NS_IMETHODIMP HTMLMediaElement::CanPlayChanged(bool canPlay)
 }
 
 /* readonly attribute nsISupports textTracks; */
-NS_IMETHODIMP
-nsHTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
+already_AddRefed<mozilla::dom::TextTrackList>
+HTMLMediaElement::TextTracks() const
 {
-  NS_ADDREF(*aTextTracks = mTextTracks.get());
+  return mTextTracks.get();
+}
+
+/* readonly attribute nsISupports textTracks; */
+NS_IMETHODIMP
+HTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
+{
+  *aTextTracks = this->TextTracks().get();
   return NS_OK;
 }
 
-/* nsISupports addTextTrack (in DOMString kind, [optional] in DOMString label,
-                             [optional] in DOMString language); */
+already_AddRefed<mozilla::dom::TextTrack>
+HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                               const NonNull<nsAString>& aLabel,
+                               const NonNull<nsAString>& aLanguage)
+{
+  return mTextTracks->AddTextTrack(aKind, aLabel, aLanguage);
+}
+
 NS_IMETHODIMP
-nsHTMLMediaElement::AddTextTrack(const nsAString& aKind,
-                                 const nsAString& aLabel,
-                                 const nsAString& aLanguage,
-                                 nsISupports** _retval)
+HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                               const nsAString& aLabel,
+                               const nsAString& aLanguage,
+                               nsISupports** _retval)
 {
   NS_ADDREF(*_retval = mTextTracks->AddTextTrack(aKind, aLabel, aLanguage).get());
   return NS_OK;

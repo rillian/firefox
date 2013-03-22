@@ -11,13 +11,13 @@ namespace dom {
 
 NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrackList, mGlobal)
 
-NS_IMPL_CYCLE_COLLECTING_ADDREF(TextTrackList)
-NS_IMPL_CYCLE_COLLECTING_RELEASE(TextTrackList)
-
-NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(TextTrackList)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackList)
   NS_WRAPPERCACHE_INTERFACE_MAP_ENTRY
   NS_INTERFACE_MAP_ENTRY(nsISupports)
-NS_INTERFACE_MAP_END
+NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
+
+NS_IMPL_ADDREF_INHERITED(TextTrackList, nsDOMEventTargetHelper)
+NS_IMPL_RELEASE_INHERITED(TextTrackList, nsDOMEventTargetHelper)
 
 TextTrackList::TextTrackList(nsISupports* aGlobal) : mGlobal(aGlobal)
 {
@@ -30,10 +30,9 @@ TextTrackList::~TextTrackList()
 }
 
 JSObject*
-TextTrackList::WrapObject(JSContext* aCx, JSObject* aScope,
-                          bool* aTriedToWrap)
+TextTrackList::WrapObject(JSContext* aCx, JSObject* aScope)
 {
-  return TextTrackListBinding::Wrap(aCx, aScope, this, aTriedToWrap);
+  return TextTrackListBinding::Wrap(aCx, aScope, this);
 }
 
 TextTrack*

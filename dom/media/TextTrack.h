@@ -26,7 +26,8 @@ class TextTrack MOZ_FINAL : public nsDOMEventTargetHelper
 {
 public:
   NS_DECL_ISUPPORTS_INHERITED
-  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS(TextTrack)
+  NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS_INHERITED(TextTrack,
+                                                         nsDOMEventTargetHelper)
 
   TextTrack(nsISupports* aParent,
             const nsAString& aKind,
@@ -34,8 +35,7 @@ public:
             const nsAString& aLanguage);
   ~TextTrack();
 
-  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope,
-                               bool* aTriedToWrap);
+  virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   nsISupports* GetParentObject() const
   {

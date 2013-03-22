@@ -10,13 +10,13 @@ namespace dom {
 
 NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrackCue, mGlobal)
 
-NS_IMPL_CYCLE_COLLECTING_ADDREF(TextTrackCue)
-NS_IMPL_CYCLE_COLLECTING_RELEASE(TextTrackCue)
-
-NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(TextTrackCue)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackCue)
   NS_WRAPPERCACHE_INTERFACE_MAP_ENTRY
   NS_INTERFACE_MAP_ENTRY(nsISupports)
-NS_INTERFACE_MAP_END
+NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
+
+NS_IMPL_ADDREF_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
+NS_IMPL_RELEASE_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            const double aStartTime,
@@ -68,10 +68,9 @@ fprintf(stderr, "TextTrackCue::DisplayCue()");
 }
 
 JSObject*
-TextTrackCue::WrapObject(JSContext* aCx, JSObject* aScope,
-		                     bool* aTriedToWrap)
+TextTrackCue::WrapObject(JSContext* aCx, JSObject* aScope)
 {
-  return TextTrackCueBinding::Wrap(aCx, aScope, this, aTriedToWrap);
+  return TextTrackCueBinding::Wrap(aCx, aScope, this);
 }
 
 void
