@@ -43,6 +43,8 @@ MOCHITEST_FILES = \
   HTMLTrackElement_srclangReflect.html \
   HTMLTrackElement_kindReflect.html \
   HTMLTrackElement_track.html \
+  basic.vtt \
+  fast.vtt \
   head.js \
   mediaStreamPlayback.js \
   pc.js \
