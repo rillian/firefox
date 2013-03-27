@@ -157,7 +157,7 @@ typedef struct
 webvtt_state {
   webvtt_parse_state state;
   webvtt_token token;
-  webvtt_uint flags; /* Defaults to 0 when pushed. */
+  webvtt_uint flags; /* Defaults to 0 when pushed */
   webvtt_state_value_type type;
   webvtt_uint back;
   webvtt_uint line;

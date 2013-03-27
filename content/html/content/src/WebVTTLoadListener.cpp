@@ -307,29 +307,29 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
     nodeInfo = mElement->NodeInfo();
     NS_NewHTMLElement(getter_AddRefs(cueTextContent), nodeInfo, mozilla::dom::NOT_FROM_PARSER);
     
-    nsAString *qualifiedName = nullptr;
+    nsAutoString qualifiedName;
     switch (aWebVttNode->kind) {
       case WEBVTT_CLASS:
-        *qualifiedName = NS_LITERAL_STRING("span");
+        qualifiedName = NS_LITERAL_STRING("span");
         break;
       case WEBVTT_ITALIC:
-        *qualifiedName = NS_LITERAL_STRING("i");
+        qualifiedName = NS_LITERAL_STRING("i");
         break;
       case WEBVTT_BOLD:
-        *qualifiedName = NS_LITERAL_STRING("b");
+        qualifiedName = NS_LITERAL_STRING("b");
         break;
       case WEBVTT_UNDERLINE:
-        *qualifiedName = NS_LITERAL_STRING("u");
+        qualifiedName = NS_LITERAL_STRING("u");
         break;
       case WEBVTT_RUBY:
-        *qualifiedName = NS_LITERAL_STRING("ruby");
+        qualifiedName = NS_LITERAL_STRING("ruby");
         break;
       case WEBVTT_RUBY_TEXT:
-        *qualifiedName = NS_LITERAL_STRING("rt");
+        qualifiedName = NS_LITERAL_STRING("rt");
         break;
       case WEBVTT_VOICE: 
       {
-        *qualifiedName = NS_LITERAL_STRING("span");
+        qualifiedName = NS_LITERAL_STRING("span");
         
         nsCOMPtr<nsGenericHTMLElement> htmlElement = 
           do_QueryInterface(cueTextContent);
@@ -350,9 +350,9 @@ WebVTTLoadListener::ConvertNodeToCueTextContent(const webvtt_node *aWebVttNode)
     
     // TODO:: Need to concatenate all applicable classes separated by spaces and
     //        set them to the htmlElements class attribute
-
-    htmlElement->SetAttributeNS(NS_LITERAL_STRING("html"), *qualifiedName, 
-                                NS_LITERAL_STRING(""));
+    
+    htmlElement->SetAttributeNS(NS_LITERAL_STRING("html"), qualifiedName, 
+                                EmptyString());
 
     for (int i = 0; i < aWebVttNode->data.internal_data->length; i++) {
        nsCOMPtr<nsIDOMNode> resultNode, childNode;

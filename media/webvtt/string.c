@@ -84,8 +84,6 @@ webvtt_create_string( webvtt_uint32 alloc, webvtt_string *result )
 WEBVTT_EXPORT webvtt_status
 webvtt_create_string_with_text( webvtt_string *result, const webvtt_byte *init_text, int len )
 {
-  webvtt_uint pos = 0;
-
   if( !result ) {
     return WEBVTT_INVALID_PARAM;
   }
@@ -200,7 +198,7 @@ webvtt_string_text(const webvtt_string *str)
   return str->d->text;
 }
 
-WEBVTT_EXPORT const webvtt_uint32
+WEBVTT_EXPORT webvtt_uint32
 webvtt_string_length(const webvtt_string *str)
 {
   if( !str || !str->d )
@@ -211,7 +209,7 @@ webvtt_string_length(const webvtt_string *str)
   return str->d->length;
 }
 
-WEBVTT_EXPORT const webvtt_uint32
+WEBVTT_EXPORT webvtt_uint32
 webvtt_string_capacity(const webvtt_string *str)
 {
   if( !str || !str->d )
@@ -316,11 +314,14 @@ webvtt_string_getline( webvtt_string *src, const webvtt_byte *buffer,
   while( p < n && *p != UTF8_CARRIAGE_RETURN && *p != UTF8_LINE_FEED ) {
     ++p;
   }
+  /* Retain the new line character. */
+  if( p < n && retain_new_line ) {
+    p++;
+  }
 
   if( p < n || finish ) {
     ret = 1; /* indicate that we found EOL */
   }
-
   len = (webvtt_uint)( p - s );
   *pos += len;
   if( d->length + len + 1 >= d->alloc ) {
@@ -368,7 +369,8 @@ webvtt_string_putc( webvtt_string *str, webvtt_byte to_append )
 }
 
 WEBVTT_EXPORT webvtt_bool
-webvtt_string_is_equal( webvtt_string *str, webvtt_byte *to_compare, webvtt_uint len )
+webvtt_string_is_equal( const webvtt_string *str, const webvtt_byte *to_compare,
+                        webvtt_uint len )
 {
   if( !str || !to_compare || webvtt_string_length( str ) != len ) {
     return 0;

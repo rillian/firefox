@@ -156,7 +156,6 @@ webvtt_lex_word( webvtt_parser self, webvtt_string *str, const webvtt_byte *buff
 {
   webvtt_status status = WEBVTT_SUCCESS;
   webvtt_uint pos = *ppos;
-  int d = 0;
   if( !str ) {
     return WEBVTT_INVALID_PARAM;
   }
@@ -272,7 +271,17 @@ webvtt_lex( webvtt_parser self, const webvtt_byte *buffer, webvtt_uint *pos, web
             OVERFLOW(INTEGER)
             SET_STATE(L_DIGIT0)
           }
-          U_COLON { SET_STATE(L_TIMESTAMP1) }
+          /* Don't return a TIMESTAMP if we start with a dash */
+          U_COLON {
+            if( self->token[0] == UTF8_HYPHEN_MINUS )
+            {
+              RETURN(INTEGER)
+            }
+            else
+            {
+              SET_STATE(L_TIMESTAMP1) 
+            }
+          }
           U_PERCENT { RETURN(PERCENTAGE) }
         DEFAULT { BACKUP AND RETURN(INTEGER) }
         END_STATE_EX

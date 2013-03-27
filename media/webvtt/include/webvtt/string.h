@@ -126,14 +126,14 @@ WEBVTT_EXPORT const webvtt_byte *webvtt_string_text( const webvtt_string *str );
  *
  * return the length of a strings text
  */
-WEBVTT_EXPORT const webvtt_uint32 webvtt_string_length( const webvtt_string *str );
+WEBVTT_EXPORT webvtt_uint32 webvtt_string_length( const webvtt_string *str );
 
 /**
  * webvtt_string_capacity
  *
  * return the current capacity of a string
  */
-WEBVTT_EXPORT const webvtt_uint32 webvtt_string_capacity( const webvtt_string *str );
+WEBVTT_EXPORT webvtt_uint32 webvtt_string_capacity( const webvtt_string *str );
 
 /**
  * webvtt_string_getline
@@ -158,7 +158,8 @@ WEBVTT_EXPORT webvtt_status webvtt_string_putc( webvtt_string *str, webvtt_byte 
  * compare a string's text to a byte array
  *
  */
-WEBVTT_EXPORT webvtt_bool webvtt_string_is_equal( webvtt_string *str, webvtt_byte *to_compare, webvtt_uint len );
+WEBVTT_EXPORT webvtt_bool webvtt_string_is_equal( const webvtt_string *str, 
+    const webvtt_byte *to_compare, webvtt_uint len );
 
 /**
  * webvtt_string_append
