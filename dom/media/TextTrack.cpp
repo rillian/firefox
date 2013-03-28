@@ -37,6 +37,20 @@ TextTrack::TextTrack(nsISupports* aParent,
   SetIsDOMBinding();
 }
 
+TextTrack::TextTrack(nsISupports* aParent)
+  : mParent(aParent)
+  , mKind(NS_LITERAL_STRING("subtitles"))
+  , mLabel(EmptyString())
+  , mLanguage(EmptyString())
+  , mType()
+  , mMode(TextTrackMode::Disabled)
+{
+  mCueList = new TextTrackCueList(aParent);
+  mActiveCueList = new TextTrackCueList(aParent);
+
+  SetIsDOMBinding();
+}
+
 TextTrack::~TextTrack()
 {
 }

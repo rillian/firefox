@@ -76,6 +76,8 @@ HTMLTrackElement::HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo)
 #endif
 
   SetIsDOMBinding();
+
+  mTrack = new TextTrack(OwnerDoc()->GetParentObject());
 }
 
 HTMLTrackElement::~HTMLTrackElement()

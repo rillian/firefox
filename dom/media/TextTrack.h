@@ -29,6 +29,7 @@ public:
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS_INHERITED(TextTrack,
                                                          nsDOMEventTargetHelper)
 
+  TextTrack(nsISupports* aParent);
   TextTrack(nsISupports* aParent,
             const nsAString& aKind,
             const nsAString& aLabel,
