@@ -97,11 +97,7 @@ public:
     return mReadyState;
   }
 
-  TextTrack* Track() const
-  {
-    // XXXhumph: where to set this?
-    return mTrack;
-  }
+  TextTrack* Track();
 
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
 

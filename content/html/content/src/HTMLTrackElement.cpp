@@ -76,8 +76,6 @@ HTMLTrackElement::HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo)
 #endif
 
   SetIsDOMBinding();
-
-  mTrack = new TextTrack(OwnerDoc()->GetParentObject());
 }
 
 HTMLTrackElement::~HTMLTrackElement()
@@ -100,6 +98,18 @@ JSObject*
 HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope)
 {
   return HTMLTrackElementBinding::Wrap(aCx, aScope, this);
+}
+
+TextTrack*
+HTMLTrackElement::Track()
+{
+  if (!mTrack) {
+    // We're expected to always have an internal TextTrack so create
+    // an empty object to return if we don't already have one.
+    mTrack = new TextTrack(OwnerDoc()->GetParentObject());
+  }
+
+  return mTrack;
 }
 
 nsresult
