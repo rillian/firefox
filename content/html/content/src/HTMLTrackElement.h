@@ -25,8 +25,8 @@ namespace dom {
 class TextTrack;
 class WebVTTLoadListener;
 
-class HTMLTrackElement MOZ_FINAL : public nsGenericHTMLElement,
-                                   public nsIDOMHTMLElement
+class HTMLTrackElement MOZ_FINAL : public nsGenericHTMLElement
+                                 , public nsIDOMHTMLElement
 {
 public:
   HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo);

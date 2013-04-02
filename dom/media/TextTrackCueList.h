@@ -17,8 +17,8 @@ namespace dom {
 
 class TextTrackCue;
 
-class TextTrackCueList MOZ_FINAL : public nsISupports,
-                                   public nsWrapperCache
+class TextTrackCueList MOZ_FINAL : public nsISupports
+                                 , public nsWrapperCache
 {
 public:
   NS_DECL_CYCLE_COLLECTING_ISUPPORTS
