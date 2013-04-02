@@ -251,6 +251,7 @@ private:
 
   nsRefPtr<TextTrack> mTrack;
   HTMLTrackElement* mTrackElement;
+  webvtt_node *mHead;
   nsString mId;
   int32_t mPosition;
   int32_t mSize;
@@ -258,7 +259,6 @@ private:
   bool mSnapToLines;
   nsString mVertical;
   double mLine;
-  webvtt_node *mHead;
   TextTrackCueAlign mAlign;
 };
 
