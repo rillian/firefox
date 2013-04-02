@@ -161,6 +161,7 @@ CPPSRCS		= \
 ifdef MOZ_MEDIA
 EXPORTS_mozilla/dom += \
 		HTMLSourceElement.h \
+		HTMLTrackElement.h \
 		MediaError.h \
 		$(NULL)
 
@@ -173,10 +174,6 @@ CPPSRCS		+= \
 		HTMLVideoElement.cpp \
 		HTMLTrackElement.cpp \
 		WebVTTLoadListener.cpp \
-		$(NULL)
-
-EXPORTS_mozilla/dom += \
-		HTMLTrackElement.h \
 		$(NULL)
 endif
 

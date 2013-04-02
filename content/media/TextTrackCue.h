@@ -14,7 +14,7 @@
 #include "TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
 #include "mozilla/dom/DocumentFragment.h"
-#include "HTMLTrackElement.h"
+#include "mozilla/dom/HTMLTrackElement.h"
 #include "nsDOMEventTargetHelper.h"
 #include "webvtt/node.h"
 

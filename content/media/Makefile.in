@@ -69,6 +69,27 @@ CPPSRCS = \
   VideoUtils.cpp \
   $(NULL)
 
+ifdef MOZ_WEBVTT
+EXPORTS_NAMESPACES += \
+  mozilla/dom \
+  $(NULL)
+EXPORTS_mozilla/dom = \
+  TextTrack.h \
+  TextTrackList.h \
+  TextTrackCue.h \
+  TextTrackCueList.h \
+  $(NULL)
+CPPSRCS += \
+  TextTrack.cpp \
+  TextTrackList.cpp \
+  TextTrackCue.cpp \
+  TextTrackCueList.cpp \
+  $(NULL)
+LOCAL_INCLUDES += \
+  $(topsrcdir)/content/html/content/src \
+  $(NULL)
+endif
+
 FORCE_STATIC_LIB = 1
 
 include $(topsrcdir)/config/config.mk
