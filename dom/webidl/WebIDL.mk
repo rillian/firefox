@@ -303,7 +303,12 @@ endif
 ifdef MOZ_MEDIA
 webidl_files += \
   HTMLSourceElement.webidl \
+  HTMLTrackElement.webidl \
   MediaError.webidl \
+  TextTrack.webidl \
+  TextTrackList.webidl \
+  TextTrackCue.webidl \
+  TextTrackCueList.webidl \
   $(NULL)
 endif
 

@@ -29,6 +29,8 @@
 #include "AudioChannelAgent.h"
 #include "mozilla/Attributes.h"
 #include "mozilla/ErrorResult.h"
+#include "mozilla/dom/TextTrack.h"
+#include "mozilla/dom/TextTrackList.h"
 
 // Define to output information on decoding and painting framerate
 /* #define DEBUG_FRAME_RATE 1 */
@@ -1084,6 +1086,21 @@ protected:
 
   // An agent used to join audio channel service.
   nsCOMPtr<nsIAudioChannelAgent> mAudioChannelAgent;
+
+  // List of our attached text track objects.
+  nsRefPtr<mozilla::dom::TextTrackList> mTextTracks;
+
+public:
+
+  already_AddRefed<mozilla::dom::TextTrackList> TextTracks() const;
+
+  already_AddRefed<mozilla::dom::TextTrack> AddTextTrack(const nsAString& aKind,
+                                                         const NonNull<nsAString>& aLabel,
+                                                         const NonNull<nsAString>& aLanguage);
+
+  void AddTextTrack(mozilla::dom::TextTrack* aTextTrack) {
+    mTextTracks->AddTextTrack(aTextTrack);
+  }
 };
 
 } // namespace dom

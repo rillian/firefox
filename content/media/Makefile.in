@@ -47,6 +47,16 @@ EXPORTS = \
   MediaMetadataManager.h \
   $(NULL)
 
+EXPORTS_NAMESPACES += \
+  mozilla/dom \
+  $(NULL)
+
+EXPORTS_mozilla/dom = \
+  TextTrack.h \
+  TextTrackList.h \
+  TextTrackCue.h \
+  TextTrackCueList.h \
+
 CPPSRCS = \
   AudioChannelFormat.cpp \
   AudioNodeEngine.cpp \
@@ -64,6 +74,10 @@ CPPSRCS = \
   MediaDecoderReader.cpp \
   MediaCache.cpp \
   StreamBuffer.cpp \
+  TextTrack.cpp \
+  TextTrackList.cpp \
+  TextTrackCue.cpp \
+  TextTrackCueList.cpp \
   VideoFrameContainer.cpp \
   VideoSegment.cpp \
   VideoUtils.cpp \
