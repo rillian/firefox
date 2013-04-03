@@ -1933,6 +1933,8 @@ HTMLMediaElement::HTMLMediaElement(already_AddRefed<nsINodeInfo> aNodeInfo)
 
   RegisterFreezableElement();
   NotifyOwnerDocumentActivityChanged();
+
+  mTextTracks = new TextTrackList(OwnerDoc()->GetParentObject());
 }
 
 HTMLMediaElement::~HTMLMediaElement()
@@ -3507,6 +3509,9 @@ void HTMLMediaElement::FireTimeUpdate(bool aPeriodic)
     mFragmentStart = -1.0;
     mDecoder->SetFragmentEndTime(mFragmentEnd);
   }
+
+  // Update visible text tracks.
+  mTextTracks->Update(time);
 }
 
 void HTMLMediaElement::GetCurrentSpec(nsCString& aString)
@@ -3714,6 +3719,39 @@ NS_IMETHODIMP HTMLMediaElement::CanPlayChanged(bool canPlay)
   NS_ENSURE_TRUE(nsContentUtils::IsCallerChrome(), NS_ERROR_NOT_AVAILABLE);
 
   UpdateChannelMuteState(canPlay);
+  return NS_OK;
+}
+
+/* readonly attribute nsISupports textTracks; */
+already_AddRefed<mozilla::dom::TextTrackList>
+HTMLMediaElement::TextTracks() const
+{
+  return mTextTracks.get();
+}
+
+/* readonly attribute nsISupports textTracks; */
+NS_IMETHODIMP
+HTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
+{
+  *aTextTracks = this->TextTracks().get();
+  return NS_OK;
+}
+
+already_AddRefed<mozilla::dom::TextTrack>
+HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                               const NonNull<nsAString>& aLabel,
+                               const NonNull<nsAString>& aLanguage)
+{
+  return mTextTracks->AddTextTrack(aKind, aLabel, aLanguage);
+}
+
+NS_IMETHODIMP
+HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+                               const nsAString& aLabel,
+                               const nsAString& aLanguage,
+                               nsISupports** _retval)
+{
+  NS_ADDREF(*_retval = mTextTracks->AddTextTrack(aKind, aLabel, aLanguage).get());
   return NS_OK;
 }
 

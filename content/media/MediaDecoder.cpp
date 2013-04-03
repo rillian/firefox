@@ -1652,6 +1652,14 @@ MediaDecoder::IsWebMEnabled()
 }
 #endif
 
+#ifdef MOZ_WEBVTT
+bool
+MediaDecoder::IsWebVTTEnabled()
+{
+  return Preferences::GetBool("media.webvtt.enabled");
+}
+#endif
+
 #ifdef MOZ_GSTREAMER
 bool
 MediaDecoder::IsGStreamerEnabled()

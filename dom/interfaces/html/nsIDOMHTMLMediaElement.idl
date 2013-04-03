@@ -79,6 +79,10 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
            attribute boolean muted;
            attribute boolean defaultMuted;
 
+  // tracks
+  //readonly attribute TextTrackList textTracks;
+  //TextTrack addTextTrack(in DOMString kind, [optional] in DOMString label, [optional] in DOMString language);
+
   // Mozilla extension: stream capture
   nsIDOMMediaStream mozCaptureStream();
   nsIDOMMediaStream mozCaptureStreamUntilEnded();
@@ -151,4 +155,11 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
   // * onmozinterruptbegin - called when the media element is interrupted
   //   because of the audiochannel manager.
   // * onmozinterruptend - called when the interruption is concluded
+
+  // readonly attribute TextTrackList textTracks;
+  readonly attribute nsISupports textTracks;
+  // TextTrack addTextTrack(...);
+  nsISupports addTextTrack(           in DOMString kind,
+                           [optional] in DOMString label,
+                           [optional] in DOMString language);
 };

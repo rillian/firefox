@@ -781,6 +781,8 @@ protected:
 
   virtual const nsAttrName* InternalGetExistingAttrNameFromQName(const nsAString& aStr) const;
 
+  nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
+
   void GetHTMLAttr(nsIAtom* aName, nsAString& aResult) const
   {
     GetAttr(kNameSpaceID_None, aName, aResult);
@@ -1973,6 +1975,9 @@ NS_DECLARE_NS_NEW_HTML_ELEMENT(Tfoot)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Thead)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Time)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Title)
+#if defined(MOZ_MEDIA)
+NS_DECLARE_NS_NEW_HTML_ELEMENT(Track)
+#endif
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Unknown)
 #if defined(MOZ_MEDIA)
 NS_DECLARE_NS_NEW_HTML_ELEMENT(Video)

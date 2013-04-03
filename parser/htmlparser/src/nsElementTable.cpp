@@ -45,6 +45,7 @@ DECL_TAG_LIST(gTRParents,{eHTMLTag_tbody COMMA eHTMLTag_tfoot COMMA eHTMLTag_the
 DECL_TAG_LIST(gTREndParents,{eHTMLTag_tbody COMMA eHTMLTag_tfoot COMMA eHTMLTag_thead COMMA eHTMLTag_table COMMA eHTMLTag_applet})
 #ifdef MOZ_MEDIA
 DECL_TAG_LIST(gSourceParents,{eHTMLTag_video COMMA eHTMLTag_audio})
+DECL_TAG_LIST(gTrackParents,{eHTMLTag_video COMMA eHTMLTag_audio})
 #endif
 
 //*********************************************************************************************
@@ -1255,6 +1256,17 @@ const nsHTMLElement gHTMLElements[] = {
     /*special props, prop-range*/       0, kDefaultPropRange,
     /*special parents,kids*/            0,0,
   },
+#if defined(MOZ_WEBVTT)
+  {
+    /*tag*/                             eHTMLTag_track,
+    /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,
+    /*rootnodes,endrootnodes*/          &gTrackParents,&gTrackParents,
+    /*autoclose starttags and endtags*/ &gPAutoClose, 0, 0,0,
+    /*parent,incl,exclgroups*/          kSpecial, kNone, kNone,
+    /*special props, prop-range*/       kNonContainer,kNoPropRange,
+    /*special parents,kids*/            &gTrackParents,0,
+  },
+#endif
   {
     /*tag*/                             eHTMLTag_u,
     /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,

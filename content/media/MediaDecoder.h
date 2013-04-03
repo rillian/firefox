@@ -747,6 +747,10 @@ public:
   static bool IsWebMEnabled();
 #endif
 
+#ifdef MOZ_WEBVTT
+  static bool IsWebVTTEnabled();
+#endif
+
 #ifdef MOZ_GSTREAMER
   static bool IsGStreamerEnabled();
 #endif

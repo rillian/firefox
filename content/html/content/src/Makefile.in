@@ -12,6 +12,13 @@ include $(DEPTH)/config/autoconf.mk
 
 LIBRARY_NAME	= gkconhtmlcon_s
 LIBXUL_LIBRARY	= 1
+ifndef _MSC_VER
+FAIL_ON_WARNINGS = 1
+endif # !_MSC_VER
+
+DEFINES += \
+  -DWEBVTT_NO_CONFIG_H=1 \
+  $(NULL)
 
 EXPORTS		= \
 		HTMLPropertiesCollection.h \
@@ -154,6 +161,7 @@ CPPSRCS		= \
 ifdef MOZ_MEDIA
 EXPORTS_mozilla/dom += \
 		HTMLSourceElement.h \
+		HTMLTrackElement.h \
 		MediaError.h \
 		$(NULL)
 
@@ -164,6 +172,7 @@ CPPSRCS		+= \
 		HTMLSourceElement.cpp \
 		TimeRanges.cpp \
 		HTMLVideoElement.cpp \
+		HTMLTrackElement.cpp \
 		$(NULL)
 endif
 
