@@ -33,8 +33,6 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 {
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
-
-fprintf(stderr, "TextTrackCue::TextTrackCue aStartTime=%f aEndTime=%f", mStartTime, mEndTime);
 }
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
@@ -56,14 +54,11 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 {
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
-
-fprintf(stderr, "TextTrackCue::TextTrackCue aStartTime=%f aEndTime=%f", mStartTime, mEndTime);
 }
 
 void
 TextTrackCue::DisplayCue()
 {
-fprintf(stderr, "TextTrackCue::DisplayCue()");
   mTrackElement->DisplayCueText(mHead);
 }
 

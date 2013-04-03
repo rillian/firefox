@@ -42,10 +42,8 @@ public:
   }
 
   void Update(double time) {
-fprintf(stderr, "\nTextTrackList::Update() called:\n");
     uint32_t length = Length(), i;
     for( i = 0; i < length; i++ ) {
-fprintf(stderr, "..Updating mTextTrack[%d]\n", i);
       mTextTracks[i]->Update(time);
     }
   }

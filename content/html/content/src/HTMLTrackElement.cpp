@@ -196,7 +196,6 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 void
 HTMLTrackElement::DisplayCueText(webvtt_node* head)
 {
-fprintf(stderr, "calling HTMLTrackElement::DisplayCueText()\n");
   mLoadListener->DisplayCueText(head);
 }
 
@@ -212,7 +211,6 @@ HTMLTrackElement::CreateTextTrack()
                          label,
                          srcLang);
 
-fprintf(stderr, "...Trying to add mTrack to media element's TextTrackList...\n");
   nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
   if (domMediaElem) {
     HTMLMediaElement* mediaElem = static_cast<HTMLMediaElement*>(mMediaParent.get());
@@ -220,7 +218,6 @@ fprintf(stderr, "...Trying to add mTrack to media element's TextTrackList...\n")
       mediaElem->AddTextTrack(mTrack);
     }
   }
-fprintf(stderr, "Done\n");
 }
 
 /** XXX: this is the right way to do it, but we have a timing bug on getting the media element
