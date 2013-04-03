@@ -241,7 +241,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
     return NS_OK;
   }
 
-  // Store our parent so we can look up its frame for display
+  // Store our parent so we can look up its frame for display.
   if (!mMediaParent) {
     mMediaParent = do_QueryInterface(aParent);
 

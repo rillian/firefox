@@ -101,7 +101,7 @@ public:
 
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
 
-  // Superclass for Clone() and AsDOMNode() is nsINode
+  // Superclass for Clone() and AsDOMNode() is nsINode.
   virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const MOZ_OVERRIDE;
   virtual nsIDOMNode* AsDOMNode() MOZ_OVERRIDE { return this; }
 
