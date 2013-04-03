@@ -220,34 +220,6 @@ HTMLTrackElement::CreateTextTrack()
   }
 }
 
-/** XXX: this is the right way to do it, but we have a timing bug on getting the media element
-nsresult
-HTMLTrackElement::SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
-                          nsIAtom* aPrefix, const nsAString& aValue,
-                          bool aNotify)
-{
-  nsresult rv =
-    nsGenericHTMLElement::SetAttr(aNameSpaceID, aName, aPrefix, aValue,
-                                  aNotify);
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
-
-  if (aNameSpaceID == kNameSpaceID_None && aName == nsGkAtoms::src) {
-    nsAutoString src(aValue);
-    nsCOMPtr<nsIURI> uri;
-    nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
-    if (NS_SUCCEEDED(rvTwo)) {
-      LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
-	     NS_ConvertUTF16toUTF8(src).get()));
-      LoadResource(uri);
-    }
-  }
-
-  return rv;
-}
-**/
-
 nsresult
 HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 			     nsIContent* aParent,
