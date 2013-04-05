@@ -3509,7 +3509,7 @@ void HTMLMediaElement::FireTimeUpdate(bool aPeriodic)
     mDecoder->SetFragmentEndTime(mFragmentEnd);
   }
 
-fprintf(stderr, "\nHTMLMediaElement::FireTimeUpdate time=%f\n", time);
+  // Update visible text tracks.
   mTextTracks->Update(time);
 }
 

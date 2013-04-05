@@ -1099,7 +1099,6 @@ public:
                                                          const NonNull<nsAString>& aLanguage);
 
   void AddTextTrack(mozilla::dom::TextTrack* aTextTrack) {
-fprintf(stderr, "\n\nnsHTMLMediaElement::AddTextTrack\n\n");
     mTextTracks->AddTextTrack(aTextTrack);
   }
 };

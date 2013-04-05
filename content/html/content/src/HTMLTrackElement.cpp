@@ -196,7 +196,6 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
 void
 HTMLTrackElement::DisplayCueText(webvtt_node* head)
 {
-fprintf(stderr, "calling HTMLTrackElement::DisplayCueText()\n");
   mLoadListener->DisplayCueText(head);
 }
 
@@ -212,7 +211,6 @@ HTMLTrackElement::CreateTextTrack()
                          label,
                          srcLang);
 
-fprintf(stderr, "...Trying to add mTrack to media element's TextTrackList...\n");
   nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
   if (domMediaElem) {
     HTMLMediaElement* mediaElem = static_cast<HTMLMediaElement*>(mMediaParent.get());
@@ -220,36 +218,7 @@ fprintf(stderr, "...Trying to add mTrack to media element's TextTrackList...\n")
       mediaElem->AddTextTrack(mTrack);
     }
   }
-fprintf(stderr, "Done\n");
 }
-
-/** XXX: this is the right way to do it, but we have a timing bug on getting the media element
-nsresult
-HTMLTrackElement::SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
-                          nsIAtom* aPrefix, const nsAString& aValue,
-                          bool aNotify)
-{
-  nsresult rv =
-    nsGenericHTMLElement::SetAttr(aNameSpaceID, aName, aPrefix, aValue,
-                                  aNotify);
-  if (NS_FAILED(rv)) {
-    return rv;
-  }
-
-  if (aNameSpaceID == kNameSpaceID_None && aName == nsGkAtoms::src) {
-    nsAutoString src(aValue);
-    nsCOMPtr<nsIURI> uri;
-    nsresult rvTwo = NewURIFromString(src, getter_AddRefs(uri));
-    if (NS_SUCCEEDED(rvTwo)) {
-      LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
-	     NS_ConvertUTF16toUTF8(src).get()));
-      LoadResource(uri);
-    }
-  }
-
-  return rv;
-}
-**/
 
 nsresult
 HTMLTrackElement::BindToTree(nsIDocument* aDocument,
@@ -272,7 +241,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
     return NS_OK;
   }
 
-  // Store our parent so we can look up its frame for display
+  // Store our parent so we can look up its frame for display.
   if (!mMediaParent) {
     mMediaParent = do_QueryInterface(aParent);
 

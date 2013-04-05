@@ -101,7 +101,7 @@ public:
 
   virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
 
-  // Superclass for Clone() and AsDOMNode() is nsINode
+  // Superclass for Clone() and AsDOMNode() is nsINode.
   virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const MOZ_OVERRIDE;
   virtual nsIDOMNode* AsDOMNode() MOZ_OVERRIDE { return this; }
 
@@ -114,18 +114,6 @@ public:
     ErrorResult rv;
     SetSrc(aText, rv);
   }
-
-/**
-  // SetAttr override for src loading.
-  nsresult SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
-                   const nsAString& aValue, bool aNotify)
-  {
-    return SetAttr(aNameSpaceID, aName, nullptr, aValue, aNotify);
-  }
-  virtual nsresult SetAttr(int32_t aNameSpaceID, nsIAtom* aName,
-                           nsIAtom* aPrefix, const nsAString& aValue,
-                           bool aNotify);
-**/
 
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
