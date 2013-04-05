@@ -36,13 +36,7 @@ MOCHITEST_FILES = \
   test_peerConnection_bug834153.html \
   test_peerConnection_bug835370.html \
   test_peerConnection_bug840344.html \
-  HTMLTrackElement_sourceReflect.html \
-  HTMLTrackElement_defaultReflect.html \
-  HTMLTrackElement_readyStateReflect.html \
-  HTMLTrackElement_labelReflect.html \
-  HTMLTrackElement_srclangReflect.html \
-  HTMLTrackElement_kindReflect.html \
-  HTMLTrackElement_track.html \
+  test_HTMLTrackElement_Reflect.html \
   basic.vtt \
   fast.vtt \
   head.js \

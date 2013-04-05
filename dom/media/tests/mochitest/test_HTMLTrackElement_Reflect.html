@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+<!--
+https://bugzilla.mozilla.org/show_bug.cgi?id=833386
+-->
+<head>
+	<title>Test for Bug 833386 - HTMLTrackElement</title>
+	<script type="text/javascript" src="/MochiKit/MochiKit.js"></script>
+	<script type="text/javascript" src="/tests/SimpleTest/SimpleTest.js"></script>
+	<script type="text/javascript" src="/tests/content/html/content/test/reflect.js"></script>
+	<link rel="stylesheet" type="text/css" href="/tests/SimpleTest/test.css"/>
+</head>
+<body>
+<div id="videoDiv">
+<video id ="videoElement" controls>
+	<source src="/tests/content/media/test/seek.webm" type="video/webm" preload="auto" autobuffer/>
+</video>
+</div>
+	<pre id="test">
+	<script class="testbody" type="text/javascript">
+	var videoDiv = document.getElementById("videoDiv");
+    var videoElement = document.getElementById("videoElement");
+	SimpleTest.waitForExplicitFinish();
+	// Verify WebVTT support
+	var WebvttEnabled = undefined;
+	try{
+	  	WebvttEnabled = SpecialPowers.getBoolPref("media.webvtt.enabled");
+	} catch (ex){
+		// SpecialPowers failed, perhaps because WebVTT isn't compiled in
+		console.log("media.webvtt.enabled pref not found; skipping WebVTT validation");
+	}
+	if (WebvttEnabled !== undefined) {
+	   // Testing with the pref set to True
+	   SpecialPowers.setBoolPref("media.webvtt.enabled", true);
+	   var HTMLTrackElement = document.createElement("track");
+       videoElement.appendChild(HTMLTrackElement);
+	   // Kind Attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "kind",
+			validValues: ["subtitles", "captions", "descriptions", "chapters", "metadata"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "subtitle", "caption", "description","chapter", "meta"],
+			defaultValue: "subtitles"
+		});
+	   // Default attribute
+	   reflectBoolean({
+			element: HTMLTrackElement,
+			attribute: "default",
+		});
+	   // Label attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "label",
+			otherValues: [ "foo", "BAR", "_FoO", "\u0000", "null", "white space" ]
+		});
+	   // Ready State attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "readyState",
+			validValues: ["0", "1", "2", "3"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "5", "-1"],
+			defaultValue: "0"
+		});
+	   // Source attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "src",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	   // Source Language attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "srclang",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	   //Removing <track>
+       videoElement.removeChild(HTMLTrackElement);
+	   // Testing with the pref set to False
+	   SpecialPowers.setBoolPref("media.webvtt.enabled", false);
+	   var HTMLTrackElement = document.createElement("track");
+       videoElement.appendChild(HTMLTrackElement);
+	   // Kind Attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "kind",
+			validValues: ["subtitles", "captions", "descriptions", "chapters", "metadata"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "subtitle", "caption", "description","chapter", "meta"],
+			defaultValue: "subtitles"
+		});
+	   // Default attribute
+	   reflectBoolean({
+			element: HTMLTrackElement,
+			attribute: "default",
+		});
+	   // Label attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "label",
+			otherValues: [ "foo", "BAR", "_FoO", "\u0000", "null", "white space" ]
+		});
+	   // Ready State attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "readyState",
+			validValues: ["0", "1", "2", "3"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "5", "-1"],
+			defaultValue: "0"
+		});
+	   // Source attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "src",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	   // Source Language attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "srclang",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	   //Removing <track>
+       videoElement.removeChild(HTMLTrackElement);
+       //Setting undefined again.
+	   SpecialPowers.setBoolPref("media.webvtt.enabled", WebvttEnabled);
+	}else{
+	   //If media.webvtt.enabled pref doesn't exist
+	   var HTMLTrackElement = document.createElement("track");
+       videoElement.appendChild(HTMLTrackElement);
+       // Kind Attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "kind",
+			validValues: ["subtitles", "captions", "descriptions", "chapters", "metadata"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "subtitle", "caption", "description","chapter", "meta"],
+			defaultValue: "subtitles"
+		});
+	   // Default attribute
+	   reflectBoolean({
+			element: HTMLTrackElement,
+			attribute: "default",
+		});
+	   // Label attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "label",
+			otherValues: [ "foo", "BAR", "_FoO", "\u0000", "null", "white space" ]
+		});
+	   // Ready State attribute
+	   reflectLimitedEnumerated({
+			element: HTMLTrackElement,
+			attribute: "readyState",
+			validValues: ["0", "1", "2", "3"],
+			invalidValues: ["foo", "bar", "\u0000", "null", "", "5", "-1"],
+			defaultValue: "0"
+		});
+	   // Source attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "src",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	   // Source Language attribute
+	   reflectString({
+			element: HTMLTrackElement,
+			attribute: "srclang",
+			otherValues: ["foo", "bar", "\u0000", "null", ""]
+		});
+	}
+	SimpleTest.finish();
+	</script>
+	</pre>	
+</body>
+</html>
