@@ -12,10 +12,14 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=833386
 </head>
 <body>
 <div id="videoDiv">
+<video id ="videoElement" controls>
+	<source src="/tests/content/media/test/seek.webm" type="video/webm" preload="auto" autobuffer/>
+</video>
 </div>
 	<pre id="test">
 	<script class="testbody" type="text/javascript">
 	var videoDiv = document.getElementById("videoDiv");
+    var videoElement = document.getElementById("videoElement");
 	SimpleTest.waitForExplicitFinish();
 	// Verify WebVTT support
 	var WebvttEnabled = undefined;
@@ -29,7 +33,7 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=833386
 	   // Testing with the pref set to True
 	   SpecialPowers.setBoolPref("media.webvtt.enabled", true);
 	   var HTMLTrackElement = document.createElement("track");
-       videoDiv.appendChild(HTMLTrackElement);
+       videoElement.appendChild(HTMLTrackElement);
 	   // Kind Attribute
 	   reflectLimitedEnumerated({
 			element: HTMLTrackElement,
@@ -70,11 +74,11 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=833386
 			otherValues: ["foo", "bar", "\u0000", "null", ""]
 		});
 	   //Removing <track>
-       videoDiv.removeChild(HTMLTrackElement);
+       videoElement.removeChild(HTMLTrackElement);
 	   // Testing with the pref set to False
 	   SpecialPowers.setBoolPref("media.webvtt.enabled", false);
 	   var HTMLTrackElement = document.createElement("track");
-       videoDiv.appendChild(HTMLTrackElement);
+       videoElement.appendChild(HTMLTrackElement);
 	   // Kind Attribute
 	   reflectLimitedEnumerated({
 			element: HTMLTrackElement,
@@ -115,13 +119,13 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=833386
 			otherValues: ["foo", "bar", "\u0000", "null", ""]
 		});
 	   //Removing <track>
-       videoDiv.removeChild(HTMLTrackElement);
+       videoElement.removeChild(HTMLTrackElement);
        //Setting undefined again.
 	   SpecialPowers.setBoolPref("media.webvtt.enabled", WebvttEnabled);
 	}else{
 	   //If media.webvtt.enabled pref doesn't exist
 	   var HTMLTrackElement = document.createElement("track");
-       videoDiv.appendChild(HTMLTrackElement);
+       videoElement.appendChild(HTMLTrackElement);
        // Kind Attribute
 	   reflectLimitedEnumerated({
 			element: HTMLTrackElement,
