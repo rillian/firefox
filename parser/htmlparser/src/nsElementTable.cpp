@@ -89,8 +89,8 @@ DECL_TAG_LIST(gTableElemKids,{eHTMLTag_form COMMA eHTMLTag_noscript COMMA eHTMLT
 DECL_TAG_LIST(gTRKids,{eHTMLTag_td COMMA eHTMLTag_th COMMA eHTMLTag_form COMMA eHTMLTag_script})// Removed INPUT - Ref. Bug 20087, 25382 |  Removed MAP to fix 58942
 DECL_TAG_LIST(gTBodyKids,{eHTMLTag_tr COMMA eHTMLTag_form}) // Removed INPUT - Ref. Bug 20087, 25382
 DECL_TAG_LIST(gULKids,{eHTMLTag_li COMMA eHTMLTag_p})
-DECL_TAG_LIST(gVideoKids,{eHTMLTag_source})
-DECL_TAG_LIST(gAudioKids,{eHTMLTag_source})
+DECL_TAG_LIST(gVideoKids,{eHTMLTag_source COMMA eHTMLTag_track})
+DECL_TAG_LIST(gAudioKids,{eHTMLTag_source COMMA eHTMLTag_track})
 
 //*********************************************************************************************
 // The following tag lists are used to define common set of root notes for the HTML elements...
@@ -1240,15 +1240,6 @@ const nsHTMLElement gHTMLElements[] = {
     /*special parents,kids*/            &gTRParents,&gTRKids,
   },
   {
-    /*tag*/                             eHTMLTag_tt,
-    /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,
-    /*rootnodes,endrootnodes*/          &gRootTags,&gRootTags,
-    /*autoclose starttags and endtags*/ 0,0,0,0,
-    /*parent,incl,exclgroups*/          kFontStyle, (kSelf|kInlineEntity), kNone,
-    /*special props, prop-range*/       0, kDefaultPropRange,
-    /*special parents,kids*/            0,0,
-  },
-  {
     /*tag*/                             eHTMLTag_track,
     /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,
     /*rootnodes,endrootnodes*/          &gTrackParents,&gTrackParents,
@@ -1256,6 +1247,15 @@ const nsHTMLElement gHTMLElements[] = {
     /*parent,incl,exclgroups*/          kSpecial, kNone, kNone,
     /*special props, prop-range*/       kNonContainer,kNoPropRange,
     /*special parents,kids*/            &gTrackParents,0,
+  },
+  {
+    /*tag*/                             eHTMLTag_tt,
+    /*req-parent excl-parent*/          eHTMLTag_unknown,eHTMLTag_unknown,
+    /*rootnodes,endrootnodes*/          &gRootTags,&gRootTags,
+    /*autoclose starttags and endtags*/ 0,0,0,0,
+    /*parent,incl,exclgroups*/          kFontStyle, (kSelf|kInlineEntity), kNone,
+    /*special props, prop-range*/       0, kDefaultPropRange,
+    /*special parents,kids*/            0,0,
   },
   {
     /*tag*/                             eHTMLTag_u,
