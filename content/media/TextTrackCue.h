@@ -224,19 +224,15 @@ public:
     CueChanged();
   }
 
-  already_AddRefed<DocumentFragment> GetCueAsHTML() const
-  {
-    // XXXhumph: todo
-    return nullptr;
-  }
-
   bool
   operator==(const TextTrackCue& rhs) const
   {
     return (mId.Equals(rhs.mId));
   }
 
-  void DisplayCue();
+  void RenderCue();
+  already_AddRefed<DocumentFragment> GetCueAsHTML();
+  nsCOMPtr<nsIContent> ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode);
   
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)

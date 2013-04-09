@@ -17,7 +17,6 @@
 #include "nsIHttpChannel.h"
 #include "nsGkAtoms.h"
 #include "mozilla/dom/TextTrack.h"
-#include "webvtt/node.h"
 
 namespace mozilla {
 namespace dom {
@@ -122,12 +121,11 @@ public:
 
   uint32_t GetCurrentLoadID() { return mCurrentLoadID; }
 
-  void DisplayCueText(webvtt_node* head);
-
 protected:
   virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   friend class WebVTTLoadListener;
+  friend class TextTrackCue;
   uint32_t mCurrentLoadID;
   nsRefPtr<TextTrack> mTrack;
   nsRefPtr<WebVTTLoadListener> mLoadListener;

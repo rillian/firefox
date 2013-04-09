@@ -35,7 +35,6 @@
 #include "nsVideoFrame.h"
 #include "nsISupportsImpl.h"
 #include "WebVTTLoadListener.h"
-#include "webvtt/parser.h"
 
 #ifdef PR_LOGGING
 static PRLogModuleInfo* gTrackElementLog;
@@ -191,12 +190,6 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   nsContentUtils::RegisterShutdownObserver(mLoadListener);
 
   return NS_OK;
-}
-
-void
-HTMLTrackElement::DisplayCueText(webvtt_node* head)
-{
-  mLoadListener->DisplayCueText(head);
 }
 
 void
