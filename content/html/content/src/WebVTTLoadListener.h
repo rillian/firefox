@@ -43,30 +43,27 @@ public:
   ~WebVTTLoadListener();
   void OnParsedCue(webvtt_cue *cue);
   void OnReportError(uint32_t line, uint32_t col, webvtt_error error);
-  void DisplayCueText(webvtt_node* head);
   nsresult LoadResource();
 
 private:
   static NS_METHOD ParseChunk(nsIInputStream *aInStream, void *aClosure,
                               const char *aFromSegment, uint32_t aToOffset,
                               uint32_t aCount, uint32_t *aWriteCount);
-//  TextTrackCue ConvertCueToTextTrackCue(const webvtt_cue *aCue);
-  already_AddRefed<DocumentFragment> 
-    ConvertNodeListToDocFragment(const webvtt_node *aNode, ErrorResult &rv);
-  nsCOMPtr<nsIContent> ConvertNodeToCueTextContent(const webvtt_node *aNode);
 
   nsRefPtr<HTMLTrackElement> mElement;
   nsCOMPtr<nsIStreamListener> mNextListener;
   uint32_t mLoadID;
   nsAutoRef<webvtt_parser_t> mParser;
-};
-
-static void WEBVTT_CALLBACK OnParsedCueWebVTTCallBack(void *aUserData, 
+  
+  static void WEBVTT_CALLBACK OnParsedCueWebVTTCallBack(void *aUserData, 
                                                       webvtt_cue *aCue);
-static int WEBVTT_CALLBACK OnReportErrorWebVTTCallBack(void *aUserData, 
+  static int WEBVTT_CALLBACK OnReportErrorWebVTTCallBack(void *aUserData, 
                                                        uint32_t aLine, 
                                                        uint32_t aCol, 
                                                        webvtt_error aError);
+};
+
+
 
 } // namespace dom
 } // namespace mozilla

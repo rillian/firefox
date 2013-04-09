@@ -96,6 +96,12 @@ include $(topsrcdir)/config/config.mk
 include $(topsrcdir)/ipc/chromium/chromium-config.mk
 include $(topsrcdir)/config/rules.mk
 
+INCLUDES	+= \
+                -I$(srcdir)/../../layout/xul/base/src \
+                -I$(srcdir)/../../layout/generic \
+                $(NULL)
+
+
 DEFINES  += -D_IMPL_NS_LAYOUT
 CFLAGS   += $(GSTREAMER_CFLAGS)
 CXXFLAGS += $(GSTREAMER_CFLAGS)

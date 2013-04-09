@@ -29,13 +29,14 @@ TextTrackCueList::~TextTrackCueList()
 {
   mParent = nullptr;
 }
+
 void
 TextTrackCueList::Update(double time)
 {
   uint32_t i, length = mList.Length();
   for (i = 0; i < length; i++) {
     if (time > mList[i]->StartTime() && time < mList[i]->EndTime()) {
-      mList[i]->DisplayCue();
+      mList[i]->RenderCue();
     }
   }
 }
