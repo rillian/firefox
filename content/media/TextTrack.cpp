@@ -58,7 +58,6 @@ TextTrack::~TextTrack()
 void
 TextTrack::Update(double time)
 {
-fprintf(stderr, "\nTextTrack::Update()\n");
   mCueList->Update(time);
 }
 
