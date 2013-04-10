@@ -413,6 +413,7 @@ NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN_INHERITED(HTMLMediaElement, nsGenericHTM
     NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mOutputStreams[i].mStream);
   }
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mPlayed);
+  NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mTextTracks);
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
 
 NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(HTMLMediaElement, nsGenericHTMLElement)
@@ -431,6 +432,7 @@ NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(HTMLMediaElement, nsGenericHTMLE
     NS_IMPL_CYCLE_COLLECTION_UNLINK(mOutputStreams[i].mStream);
   }
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mPlayed);
+  NS_IMPL_CYCLE_COLLECTION_UNLINK(mTextTracks);
 NS_IMPL_CYCLE_COLLECTION_UNLINK_END
 
 NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(HTMLMediaElement)
@@ -1949,6 +1951,8 @@ HTMLMediaElement::HTMLMediaElement(already_AddRefed<nsINodeInfo> aNodeInfo)
 
   RegisterFreezableElement();
   NotifyOwnerDocumentActivityChanged();
+
+  mTextTracks = new TextTrackList(OwnerDoc()->GetParentObject());
 }
 
 HTMLMediaElement::~HTMLMediaElement()
@@ -3567,6 +3571,9 @@ void HTMLMediaElement::FireTimeUpdate(bool aPeriodic)
     mFragmentStart = -1.0;
     mDecoder->SetFragmentEndTime(mFragmentEnd);
   }
+
+  // Update visible text tracks.
+  mTextTracks->Update(time);
 }
 
 void HTMLMediaElement::GetCurrentSpec(nsCString& aString)
@@ -3772,6 +3779,21 @@ NS_IMETHODIMP HTMLMediaElement::CanPlayChanged(bool canPlay)
   UpdateChannelMuteState(canPlay);
   mPaused.SetCanPlay(canPlay);
   return NS_OK;
+}
+
+/* readonly attribute TextTrackList textTracks; */
+TextTrackList*
+HTMLMediaElement::TextTracks() const
+{
+  return mTextTracks;
+}
+
+already_AddRefed<TextTrack>
+HTMLMediaElement::AddTextTrack(TextTrackKind aKind,
+                               const nsAString& aLabel,
+                               const nsAString& aLanguage)
+{
+  return mTextTracks->AddTextTrack(aKind, aLabel, aLanguage);
 }
 
 } // namespace dom

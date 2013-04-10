@@ -146,6 +146,7 @@ webidl_files = \
   HTMLTableSectionElement.webidl \
   HTMLTemplateElement.webidl \
   HTMLTextAreaElement.webidl \
+  HTMLTrackElement.webidl \
   HTMLTimeElement.webidl \
   HTMLTitleElement.webidl \
   HTMLUListElement.webidl \
@@ -299,6 +300,10 @@ webidl_files = \
   Text.webidl \
   TextDecoder.webidl \
   TextEncoder.webidl \
+  TextTrack.webidl \
+  TextTrackCue.webidl \
+  TextTrackCueList.webidl \
+  TextTrackList.webidl \
   TimeRanges.webidl \
   Touch.webidl \
   TouchEvent.webidl \
