@@ -6,6 +6,7 @@
 #include "TextTrackCue.h"
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "mozilla/dom/HTMLMediaElement.h"
+#include "webvtt/string.h"
 #include "nsIFrame.h"
 #include "nsVideoFrame.h"
 
@@ -127,11 +128,10 @@ nsCOMPtr<nsIContent>
 TextTrackCue::ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode)
 {
   nsCOMPtr<nsIContent> cueTextContent;
-  nsINodeInfo* nodeInfo;
+  nsINodeInfo* nodeInfo = mTrackElement->NodeInfo();
   
   if (WEBVTT_IS_VALID_INTERNAL_NODE(aWebVTTNode->kind))
-  {   
-    nodeInfo = mTrackElement->NodeInfo();
+  {
     NS_NewHTMLElement(getter_AddRefs(cueTextContent), nodeInfo, mozilla::dom::NOT_FROM_PARSER);
     
     nsAutoString qualifiedName;
@@ -154,7 +154,7 @@ TextTrackCue::ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode)
       case WEBVTT_RUBY_TEXT:
         qualifiedName = NS_LITERAL_STRING("rt");
         break;
-      case WEBVTT_VOICE: 
+      case WEBVTT_VOICE:
       {
         qualifiedName = NS_LITERAL_STRING("span");
         
@@ -170,16 +170,32 @@ TextTrackCue::ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode)
       }
       default:
         // TODO: What happens here?
+        cueTextContent = nullptr;
         break;
     }
-
     nsCOMPtr<nsIDOMHTMLElement> htmlElement = do_QueryInterface(cueTextContent);
-    
-    // TODO:: Need to concatenate all applicable classes separated by spaces and
-    //        set them to the htmlElements class attribute
     
     htmlElement->SetAttributeNS(NS_LITERAL_STRING("html"), qualifiedName, 
                                 EmptyString());
+    
+    webvtt_stringlist *cssClasses =
+      aWebVTTNode->data.internal_data->css_classes;
+    
+    if (cssClasses->length > 0) {
+      nsAutoString classes;
+      const char *text;
+    
+      text = reinterpret_cast<const char *>(webvtt_string_text(cssClasses->items));
+      classes.Append(NS_ConvertUTF8toUTF16(text));
+      
+      for (webvtt_uint i = 1; i < cssClasses->length; i++) {
+        classes.Append(NS_LITERAL_STRING(" "));
+        text = reinterpret_cast<const char *>(webvtt_string_text(cssClasses->items + i));
+        classes.Append(NS_ConvertUTF8toUTF16(text));
+      }
+      
+      htmlElement->SetClassName(classes);
+    }
 
     for (webvtt_uint i = 0; i < aWebVTTNode->data.internal_data->length; i++) {
        nsCOMPtr<nsIDOMNode> resultNode, childNode;
@@ -197,25 +213,32 @@ TextTrackCue::ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode)
     switch (aWebVTTNode->kind) {
       case WEBVTT_TEXT:
       {
-        nodeInfo = mTrackElement->NodeInfo();
         NS_NewTextNode(getter_AddRefs(cueTextContent), nodeInfo->NodeInfoManager());
 
         if (!cueTextContent) {
           return nullptr;
         }
-        {
-          const char* text = reinterpret_cast<const char *>(
-            webvtt_string_text(&aWebVTTNode->data.text));
+  
+        const char* text = reinterpret_cast<const char *>(
+          webvtt_string_text(&aWebVTTNode->data.text));
 
-          cueTextContent->SetText(NS_ConvertUTF8toUTF16(text), false);
-        }
+        cueTextContent->SetText(NS_ConvertUTF8toUTF16(text), false);
+  
         break;
       }
       case WEBVTT_TIME_STAMP:
-        // TODO: Need to create a "ProcessingInstruction?"
+      {
+        nsAutoString timeStamp;
+        timeStamp.AppendInt(aWebVTTNode->data.timestamp);
+        NS_NewXMLProcessingInstruction(getter_AddRefs(cueTextContent),
+                                       nodeInfo->NodeInfoManager(),
+                                       NS_LITERAL_STRING("timestamp"),
+                                       timeStamp);
         break;
+      }
       default:
         // TODO: What happens here?
+        cueTextContent = nullptr;
         break;
     }
   }
