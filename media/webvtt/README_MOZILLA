@@ -1,5 +1,5 @@
 These files are from the WebVTT library, and are extracted from rev
-f587652d6eccfbf41bedb8c4648458bcce25516d of the git repository at
+34cd4dba44e274f861a372a7a1064a80678052f3 of the git repository at
 https://github.com/mozilla/webvtt.
 
 The following CPPFLAGS are used in order to build and link in Mozilla

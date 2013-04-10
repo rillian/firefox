@@ -84,6 +84,7 @@ webvtt_release_cue( webvtt_cue **pcue )
     *pcue = 0;
     if( webvtt_deref( &cue->refs ) == 0 ) {
       webvtt_release_string( &cue->id );
+      webvtt_release_string( &cue->body );
       webvtt_release_node( &cue->node_head );
       webvtt_free( cue );
     }

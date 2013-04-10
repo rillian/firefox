@@ -285,14 +285,15 @@ grow( webvtt_string *str, webvtt_uint need )
 
 WEBVTT_EXPORT int
 webvtt_string_getline( webvtt_string *src, const webvtt_byte *buffer,
-    webvtt_uint *pos, webvtt_uint len, int *truncate, webvtt_bool finish, webvtt_bool retain_new_line )
+                       webvtt_uint *pos, int len, int *truncate,
+                       webvtt_bool finish )
 {
   int ret = 0;
   webvtt_string *str = src;
   webvtt_string_data *d = 0;
   const webvtt_byte *s = buffer + *pos;
   const webvtt_byte *p = s;
-  const webvtt_byte *n = buffer + len;
+  const webvtt_byte *n;
 
   /**
    *if this is public now, maybe we should return webvtt_status so we can
@@ -310,13 +311,13 @@ webvtt_string_getline( webvtt_string *src, const webvtt_byte *buffer,
     }
     d = str->d;
   }
+  if( len < 0 ) {
+    len = strlen( buffer );
+  }
+  n = buffer + len;
 
   while( p < n && *p != UTF8_CARRIAGE_RETURN && *p != UTF8_LINE_FEED ) {
     ++p;
-  }
-  /* Retain the new line character. */
-  if( p < n && retain_new_line ) {
-    p++;
   }
 
   if( p < n || finish ) {
@@ -370,11 +371,20 @@ webvtt_string_putc( webvtt_string *str, webvtt_byte to_append )
 
 WEBVTT_EXPORT webvtt_bool
 webvtt_string_is_equal( const webvtt_string *str, const webvtt_byte *to_compare,
-                        webvtt_uint len )
+                        int len )
 {
-  if( !str || !to_compare || webvtt_string_length( str ) != len ) {
+  if( !str || !to_compare ) {
     return 0;
   }
+
+  if( len < 0 ) {
+    len = strlen( to_compare );
+  }
+
+  if( str->d->length != len ) {
+    return 0;
+  }
+
   return memcmp( webvtt_string_text( str ), to_compare, len ) == 0;
 }
 

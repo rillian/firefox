@@ -596,10 +596,6 @@ webvtt_cuetext_tokenizer( webvtt_byte **position, webvtt_cuetext_token **token )
         status = webvtt_timestamp_state( position, &token_state, &result );
         break;
     }
-
-    if( token_state == START_TAG_ANNOTATION ) {
-      webvtt_skipwhite( position );
-    }
   }
 
   if( **position == UTF8_GREATER_THAN )
@@ -754,7 +750,6 @@ webvtt_parse_cuetext( webvtt_parser self, webvtt_cue *cue, webvtt_string *payloa
         }
       }
     }
-    webvtt_skipwhite( &position );
   }
   
   webvtt_delete_token( &token );
