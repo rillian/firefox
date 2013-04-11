@@ -3718,25 +3718,25 @@ NS_IMETHODIMP HTMLMediaElement::CanPlayChanged(bool canPlay)
   return NS_OK;
 }
 
-/* readonly attribute nsISupports textTracks; */
-already_AddRefed<mozilla::dom::TextTrackList>
+/* readonly attribute TextTrackList textTracks; */
+TextTrackList*
 HTMLMediaElement::TextTracks() const
 {
-  return mTextTracks.get();
+  return mTextTracks;
 }
 
 /* readonly attribute nsISupports textTracks; */
 NS_IMETHODIMP
 HTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
 {
-  *aTextTracks = this->TextTracks().get();
+  *aTextTracks = this->TextTracks();
   return NS_OK;
 }
 
-already_AddRefed<mozilla::dom::TextTrack>
+already_AddRefed<TextTrack>
 HTMLMediaElement::AddTextTrack(const nsAString& aKind,
-                               const NonNull<nsAString>& aLabel,
-                               const NonNull<nsAString>& aLanguage)
+                               const nsAString& aLabel,
+                               const nsAString& aLanguage)
 {
   return mTextTracks->AddTextTrack(aKind, aLabel, aLanguage);
 }

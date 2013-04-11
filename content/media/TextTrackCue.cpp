@@ -6,9 +6,9 @@
 #include "TextTrackCue.h"
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "mozilla/dom/HTMLMediaElement.h"
-#include "webvtt/string.h"
 #include "nsIFrame.h"
 #include "nsVideoFrame.h"
+#include "webvtt/string.h"
 
 namespace mozilla {
 namespace dom {
@@ -104,7 +104,7 @@ TextTrackCue::GetCueAsHTML()
   nsRefPtr<DocumentFragment> frag =
     mTrackElement->OwnerDoc()->CreateDocumentFragment(rv);
     
-  // TODO: Should this happen?  
+  // TODO: Should this happen?
   if (!frag.get()) {
     return nullptr;
   }

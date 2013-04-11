@@ -6,7 +6,7 @@
 #include "TextTrackCueList.h"
 #include "mozilla/dom/TextTrackCueListBinding.h"
 #include "mozilla/dom/TextTrackCue.h"
- 
+
 namespace mozilla {
 namespace dom {
 
@@ -25,16 +25,11 @@ TextTrackCueList::TextTrackCueList(nsISupports* aParent) : mParent(aParent)
   SetIsDOMBinding();
 }
 
-TextTrackCueList::~TextTrackCueList()
-{
-  mParent = nullptr;
-}
-
 void
 TextTrackCueList::Update(double time)
 {
-  uint32_t i, length = mList.Length();
-  for (i = 0; i < length; i++) {
+  const uint32_t length = mList.Length();
+  for (uint32_t i = 0; i < length; i++) {
     if (time > mList[i]->StartTime() && time < mList[i]->EndTime()) {
       mList[i]->RenderCue();
     }
@@ -55,16 +50,16 @@ TextTrackCueList::IndexedGetter(uint32_t aIndex, bool& aFound)
 }
 
 TextTrackCue*
-TextTrackCueList::GetCueById(const nsAString& id)
+TextTrackCueList::GetCueById(const nsAString& aId)
 {
-  if(id.EqualsLiteral("")) {
+  if(aId.IsEmpty()) {
     return nullptr;
   }
 
   for (uint32_t i = 0; i < mList.Length(); i++) {
     nsString tid;
     mList[i]->GetId(tid);
-    if (id.Equals(tid)) {
+    if (aId.Equals(tid)) {
       return mList[i];
     }
   }

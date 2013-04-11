@@ -122,6 +122,7 @@ webidl_files = \
   HTMLPropertiesCollection.webidl \
   HTMLQuoteElement.webidl \
   HTMLScriptElement.webidl \
+  HTMLSourceElement.webidl \
   HTMLSpanElement.webidl \
   HTMLStyleElement.webidl \
   HTMLTableCaptionElement.webidl \
@@ -132,6 +133,7 @@ webidl_files = \
   HTMLTableSectionElement.webidl \
   HTMLTemplateElement.webidl \
   HTMLTextAreaElement.webidl \
+  HTMLTrackElement.webidl \
   HTMLTimeElement.webidl \
   HTMLTitleElement.webidl \
   HTMLUListElement.webidl \
@@ -143,6 +145,7 @@ webidl_files = \
   LinkStyle.webidl \
   LocalMediaStream.webidl \
   Location.webidl \
+  MediaError.webidl \
   MediaStream.webidl \
   MessageEvent.webidl \
   MouseEvent.webidl \
@@ -270,6 +273,10 @@ webidl_files = \
   Text.webidl \
   TextDecoder.webidl \
   TextEncoder.webidl \
+  TextTrack.webidl \
+  TextTrackList.webidl \
+  TextTrackCue.webidl \
+  TextTrackCueList.webidl \
   TimeRanges.webidl \
   TransitionEvent.webidl \
   TreeWalker.webidl \
@@ -300,13 +307,6 @@ webidl_files += \
   $(NULL)
 endif
 
-ifdef MOZ_MEDIA
-webidl_files += \
-  HTMLSourceElement.webidl \
-  MediaError.webidl \
-  $(NULL)
-endif
-
 ifdef MOZ_WEBGL
 webidl_files += \
   WebGLRenderingContext.webidl \
@@ -328,16 +328,6 @@ webidl_files += \
     SpeechRecognitionResult.webidl \
     SpeechRecognition.webidl \
     $(NULL)
-endif
-
-ifdef MOZ_WEBVTT
-webidl_files += \
-  HTMLTrackElement.webidl \
-  TextTrack.webidl \
-  TextTrackList.webidl \
-  TextTrackCue.webidl \
-  TextTrackCueList.webidl \
-  $(NULL)
 endif
 
 ifdef ENABLE_TESTS

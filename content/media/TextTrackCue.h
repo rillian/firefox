@@ -1,8 +1,8 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim:set ts=2 sw=2 et tw=78: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef mozilla_dom_TextTrackCue_h
 #define mozilla_dom_TextTrackCue_h
@@ -10,11 +10,11 @@
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
 
-#include "mozilla/dom/TextTrackCueBinding.h"
 #include "TextTrack.h"
-#include "nsCycleCollectionParticipant.h"
+#include "mozilla/dom/TextTrackCueBinding.h"
 #include "mozilla/dom/DocumentFragment.h"
 #include "mozilla/dom/HTMLTrackElement.h"
+#include "nsCycleCollectionParticipant.h"
 #include "nsDOMEventTargetHelper.h"
 #include "webvtt/node.h"
 
@@ -49,10 +49,6 @@ public:
   TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
                const double aEndTime, const nsAString& aText,
                HTMLTrackElement *aTrackElement, webvtt_node *head);
-
-  ~TextTrackCue()
-  {
-  }
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
@@ -153,18 +149,18 @@ public:
     CueChanged();
   }
 
-  double Line()
+  double Line() const
   {
     return mLine;
   }
 
-  void SetLine(double value)
+  void SetLine(double aLine)
   {
     //XXX: validate?
-    mLine = value;
+    mLine = aLine;
   }
 
-  int32_t Position()
+  int32_t Position() const
   {
     return mPosition;
   }
@@ -179,7 +175,7 @@ public:
     CueChanged();
   }
 
-  int32_t Size()
+  int32_t Size() const
   {
     return mSize;
   }
@@ -233,7 +229,7 @@ public:
   void RenderCue();
   already_AddRefed<DocumentFragment> GetCueAsHTML();
   nsCOMPtr<nsIContent> ConvertNodeToCueTextContent(const webvtt_node *aWebVTTNode);
-  
+
   IMPL_EVENT_HANDLER(enter)
   IMPL_EVENT_HANDLER(exit)
 

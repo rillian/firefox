@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "MediaDecoder.h"
 #include "WebVTTLoadListener.h"
+#include "mozilla/dom/HTMLTrackElement.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackCue.h"
 #include "mozilla/dom/TextTrackCueList.h"
@@ -50,7 +50,7 @@ WebVTTLoadListener::LoadResource()
   webvtt_parser_t *parser = 0;
   webvtt_status status;
 
-  if (!MediaDecoder::IsWebVTTEnabled()) {
+  if (!HTMLTrackElement::IsWebVTTEnabled()) {
     NS_WARNING("WebVTT support disabled."
                " See media.webvtt.enabled in about:config. ");
     return NS_ERROR_FAILURE;

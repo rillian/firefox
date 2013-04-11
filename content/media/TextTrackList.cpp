@@ -24,11 +24,6 @@ TextTrackList::TextTrackList(nsISupports* aGlobal) : mGlobal(aGlobal)
   SetIsDOMBinding();
 }
 
-TextTrackList::~TextTrackList()
-{
-  mGlobal = nullptr;
-}
-
 JSObject*
 TextTrackList::WrapObject(JSContext* aCx, JSObject* aScope)
 {

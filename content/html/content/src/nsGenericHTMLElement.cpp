@@ -3362,7 +3362,7 @@ nsGenericHTMLElement::IsEventAttributeName(nsIAtom *aName)
 /** copied from nsHTMLMediaElement::NewURIFromString */
 nsresult
 nsGenericHTMLElement::NewURIFromString(const nsAutoString& aURISpec,
-				   nsIURI** aURI)
+                                       nsIURI** aURI)
 {
   NS_ENSURE_ARG_POINTER(aURI);
 
@@ -3372,7 +3372,7 @@ nsGenericHTMLElement::NewURIFromString(const nsAutoString& aURISpec,
 
   nsCOMPtr<nsIURI> baseURI = GetBaseURI();
   nsresult rv = nsContentUtils::NewURIWithDocumentCharset(aURI, aURISpec,
-							  doc, baseURI);
+                                                          doc, baseURI);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool equal;

@@ -47,6 +47,16 @@ EXPORTS = \
   MediaMetadataManager.h \
   $(NULL)
 
+EXPORTS_NAMESPACES += \
+  mozilla/dom \
+  $(NULL)
+
+EXPORTS_mozilla/dom = \
+  TextTrack.h \
+  TextTrackList.h \
+  TextTrackCue.h \
+  TextTrackCueList.h \
+
 CPPSRCS = \
   AudioChannelFormat.cpp \
   AudioNodeEngine.cpp \
@@ -64,31 +74,18 @@ CPPSRCS = \
   MediaDecoderReader.cpp \
   MediaCache.cpp \
   StreamBuffer.cpp \
+  TextTrack.cpp \
+  TextTrackList.cpp \
+  TextTrackCue.cpp \
+  TextTrackCueList.cpp \
   VideoFrameContainer.cpp \
   VideoSegment.cpp \
   VideoUtils.cpp \
   $(NULL)
 
-ifdef MOZ_WEBVTT
-EXPORTS_NAMESPACES += \
-  mozilla/dom \
-  $(NULL)
-EXPORTS_mozilla/dom = \
-  TextTrack.h \
-  TextTrackList.h \
-  TextTrackCue.h \
-  TextTrackCueList.h \
-  $(NULL)
-CPPSRCS += \
-  TextTrack.cpp \
-  TextTrackList.cpp \
-  TextTrackCue.cpp \
-  TextTrackCueList.cpp \
-  $(NULL)
 LOCAL_INCLUDES += \
   $(topsrcdir)/content/html/content/src \
   $(NULL)
-endif
 
 FORCE_STATIC_LIB = 1
 
@@ -96,11 +93,10 @@ include $(topsrcdir)/config/config.mk
 include $(topsrcdir)/ipc/chromium/chromium-config.mk
 include $(topsrcdir)/config/rules.mk
 
-INCLUDES	+= \
+INCLUDES       += \
                 -I$(srcdir)/../../layout/xul/base/src \
                 -I$(srcdir)/../../layout/generic \
                 $(NULL)
-
 
 DEFINES  += -D_IMPL_NS_LAYOUT
 CFLAGS   += $(GSTREAMER_CFLAGS)

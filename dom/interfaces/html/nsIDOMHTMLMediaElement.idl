@@ -79,10 +79,6 @@ interface nsIDOMHTMLMediaElement : nsIDOMHTMLElement
            attribute boolean muted;
            attribute boolean defaultMuted;
 
-  // tracks
-  //readonly attribute TextTrackList textTracks;
-  //TextTrack addTextTrack(in DOMString kind, [optional] in DOMString label, [optional] in DOMString language);
-
   // Mozilla extension: stream capture
   nsIDOMMediaStream mozCaptureStream();
   nsIDOMMediaStream mozCaptureStreamUntilEnded();

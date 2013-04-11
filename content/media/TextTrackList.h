@@ -1,8 +1,8 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim:set ts=2 sw=2 et tw=78: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef mozilla_dom_TextTrackList_h
 #define mozilla_dom_TextTrackList_h
@@ -26,23 +26,20 @@ public:
 
   // TextTrackList
   TextTrackList(nsISupports* aGlobal);
-  ~TextTrackList();
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
-  nsISupports* GetParentObject()
+  nsISupports* GetParentObject() const
   {
     return mGlobal;
   }
 
-  uint32_t
-  Length()
+  uint32_t Length() const
   {
     return mTextTracks.Length();
   }
 
   void Update(double time);
-  
   TextTrack* IndexedGetter(uint32_t aIndex, bool& aFound);
 
   already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,

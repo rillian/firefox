@@ -109,28 +109,38 @@ public:
   {
     GetSrc(aText);
   }
-  virtual void SetItemValueText(const nsAString& aText) {
+  virtual void SetItemValueText(const nsAString& aText)
+  {
     ErrorResult rv;
     SetSrc(aText, rv);
   }
 
   // Override BindToTree() so that we can trigger a load when we add a
   // child track element.
-  virtual nsresult BindToTree(nsIDocument* aDocument, nsIContent* aParent,
-                              nsIContent* aBindingParent, bool aCompileEventHandlers);
+  virtual nsresult BindToTree(nsIDocument* aDocument,
+                              nsIContent* aParent,
+                              nsIContent* aBindingParent,
+                              bool aCompileEventHandlers);
 
-  uint32_t GetCurrentLoadID() { return mCurrentLoadID; }
+  uint32_t GetCurrentLoadID() const
+  {
+    return mCurrentLoadID;
+  }
+
+  // Check enabling preference.
+  static bool IsWebVTTEnabled();
 
 protected:
   virtual JSObject* WrapNode(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
   friend class WebVTTLoadListener;
   friend class TextTrackCue;
-  uint32_t mCurrentLoadID;
+
   nsRefPtr<TextTrack> mTrack;
   nsRefPtr<WebVTTLoadListener> mLoadListener;
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
+  uint32_t mCurrentLoadID;
   uint16_t mReadyState;
 
   nsresult LoadResource(nsIURI* aURI);

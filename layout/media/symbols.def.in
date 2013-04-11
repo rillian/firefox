@@ -555,9 +555,7 @@ hb_unicode_funcs_set_eastasian_width_func
 hb_unicode_funcs_set_general_category_func
 hb_unicode_funcs_set_mirroring_func
 hb_unicode_funcs_set_script_func
-#ifdef MOZ_WEBVTT
 webvtt_string_text
 webvtt_create_parser
 webvtt_delete_parser
 webvtt_parse_chunk
-#endif

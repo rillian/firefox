@@ -28,9 +28,9 @@
 #include "MediaMetadataManager.h"
 #include "AudioChannelAgent.h"
 #include "mozilla/Attributes.h"
-#include "mozilla/ErrorResult.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackList.h"
+#include "mozilla/ErrorResult.h"
 
 // Define to output information on decoding and painting framerate
 /* #define DEBUG_FRAME_RATE 1 */
@@ -509,6 +509,16 @@ public:
   void SetMozAudioChannelType(const nsAString& aValue, ErrorResult& aRv)
   {
     SetHTMLAttr(nsGkAtoms::mozaudiochannel, aValue, aRv);
+  }
+
+  TextTrackList* TextTracks() const;
+
+  already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,
+                                           const nsAString& aLabel,
+                                           const nsAString& aLanguage);
+
+  void AddTextTrack(TextTrack* aTextTrack) {
+    mTextTracks->AddTextTrack(aTextTrack);
   }
 
 protected:
@@ -1088,19 +1098,7 @@ protected:
   nsCOMPtr<nsIAudioChannelAgent> mAudioChannelAgent;
 
   // List of our attached text track objects.
-  nsRefPtr<mozilla::dom::TextTrackList> mTextTracks;
-
-public:
-
-  already_AddRefed<mozilla::dom::TextTrackList> TextTracks() const;
-
-  already_AddRefed<mozilla::dom::TextTrack> AddTextTrack(const nsAString& aKind,
-                                                         const NonNull<nsAString>& aLabel,
-                                                         const NonNull<nsAString>& aLanguage);
-
-  void AddTextTrack(mozilla::dom::TextTrack* aTextTrack) {
-    mTextTracks->AddTextTrack(aTextTrack);
-  }
+  nsRefPtr<TextTrackList> mTextTracks;
 };
 
 } // namespace dom

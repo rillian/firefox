@@ -69,6 +69,7 @@ EXPORTS_mozilla/dom = \
 		HTMLSharedElement.h \
 		HTMLSharedListElement.h \
 		HTMLSharedObjectElement.h \
+		HTMLSourceElement.h \
 		HTMLSpanElement.h \
 		HTMLStyleElement.h \
 		HTMLTableCaptionElement.h \
@@ -81,7 +82,9 @@ EXPORTS_mozilla/dom = \
 		HTMLTextAreaElement.h \
 		HTMLTimeElement.h \
 		HTMLTitleElement.h \
+		HTMLTrackElement.h \
 		HTMLUnknownElement.h \
+		MediaError.h \
 		TimeRanges.h \
 		UndoManager.h \
 		ValidityState.h \
@@ -98,6 +101,7 @@ CPPSRCS		= \
 		HTMLElement.cpp \
 		HTMLAnchorElement.cpp \
 		HTMLAreaElement.cpp \
+		HTMLAudioElement.cpp \
 		HTMLBRElement.cpp \
 		HTMLBodyElement.cpp \
 		HTMLButtonElement.cpp \
@@ -120,6 +124,7 @@ CPPSRCS		= \
 		HTMLLegendElement.cpp \
 		HTMLLinkElement.cpp \
 		HTMLMapElement.cpp \
+		HTMLMediaElement.cpp \
 		HTMLMenuElement.cpp \
 		HTMLMenuItemElement.cpp \
 		HTMLMetaElement.cpp \
@@ -138,6 +143,7 @@ CPPSRCS		= \
 		nsHTMLSelectElement.cpp \
 		HTMLSharedElement.cpp \
 		HTMLSharedListElement.cpp \
+		HTMLSourceElement.cpp \
 		HTMLSpanElement.cpp \
 		HTMLStyleElement.cpp \
 		HTMLTableElement.cpp \
@@ -150,32 +156,18 @@ CPPSRCS		= \
 		HTMLTextAreaElement.cpp \
 		HTMLTimeElement.cpp \
 		HTMLTitleElement.cpp \
+		HTMLTrackElement.cpp \
+		HTMLVideoElement.cpp \
 		HTMLUnknownElement.cpp \
+		MediaError.cpp \
+		TimeRanges.cpp \
 		ValidityState.cpp \
 		nsIConstraintValidation.cpp \
 		nsRadioVisitor.cpp \
 		nsDOMStringMap.cpp \
 		UndoManager.cpp \
-		$(NULL)
-
-ifdef MOZ_MEDIA
-EXPORTS_mozilla/dom += \
-		HTMLSourceElement.h \
-		HTMLTrackElement.h \
-		MediaError.h \
-		$(NULL)
-
-CPPSRCS		+= \
-		HTMLAudioElement.cpp \
-		HTMLMediaElement.cpp \
-		MediaError.cpp \
-		HTMLSourceElement.cpp \
-		TimeRanges.cpp \
-		HTMLVideoElement.cpp \
-		HTMLTrackElement.cpp \
 		WebVTTLoadListener.cpp \
 		$(NULL)
-endif
 
 # we don't want the shared lib, but we want to force the creation of a static lib.
 FORCE_STATIC_LIB = 1
