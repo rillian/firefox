@@ -133,9 +133,7 @@ tier_platform_dirs += \
 		$(NULL)
 endif
 
-ifdef MOZ_WEBVTT
 tier_platform_dirs += media/webvtt
-endif
 
 ifdef MOZ_SYDNEYAUDIO
 tier_platform_dirs += \

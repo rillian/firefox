@@ -15,7 +15,6 @@
 #include "webvtt/util.h"
 #include "nsAutoRef.h"
 
-// We might want to look into using #if defined(MOZ_WEBVTT)
 template <>
 class nsAutoRefTraits<webvtt_parser_t> : public nsPointerRefTraits<webvtt_parser_t>
 {
