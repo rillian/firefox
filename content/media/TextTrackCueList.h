@@ -50,7 +50,7 @@ public:
 private:
   nsCOMPtr<nsISupports> mParent;
 
-  nsTArray<nsRefPtr<TextTrackCue>> mList;
+  nsTArray< nsRefPtr<TextTrackCue> > mList;
 };
 
 } // namespace dom
