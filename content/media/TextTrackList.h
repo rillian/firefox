@@ -22,9 +22,7 @@ public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_CLASS_INHERITED(TextTrackList,
                                                          nsDOMEventTargetHelper)
-  NS_FORWARD_NSIDOMEVENTTARGET(nsDOMEventTargetHelper::)
 
-  // TextTrackList
   TextTrackList(nsISupports* aGlobal);
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
