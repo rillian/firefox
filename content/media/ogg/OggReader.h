@@ -220,6 +220,11 @@ private:
   // audio queue.
   nsresult DecodeOpus(ogg_packet* aPacket);
 
+  // Downmix multichannel Audio samples to stereo. It is used from Vorbis and Opus.
+  // Input are the buffer with multichannel data and the number of channels.
+  void StereoDownmix(nsAutoArrayPtr<AudioDataValue>& buffer,
+                     uint32_t& channel, int32_t frames);
+
   // Decodes a packet of Theora data, and inserts its frame into the
   // video queue. May return NS_ERROR_OUT_OF_MEMORY. Caller must have obtained
   // the reader's monitor. aTimeThreshold is the current playback position
