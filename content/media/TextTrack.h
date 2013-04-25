@@ -31,7 +31,7 @@ public:
 
   TextTrack(nsISupports* aParent);
   TextTrack(nsISupports* aParent,
-            const TextTrackKind aKind,
+            TextTrackKind aKind,
             const nsAString& aLabel,
             const nsAString& aLanguage);
 

@@ -212,31 +212,24 @@ HTMLTrackElement::CreateTextTrack()
   }
 }
 
-// Map html attribute string values to TextTrackKind enums.
-static const nsAttrValue::EnumTable kKindTable[] = {
-  { "subtitles", TextTrackKindValues::Subtitles },
-  { "captions", TextTrackKindValues::Captions },
-  { "descriptions", TextTrackKindValues::Descriptions },
-  { "chapters", TextTrackKindValues::Chapters },
-  { "metadata", TextTrackKindValues::Metadata },
-  { 0 }
-};
-
-TextTrackKind Kind()
+TextTrackKind
+HTMLTrackElement::Kind() const
 {
-  nsAttrValue* value = GetParsedAttr(nsGkAtoms::kind);
-  if (!nsAttrValue) {
-    return TextTrackKindValues::Subtitles;
+  const nsAttrValue* value = GetParsedAttr(nsGkAtoms::kind);
+  if (!value) {
+    return TextTrackKind::Subtitles;
   }
-  return value.GetEnumValue();
+  return static_cast<TextTrackKind>(value->GetEnumValue());
 }
 
-void SetKind(TextTrackKind aKind, ErrorResult& aError)
+void
+HTMLTrackElement::SetKind(TextTrackKind aKind, ErrorResult& aError)
 {
-  nsAttrValue kind;
+  const EnumEntry& string = TextTrackKindValues::strings[aKind];
+  nsAutoString kind;
 
-  kind.SetTo(aKind);
-  aError = SetHTMLAttr(kind);
+  kind.AssignASCII(string.value, string.length);
+  SetHTMLAttr(nsGkAtoms::kind, kind, aError);
 }
 
 bool
@@ -245,6 +238,16 @@ HTMLTrackElement::ParseAttribute(int32_t aNamespaceID,
                                  const nsAString& aValue,
                                  nsAttrValue& aResult)
 {
+  // Map html attribute string values to TextTrackKind enums.
+  static const nsAttrValue::EnumTable kKindTable[] = {
+    { "subtitles", TextTrackKindValues::Subtitles },
+    { "captions", TextTrackKindValues::Captions },
+    { "descriptions", TextTrackKindValues::Descriptions },
+    { "chapters", TextTrackKindValues::Chapters },
+    { "metadata", TextTrackKindValues::Metadata },
+    { 0 }
+  };
+
   if (aNamespaceID == kNameSpaceID_None && aAttribute == nsGkAtoms::kind) {
     // Case-insensitive lookup, with the first element as the default.
     return aResult.ParseEnumValue(aValue, kKindTable, false, kKindTable);

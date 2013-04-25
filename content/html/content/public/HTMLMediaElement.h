@@ -513,7 +513,7 @@ public:
 
   TextTrackList* TextTracks() const;
 
-  already_AddRefed<TextTrack> AddTextTrack(const nsAString& aKind,
+  already_AddRefed<TextTrack> AddTextTrack(TextTrackKind aKind,
                                            const nsAString& aLabel,
                                            const nsAString& aLanguage);
 

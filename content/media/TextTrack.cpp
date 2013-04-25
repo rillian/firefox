@@ -21,7 +21,7 @@ NS_IMPL_ADDREF_INHERITED(TextTrack, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrack, nsDOMEventTargetHelper)
 
 TextTrack::TextTrack(nsISupports* aParent,
-                     const TextTrackKind aKind,
+                     TextTrackKind aKind,
                      const nsAString& aLabel,
                      const nsAString& aLanguage)
   : mParent(aParent)
