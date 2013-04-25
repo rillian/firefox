@@ -3732,30 +3732,12 @@ HTMLMediaElement::TextTracks() const
   return mTextTracks;
 }
 
-/* readonly attribute nsISupports textTracks; */
-NS_IMETHODIMP
-HTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
-{
-  *aTextTracks = this->TextTracks();
-  return NS_OK;
-}
-
 already_AddRefed<TextTrack>
 HTMLMediaElement::AddTextTrack(TextTrackKind aKind,
                                const nsAString& aLabel,
                                const nsAString& aLanguage)
 {
   return mTextTracks->AddTextTrack(aKind, aLabel, aLanguage);
-}
-
-NS_IMETHODIMP
-HTMLMediaElement::AddTextTrack(TextTrackKind aKind,
-                               const nsAString& aLabel,
-                               const nsAString& aLanguage,
-                               nsISupports** _retval)
-{
-  NS_ADDREF(*_retval = mTextTracks->AddTextTrack(aKind, aLabel, aLanguage).get());
-  return NS_OK;
 }
 
 } // namespace dom
