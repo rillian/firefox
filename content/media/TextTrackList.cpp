@@ -38,7 +38,7 @@ TextTrackList::IndexedGetter(uint32_t aIndex, bool& aFound)
 }
 
 already_AddRefed<TextTrack>
-TextTrackList::AddTextTrack(const nsAString& aKind,
+TextTrackList::AddTextTrack(TextTrackKind aKind,
                             const nsAString& aLabel,
                             const nsAString& aLanguage)
 {

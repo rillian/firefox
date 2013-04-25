@@ -7,6 +7,14 @@
  * http://www.whatwg.org/specs/web-apps/current-work/#texttrack
  */
 
+enum TextTrackKind {
+  "subtitles",
+  "captions",
+  "descriptions",
+  "chapters",
+  "metadata"
+};
+
 enum TextTrackMode {
   "disabled",
   "hidden",
@@ -15,7 +23,7 @@ enum TextTrackMode {
 
 [Pref="media.webvtt.enabled"]
 interface TextTrack : EventTarget {
-  readonly attribute DOMString kind;
+  readonly attribute TextTrackKind kind;
   readonly attribute DOMString label;
   readonly attribute DOMString language;
   readonly attribute DOMString inBandMetadataTrackDispatchType;

@@ -46,14 +46,8 @@ public:
   NS_FORWARD_NSIDOMHTMLELEMENT_TO_GENERIC
 
   // HTMLTrackElement WebIDL
-  void GetKind(nsAString& aKind) const
-  {
-    GetHTMLAttr(nsGkAtoms::kind, aKind);
-  }
-  void SetKind(const nsAString& aKind, ErrorResult& aError)
-  {
-    SetHTMLAttr(nsGkAtoms::kind, aKind, aError);
-  }
+  TextTrackKind Kind() const;
+  void SetKind(TextTrackKind aKind, ErrorResult& aError);
 
   void GetSrc(nsAString& aSrc) const
   {
@@ -115,8 +109,14 @@ public:
     SetSrc(aText, rv);
   }
 
-  // Override BindToTree() so that we can trigger a load when we add a
-  // child track element.
+  // Override ParseAttribute() to convert kind strings to enum values.
+  virtual bool ParseAttribute(int32_t aNamespaceID,
+                              nsIAtom* aAttribute,
+                              const nsAString& aValue,
+                              nsAttrValue& aResult);
+
+  // Override BindToTree() so that we can trigger a load when we become
+  // the child of a media element.
   virtual nsresult BindToTree(nsIDocument* aDocument,
                               nsIContent* aParent,
                               nsIContent* aBindingParent,

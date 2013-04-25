@@ -21,7 +21,7 @@ NS_IMPL_ADDREF_INHERITED(TextTrack, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrack, nsDOMEventTargetHelper)
 
 TextTrack::TextTrack(nsISupports* aParent,
-                     const nsAString& aKind,
+                     const TextTrackKind aKind,
                      const nsAString& aLabel,
                      const nsAString& aLanguage)
   : mParent(aParent)
@@ -37,7 +37,7 @@ TextTrack::TextTrack(nsISupports* aParent,
 
 TextTrack::TextTrack(nsISupports* aParent)
   : mParent(aParent)
-  , mKind(NS_LITERAL_STRING("subtitles"))
+  , mKind(TextTrackKind::Subtitles)
   , mMode(TextTrackMode::Disabled)
   , mCueList(new TextTrackCueList(aParent))
   , mActiveCueList(new TextTrackCueList(aParent))

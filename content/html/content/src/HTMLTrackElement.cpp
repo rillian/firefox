@@ -5,6 +5,7 @@
 
 #include "HTMLTrackElement.h"
 #include "HTMLUnknownElement.h"
+#include "mozilla/dom/Element.h"
 #include "mozilla/dom/HTMLMediaElement.h"
 #include "mozilla/dom/HTMLTrackElementBinding.h"
 #include "nsCOMPtr.h"
@@ -197,14 +198,10 @@ HTMLTrackElement::DisplayCueText(webvtt_node* head)
 void
 HTMLTrackElement::CreateTextTrack()
 {
-  nsString kind, label, srcLang;
-  GetKind(kind);
+  nsString label, srcLang;
   GetSrclang(srcLang);
   GetLabel(label);
-  mTrack = new TextTrack(OwnerDoc()->GetParentObject(),
-                         kind,
-                         label,
-                         srcLang);
+  mTrack = new TextTrack(OwnerDoc()->GetParentObject(), Kind(), label, srcLang);
 
   nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
   if (domMediaElem) {
@@ -213,6 +210,51 @@ HTMLTrackElement::CreateTextTrack()
       mediaElem->AddTextTrack(mTrack);
     }
   }
+}
+
+// Map html attribute string values to TextTrackKind enums.
+static const nsAttrValue::EnumTable kKindTable[] = {
+  { "subtitles", TextTrackKindValues::Subtitles },
+  { "captions", TextTrackKindValues::Captions },
+  { "descriptions", TextTrackKindValues::Descriptions },
+  { "chapters", TextTrackKindValues::Chapters },
+  { "metadata", TextTrackKindValues::Metadata },
+  { 0 }
+};
+
+TextTrackKind Kind()
+{
+  nsAttrValue* value = GetParsedAttr(nsGkAtoms::kind);
+  if (!nsAttrValue) {
+    return TextTrackKindValues::Subtitles;
+  }
+  return value.GetEnumValue();
+}
+
+void SetKind(TextTrackKind aKind, ErrorResult& aError)
+{
+  nsAttrValue kind;
+
+  kind.SetTo(aKind);
+  aError = SetHTMLAttr(kind);
+}
+
+bool
+HTMLTrackElement::ParseAttribute(int32_t aNamespaceID,
+                                 nsIAtom* aAttribute,
+                                 const nsAString& aValue,
+                                 nsAttrValue& aResult)
+{
+  if (aNamespaceID == kNameSpaceID_None && aAttribute == nsGkAtoms::kind) {
+    // Case-insensitive lookup, with the first element as the default.
+    return aResult.ParseEnumValue(aValue, kKindTable, false, kKindTable);
+  }
+
+  // Otherwise call the generic implementation.
+  return nsGenericHTMLElement::ParseAttribute(aNamespaceID,
+                                              aAttribute,
+                                              aValue,
+                                              aResult);
 }
 
 nsresult

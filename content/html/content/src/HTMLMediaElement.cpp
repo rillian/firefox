@@ -3741,7 +3741,7 @@ HTMLMediaElement::GetTextTracks(nsISupports** aTextTracks)
 }
 
 already_AddRefed<TextTrack>
-HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+HTMLMediaElement::AddTextTrack(TextTrackKind aKind,
                                const nsAString& aLabel,
                                const nsAString& aLanguage)
 {
@@ -3749,7 +3749,7 @@ HTMLMediaElement::AddTextTrack(const nsAString& aKind,
 }
 
 NS_IMETHODIMP
-HTMLMediaElement::AddTextTrack(const nsAString& aKind,
+HTMLMediaElement::AddTextTrack(TextTrackKind aKind,
                                const nsAString& aLabel,
                                const nsAString& aLanguage,
                                nsISupports** _retval)

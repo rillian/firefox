@@ -31,7 +31,7 @@ public:
 
   TextTrack(nsISupports* aParent);
   TextTrack(nsISupports* aParent,
-            const nsAString& aKind,
+            const TextTrackKind aKind,
             const nsAString& aLabel,
             const nsAString& aLanguage);
 
@@ -42,9 +42,9 @@ public:
     return mParent;
   }
 
-  void GetKind(nsAString& aKind) const
+  TextTrackKind Kind() const
   {
-    aKind = mKind;
+    return mKind;
   }
   void GetLabel(nsAString& aLabel) const
   {
@@ -92,7 +92,7 @@ public:
 private:
   nsCOMPtr<nsISupports> mParent;
 
-  nsString mKind;
+  TextTrackKind mKind;
   nsString mLabel;
   nsString mLanguage;
   nsString mType;
