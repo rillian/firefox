@@ -292,9 +292,9 @@ webidl_files = \
   TextDecoder.webidl \
   TextEncoder.webidl \
   TextTrack.webidl \
-  TextTrackList.webidl \
   TextTrackCue.webidl \
   TextTrackCueList.webidl \
+  TextTrackList.webidl \
   TimeRanges.webidl \
   Touch.webidl \
   TouchEvent.webidl \
