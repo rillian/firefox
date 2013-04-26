@@ -4,7 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  * The origin of this IDL file is
- * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#texttracklist
+ * http://www.whatwg.org/specs/web-apps/current-work/#texttracklist
  */
 
 [Pref="media.webvtt.enabled"]
