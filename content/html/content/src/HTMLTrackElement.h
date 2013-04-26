@@ -9,14 +9,15 @@
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
 
-#include "nsIDOMHTMLElement.h"
-#include "nsIDOMEventTarget.h"
+#include "mozilla/dom/TextTrack.h"
+#include "nsCycleCollectionParticipant.h"
 #include "nsGenericHTMLElement.h"
+#include "nsGkAtoms.h"
 #include "nsIContent.h"
 #include "nsIDocument.h"
+#include "nsIDOMHTMLElement.h"
+#include "nsIDOMEventTarget.h"
 #include "nsIHttpChannel.h"
-#include "nsGkAtoms.h"
-#include "mozilla/dom/TextTrack.h"
 #include "webvtt/node.h"
 
 namespace mozilla {
