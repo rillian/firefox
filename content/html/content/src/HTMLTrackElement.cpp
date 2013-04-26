@@ -3,14 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "HTMLTrackElement.h"
-#include "HTMLUnknownElement.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/HTMLMediaElement.h"
+#include "mozilla/dom/HTMLTrackElement.h"
 #include "mozilla/dom/HTMLTrackElementBinding.h"
+#include "mozilla/dom/HTMLUnknownElement.h"
 #include "nsCOMPtr.h"
 #include "nsContentPolicyUtils.h"
 #include "nsContentUtils.h"
+#include "nsCycleCollectionParticipant.h"
 #include "nsGenericHTMLElement.h"
 #include "nsGkAtoms.h"
 #include "nsIAsyncVerifyRedirectCallback.h"
@@ -79,17 +80,10 @@ HTMLTrackElement::~HTMLTrackElement()
 {
 }
 
+NS_IMPL_ELEMENT_CLONE(HTMLTrackElement)
+
 NS_IMPL_ADDREF_INHERITED(HTMLTrackElement, Element)
 NS_IMPL_RELEASE_INHERITED(HTMLTrackElement, Element)
-
-NS_INTERFACE_TABLE_HEAD(HTMLTrackElement)
-  NS_HTML_CONTENT_INTERFACE_TABLE1(HTMLTrackElement,
-                                   nsIDOMHTMLElement)
-  NS_HTML_CONTENT_INTERFACE_TABLE_TO_MAP_SEGUE(HTMLTrackElement,
-                                               nsGenericHTMLElement)
-NS_HTML_CONTENT_INTERFACE_MAP_END
-
-NS_IMPL_ELEMENT_CLONE(HTMLTrackElement)
 
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN_INHERITED(HTMLTrackElement, nsGenericHTMLElement)
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mTrack)
@@ -103,7 +97,9 @@ NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(HTMLTrackElement, nsGenericHTMLE
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mMediaParent)
 NS_IMPL_CYCLE_COLLECTION_UNLINK_END
 
-// TODO: NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED?
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(HTMLTrackElement)
+  NS_INTERFACE_MAP_ENTRY(nsIDOMHTMLElement)
+NS_INTERFACE_MAP_END_INHERITING(nsGenericHTMLElement)
 
 JSObject*
 HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope)
@@ -138,9 +134,8 @@ HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
     return aChannel->SetRequestHeader(NS_LITERAL_CSTRING("Accept"),
                                       value,
                                       false);
-  } else {
-    return NS_ERROR_NOT_IMPLEMENTED;
   }
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 
@@ -157,7 +152,7 @@ HTMLTrackElement::LoadResource(nsIURI* aURI)
   rv = NS_CheckContentLoadPolicy(nsIContentPolicy::TYPE_MEDIA,
                                  aURI,
                                  NodePrincipal(),
-                                 static_cast<nsGenericHTMLElement*>(this),
+                                 ToSupports(this),
                                  EmptyCString(), // mime type
                                  nullptr, // extra
                                  &shouldLoad,
@@ -297,7 +292,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 
   // Store our parent so we can look up its frame for display.
   if (!mMediaParent) {
-    mMediaParent = do_QueryInterface(aParent);
+    mMediaParent = static_cast<HTMLMediaElement*>(aParent);
 
     HTMLMediaElement* media = static_cast<HTMLMediaElement*>(aParent);
     // TODO: separate notification for 'alternate' tracks?

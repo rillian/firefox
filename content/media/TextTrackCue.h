@@ -10,10 +10,10 @@
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
 
-#include "TextTrack.h"
-#include "mozilla/dom/TextTrackCueBinding.h"
 #include "mozilla/dom/DocumentFragment.h"
 #include "mozilla/dom/HTMLTrackElement.h"
+#include "mozilla/dom/TextTrack.h"
+#include "mozilla/dom/TextTrackCueBinding.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsDOMEventTargetHelper.h"
 #include "webvtt/node.h"

@@ -3,13 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "TextTrackCue.h"
+#include "mozilla/dom/HTMLTrackElement.h"
+#include "mozilla/dom/TextTrackCue.h"
 #include "mozilla/dom/TextTrackCueBinding.h"
 
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrackCue, mGlobal)
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_2(TextTrackCue, mGlobal, mTrack)
 
 NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackCue)
   NS_WRAPPERCACHE_INTERFACE_MAP_ENTRY
@@ -60,7 +61,9 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 void
 TextTrackCue::DisplayCue()
 {
-  mTrackElement->DisplayCueText(mHead);
+  if (mTrackElement) {
+    mTrackElement->DisplayCueText(mHead);
+  }
 }
 
 JSObject*

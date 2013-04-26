@@ -7,7 +7,7 @@
 #ifndef mozilla_dom_TextTrackList_h
 #define mozilla_dom_TextTrackList_h
 
-#include "TextTrack.h"
+#include "mozilla/dom/TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsDOMEventTargetHelper.h"
 
