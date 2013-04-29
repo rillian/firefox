@@ -47,7 +47,7 @@ public:
 
   TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
                const double aEndTime, const nsAString& aText,
-               HTMLTrackElement *aTrackElement, webvtt_node *head);
+               HTMLTrackElement* aTrackElement, webvtt_node* head);
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
