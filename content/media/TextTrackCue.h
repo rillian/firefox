@@ -11,7 +11,6 @@
 #define WEBVTT_STATIC 1
 
 #include "mozilla/dom/DocumentFragment.h"
-#include "mozilla/dom/HTMLTrackElement.h"
 #include "mozilla/dom/TextTrack.h"
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "nsCycleCollectionParticipant.h"
@@ -21,6 +20,7 @@
 namespace mozilla {
 namespace dom {
 
+class HTMLTrackElement;
 class TextTrack;
 
 class TextTrackCue MOZ_FINAL : public nsDOMEventTargetHelper
