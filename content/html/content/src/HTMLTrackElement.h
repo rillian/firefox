@@ -23,8 +23,6 @@
 namespace mozilla {
 namespace dom {
 
-class TextTrack;
-
 class HTMLTrackElement MOZ_FINAL : public nsGenericHTMLElement
                                  , public nsIDOMHTMLElement
 {
