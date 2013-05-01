@@ -64,22 +64,21 @@ TextTrack::SetMode(TextTrackMode aValue)
 void
 TextTrack::AddCue(TextTrackCue& aCue)
 {
-  //XXX: if cue exists, remove
+  //XXX: If cue exists, remove. Bug 867823.
   mCueList->AddCue(aCue);
 }
 
 void
 TextTrack::RemoveCue(TextTrackCue& aCue)
 {
-  //XXX: if cue does not exists throw
-  //a NotFoundError exception
+  //XXX: If cue does not exists throw NotFoundError. Bug 867823.
   mCueList->RemoveCue(aCue);
 }
 
 void
 TextTrack::CueChanged(TextTrackCue& aCue)
 {
-  //XXX: cue changed handling
+  //XXX: Implement Cue changed. Bug 867823.
 }
 
 } // namespace dom
