@@ -10,12 +10,10 @@
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrack, mParent)
-
-NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrack)
-  NS_WRAPPERCACHE_INTERFACE_MAP_ENTRY
-  NS_INTERFACE_MAP_ENTRY(nsISupports)
-NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_3(TextTrack,
+                                        mParent,
+                                        mCueList,
+                                        mActiveCueList)
 
 NS_IMPL_ADDREF_INHERITED(TextTrack, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrack, nsDOMEventTargetHelper)
