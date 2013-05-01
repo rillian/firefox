@@ -326,7 +326,7 @@ static size_t oc_huff_node_size(int _nbits){
   _ntokens: The number of tokens corresponding to this tree node.
   Return: The number of words required to store the tree.*/
 #if defined(_MSC_VER) && _MSC_VER >= 1700
-#pragma optimize( "", off )
+#pragma optimize( "y", off )
 #endif
 static size_t oc_huff_tree_collapse(ogg_int16_t *_tree,
  unsigned char _tokens[][2],int _ntokens){
