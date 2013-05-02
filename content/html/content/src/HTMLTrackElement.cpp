@@ -66,6 +66,7 @@ namespace dom {
 /** HTMLTrackElement */
 HTMLTrackElement::HTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo)
   : nsGenericHTMLElement(aNodeInfo)
+  , mReadyState(NONE)
 {
 #ifdef PR_LOGGING
   if (!gTrackElementLog) {

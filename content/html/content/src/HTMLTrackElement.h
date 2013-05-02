@@ -84,6 +84,13 @@ public:
     SetHTMLBoolAttr(nsGkAtoms::_default, aDefault, aError);
   }
 
+  // Constants for numeric readyState property values.
+  enum {
+    NONE = 0U,
+    LOADING = 1U,
+    LOADED = 2U,
+    ERROR = 3U
+  };
   uint16_t ReadyState() const
   {
     return mReadyState;
