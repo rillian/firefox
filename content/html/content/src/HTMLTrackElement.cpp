@@ -126,83 +126,10 @@ HTMLTrackElement::Track()
   return mTrack;
 }
 
-nsresult
-HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
-{
-  if (IsWebVTTEnabled()) {
-    NS_NAMED_LITERAL_CSTRING(value, "text/webvtt");
-
-    return aChannel->SetRequestHeader(NS_LITERAL_CSTRING("Accept"),
-                                      value,
-                                      false);
-  }
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-
-nsresult
-HTMLTrackElement::LoadResource(nsIURI* aURI)
-{
-  if (mChannel) {
-    mChannel->Cancel(NS_BINDING_ABORTED);
-    mChannel = nullptr;
-  }
-
-  int16_t shouldLoad = nsIContentPolicy::ACCEPT;
-  nsresult rv;
-  rv = NS_CheckContentLoadPolicy(nsIContentPolicy::TYPE_MEDIA,
-                                 aURI,
-                                 NodePrincipal(),
-                                 ToSupports(this),
-                                 EmptyCString(), // mime type
-                                 nullptr, // extra
-                                 &shouldLoad,
-                                 nsContentUtils::GetContentPolicy(),
-                                 nsContentUtils::GetSecurityManager());
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (NS_CP_REJECTED(shouldLoad)) {
-    return NS_ERROR_FAILURE;
-  }
-
-  nsCOMPtr<nsILoadGroup> loadGroup = OwnerDoc()->GetDocumentLoadGroup();
-
-  CreateTextTrack();
-
-  // Check for a Content Security Policy to pass down to the channel
-  // created to load the media content.
-  nsCOMPtr<nsIChannelPolicy> channelPolicy;
-  nsCOMPtr<nsIContentSecurityPolicy> csp;
-  rv = NodePrincipal()->GetCsp(getter_AddRefs(csp));
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (csp) {
-    channelPolicy = do_CreateInstance("@mozilla.org/nschannelpolicy;1");
-    if (!channelPolicy) {
-      return NS_ERROR_FAILURE;
-    }
-    channelPolicy->SetContentSecurityPolicy(csp);
-    channelPolicy->SetLoadType(nsIContentPolicy::TYPE_MEDIA);
-  }
-  nsCOMPtr<nsIChannel> channel;
-  rv = NS_NewChannel(getter_AddRefs(channel),
-                     aURI,
-                     nullptr,
-                     loadGroup,
-                     nullptr,
-                     nsICachingChannel::LOAD_BYPASS_LOCAL_CACHE_IF_BUSY,
-                     channelPolicy);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // TODO: Connect a LoadListener. See bug 833382.
-
-  mChannel = channel;
-
-  return NS_OK;
-}
-
 void
 HTMLTrackElement::DisplayCueText(webvtt_node* head)
 {
-  // TODO: Propagate to the LoadListener.
+  // TODO: Bug 833382 - Propagate to the LoadListener.
 }
 
 void
@@ -311,7 +238,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
       if (NS_SUCCEEDED(rvTwo)) {
         LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
         NS_ConvertUTF16toUTF8(src).get()));
-        LoadResource(uri);
+        // TODO: bug 833382 - dispatch a load request.
       }
     }
   }

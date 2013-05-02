@@ -98,8 +98,6 @@ public:
 
   TextTrack* Track();
 
-  virtual nsresult SetAcceptHeader(nsIHttpChannel* aChannel);
-
   virtual nsresult Clone(nsINodeInfo* aNodeInfo, nsINode** aResult) const MOZ_OVERRIDE;
   virtual nsIDOMNode* AsDOMNode() MOZ_OVERRIDE { return this; }
 
@@ -140,7 +138,6 @@ protected:
   nsCOMPtr<nsIContent> mMediaParent;
   uint16_t mReadyState;
 
-  nsresult LoadResource(nsIURI* aURI);
   void CreateTextTrack();
 };
 
