@@ -120,11 +120,6 @@ public:
                               nsIContent* aBindingParent,
                               bool aCompileEventHandlers);
 
-  uint32_t GetCurrentLoadID() const
-  {
-    return mCurrentLoadID;
-  }
-
   void DisplayCueText(webvtt_node* head);
 
   // Check enabling preference.
@@ -136,7 +131,6 @@ protected:
   nsRefPtr<TextTrack> mTrack;
   nsCOMPtr<nsIChannel> mChannel;
   nsCOMPtr<nsIContent> mMediaParent;
-  uint32_t mCurrentLoadID;
   uint16_t mReadyState;
 
   nsresult LoadResource(nsIURI* aURI);
