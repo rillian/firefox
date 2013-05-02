@@ -51,7 +51,7 @@ nsGenericHTMLElement*
 NS_NewHTMLTrackElement(already_AddRefed<nsINodeInfo> aNodeInfo,
                        mozilla::dom::FromParser aFromParser)
 {
-  if (!mozilla::dom::HTMLTrackElementBinding::PrefEnabled()) {
+  if (!mozilla::dom::HTMLTrackElement::IsWebVTTEnabled()) {
     return mozilla::dom::NewHTMLElementHelper::Create<nsHTMLUnknownElement,
            mozilla::dom::HTMLUnknownElement>(aNodeInfo);
   }
