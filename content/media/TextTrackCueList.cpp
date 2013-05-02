@@ -10,15 +10,10 @@
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_1(TextTrackCueList, mParent)
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_2(TextTrackCueList, mParent, mList)
 
 NS_IMPL_CYCLE_COLLECTING_ADDREF(TextTrackCueList)
 NS_IMPL_CYCLE_COLLECTING_RELEASE(TextTrackCueList)
-
-NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION(TextTrackCueList)
-  NS_WRAPPERCACHE_INTERFACE_MAP_ENTRY
-  NS_INTERFACE_MAP_ENTRY(nsISupports)
-NS_INTERFACE_MAP_END
 
 TextTrackCueList::TextTrackCueList(nsISupports* aParent) : mParent(aParent)
 {
