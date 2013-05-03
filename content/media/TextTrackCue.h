@@ -34,8 +34,8 @@ public:
   // See bug 868509 about splitting out the WebVTT-specific interfaces.
   static already_AddRefed<TextTrackCue>
   Constructor(GlobalObject& aGlobal,
-              const double aStartTime,
-              const double aEndTime,
+              double aStartTime,
+              double aEndTime,
               const nsAString& aText,
               ErrorResult& aRv)
   {
@@ -84,7 +84,7 @@ public:
 
   void SetStartTime(const double aStartTime)
   {
-    //XXXhumph: validate?
+    //XXXhumph: validate? bug 868519.
     if (mStartTime == aStartTime)
       return;
 
@@ -99,7 +99,7 @@ public:
 
   void SetEndTime(const double aEndTime)
   {
-    //XXXhumph: validate?
+    //XXXhumph: validate? bug 868519.
     if (mEndTime == aEndTime)
       return;
 
@@ -156,7 +156,7 @@ public:
 
   void SetLine(double aLine)
   {
-    //XXX: validate?
+    //XXX: validate? bug 868519.
     mLine = aLine;
   }
 
@@ -167,7 +167,7 @@ public:
 
   void SetPosition(int32_t aPosition)
   {
-    // XXXhumph: validate?
+    // XXXhumph: validate? bug 868519.
     if (mPosition == aPosition)
       return;
 
@@ -187,7 +187,7 @@ public:
     }
 
     if (aSize < 0 || aSize > 100) {
-      //XXX:throw IndexSizeError;
+      //XXX:throw IndexSizeError; bug 868519.
     }
 
     mSize = aSize;
@@ -212,7 +212,7 @@ public:
 
   void SetText(const nsAString& aText)
   {
-    // XXXhumph: validate?
+    // XXXhumph: validate? bug 868519.
     if (mText == aText)
       return;
 
@@ -222,7 +222,7 @@ public:
 
   already_AddRefed<DocumentFragment> GetCueAsHTML() const
   {
-    // XXXhumph: todo
+    // XXXhumph: todo. Bug 868509.
     return nullptr;
   }
 
