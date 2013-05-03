@@ -232,7 +232,7 @@ public:
   bool
   operator==(const TextTrackCue& rhs) const
   {
-    return (mId.Equals(rhs.mId));
+    return mId.Equals(rhs.mId);
   }
 
   void DisplayCue();
