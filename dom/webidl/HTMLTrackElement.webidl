@@ -9,15 +9,15 @@
 
 [Pref="media.webvtt.enabled"]
 interface HTMLTrackElement : HTMLElement {
-  [SetterThrows]
+  [SetterThrows, Pure]
   attribute TextTrackKind kind;
-  [SetterThrows]
+  [SetterThrows, Pure]
   attribute DOMString src;
-  [SetterThrows]
+  [SetterThrows, Pure]
   attribute DOMString srclang;
-  [SetterThrows]
+  [SetterThrows, Pure]
   attribute DOMString label;
-  [SetterThrows]
+  [SetterThrows, Pure]
   attribute boolean default;
 
   const unsigned short NONE = 0;
