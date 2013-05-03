@@ -51,7 +51,7 @@ TextTrackCueList::IndexedGetter(uint32_t aIndex, bool& aFound)
 TextTrackCue*
 TextTrackCueList::GetCueById(const nsAString& aId)
 {
-  if(aId.IsEmpty()) {
+  if (aId.IsEmpty()) {
     return nullptr;
   }
 
