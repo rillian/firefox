@@ -14,6 +14,8 @@ NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_2(TextTrackCue, mGlobal, mTrack)
 
 NS_IMPL_ADDREF_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackCue)
+NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            const double aStartTime,

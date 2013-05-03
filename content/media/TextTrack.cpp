@@ -17,6 +17,8 @@ NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_3(TextTrack,
 
 NS_IMPL_ADDREF_INHERITED(TextTrack, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrack, nsDOMEventTargetHelper)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrack)
+NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
 
 TextTrack::TextTrack(nsISupports* aParent,
                      TextTrackKind aKind,

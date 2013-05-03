@@ -13,6 +13,8 @@ NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_2(TextTrackList, mGlobal, mTextTracks)
 
 NS_IMPL_ADDREF_INHERITED(TextTrackList, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrackList, nsDOMEventTargetHelper)
+NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackList)
+NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
 
 TextTrackList::TextTrackList(nsISupports* aGlobal) : mGlobal(aGlobal)
 {
