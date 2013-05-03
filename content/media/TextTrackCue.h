@@ -201,6 +201,9 @@ public:
 
   void SetAlign(TextTrackCueAlign& aAlign)
   {
+    if (mAlign == aAlign)
+      return;
+
     mAlign = aAlign;
     CueChanged();
   }
