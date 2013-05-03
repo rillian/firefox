@@ -43,12 +43,12 @@ public:
                                                     aEndTime, aText);
     return ttcue.forget();
   }
-  TextTrackCue(nsISupports* aGlobal, const double aStartTime,
-               const double aEndTime, const nsAString& aText);
+  TextTrackCue(nsISupports* aGlobal, double aStartTime, double aEndTime,
+               const nsAString& aText);
 
-  TextTrackCue(nsISupports* aGlobal,  const double aStartTime,
-               const double aEndTime, const nsAString& aText,
-               HTMLTrackElement* aTrackElement, webvtt_node* head);
+  TextTrackCue(nsISupports* aGlobal, double aStartTime, double aEndTime,
+               const nsAString& aText, HTMLTrackElement* aTrackElement,
+               webvtt_node* head);
 
   virtual JSObject* WrapObject(JSContext* aCx, JSObject* aScope) MOZ_OVERRIDE;
 
@@ -82,7 +82,7 @@ public:
     return mStartTime;
   }
 
-  void SetStartTime(const double aStartTime)
+  void SetStartTime(double aStartTime)
   {
     //XXXhumph: validate? bug 868519.
     if (mStartTime == aStartTime)
@@ -97,7 +97,7 @@ public:
     return mEndTime;
   }
 
-  void SetEndTime(const double aEndTime)
+  void SetEndTime(double aEndTime)
   {
     //XXXhumph: validate? bug 868519.
     if (mEndTime == aEndTime)
@@ -112,7 +112,7 @@ public:
     return mPauseOnExit;
   }
 
-  void SetPauseOnExit(const bool aPauseOnExit)
+  void SetPauseOnExit(bool aPauseOnExit)
   {
     if (mPauseOnExit == aPauseOnExit)
       return;

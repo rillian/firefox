@@ -35,8 +35,8 @@ TextTrackCue::SetDefaultCueSettings()
 }
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
-                           const double aStartTime,
-                           const double aEndTime,
+                           double aStartTime,
+                           double aEndTime,
                            const nsAString& aText)
   : mGlobal(aGlobal)
   , mText(aText)
@@ -50,8 +50,8 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 }
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
-                           const double aStartTime,
-                           const double aEndTime,
+                           double aStartTime,
+                           double aEndTime,
                            const nsAString& aText,
                            HTMLTrackElement* aTrackElement,
                            webvtt_node* head)
