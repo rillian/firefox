@@ -229,16 +229,22 @@ public:
     return nullptr;
   }
 
+  IMPL_EVENT_HANDLER(enter)
+  IMPL_EVENT_HANDLER(exit)
+
+  // Helper functions for implementation.
   bool
   operator==(const TextTrackCue& rhs) const
   {
     return mId.Equals(rhs.mId);
   }
 
-  void DisplayCue();
+  const nsAString& Id() const
+  {
+    return mId;
+  }
 
-  IMPL_EVENT_HANDLER(enter)
-  IMPL_EVENT_HANDLER(exit)
+  void DisplayCue();
 
 private:
   void CueChanged();
