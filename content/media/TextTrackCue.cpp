@@ -6,16 +6,33 @@
 #include "mozilla/dom/HTMLTrackElement.h"
 #include "mozilla/dom/TextTrackCue.h"
 #include "mozilla/dom/TextTrackCueBinding.h"
+#include "webvtt/cue.h"
 
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_2(TextTrackCue, mGlobal, mTrack)
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_3(TextTrackCue,
+                                        mGlobal,
+                                        mTrack,
+                                        mTrackElement)
 
 NS_IMPL_ADDREF_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
 NS_IMPL_RELEASE_INHERITED(TextTrackCue, nsDOMEventTargetHelper)
 NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(TextTrackCue)
 NS_INTERFACE_MAP_END_INHERITING(nsDOMEventTargetHelper)
+
+// Set cue setting defaults based on step 19 & seq.
+// in http://dev.w3.org/html5/webvtt/#parsing
+void
+TextTrackCue::SetDefaultCueSettings()
+{
+  mPosition = 50;
+  mSize = 100;
+  mPauseOnExit = false;
+  mSnapToLines = true;
+  mLine = WEBVTT_AUTO;
+  mAlign = TextTrackCueAlign::Middle;
+}
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            const double aStartTime,
@@ -25,11 +42,9 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   , mText(aText)
   , mStartTime(aStartTime)
   , mEndTime(aEndTime)
-  , mPosition(50)
-  , mSize(100)
-  , mPauseOnExit(false)
-  , mSnapToLines(true)
+  , mHead(nullptr)
 {
+  SetDefaultCueSettings();
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
 }
@@ -46,11 +61,8 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   , mEndTime(aEndTime)
   , mTrackElement(aTrackElement)
   , mHead(head)
-  , mPosition(50)
-  , mSize(100)
-  , mPauseOnExit(false)
-  , mSnapToLines(true)
 {
+  SetDefaultCueSettings();
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
 }

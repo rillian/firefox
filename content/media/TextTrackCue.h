@@ -31,6 +31,7 @@ public:
                                                          nsDOMEventTargetHelper)
 
   // TextTrackCue WebIDL
+  // See bug 868509 about splitting out the WebVTT-specific interfaces.
   static already_AddRefed<TextTrackCue>
   Constructor(GlobalObject& aGlobal,
               const double aStartTime,
@@ -238,6 +239,7 @@ public:
 
 private:
   void CueChanged();
+  void SetDefaultCueSettings();
 
   nsCOMPtr<nsISupports> mGlobal;
   nsString mText;
@@ -245,7 +247,7 @@ private:
   double mEndTime;
 
   nsRefPtr<TextTrack> mTrack;
-  HTMLTrackElement* mTrackElement;
+  nsRefPtr<HTMLTrackElement> mTrackElement;
   webvtt_node *mHead;
   nsString mId;
   int32_t mPosition;
@@ -253,7 +255,7 @@ private:
   bool mPauseOnExit;
   bool mSnapToLines;
   nsString mVertical;
-  double mLine;
+  int mLine;
   TextTrackCueAlign mAlign;
 };
 
