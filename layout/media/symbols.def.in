@@ -151,6 +151,9 @@ opus_encoder_ctl
 opus_encode
 opus_encode_float
 #endif
+; HACK: either move this to media/ or figure out how to
+; export it locally for use by nsMediaSniffer.
+mp3_sniff
 ShInitialize
 ShFinalize
 ShGetObjectCode
