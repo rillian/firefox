@@ -89,7 +89,7 @@ static bool MatchesWebM(const uint8_t* aData, const uint32_t aLength)
 // packet headers and looking for expected boundaries.
 static bool MatchesMP3(const uint8_t* aData, const uint32_t aLength)
 {
-  return mp3_sniff(aData, aLength);
+  return mp3_sniff(aData, (long)aLength);
 }
 
 NS_IMETHODIMP
