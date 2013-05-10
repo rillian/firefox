@@ -27,7 +27,7 @@ typedef struct {
 
 static int mp3_parse(const uint8_t *p, mp3_header *header)
 {
-  const int bitrates[16] = 
+  const int bitrates[16] =
 	{0,  32000,  40000,  48000,  56000,  64000,  80000,  96000,
          112000, 128000, 160000, 192000, 224000, 256000, 320000, 0};
   const int samplerates[4] = {44100, 48000, 32000};
@@ -58,7 +58,7 @@ static int mp3_framesize(mp3_header *header)
 
   if (header->layer == 1) scale = 48;
   else scale = 144;
-  
+
   size = header->bitrate * scale / header->freq;
   /* divide by an extra factor of 2 for MPEG-2? */
 
@@ -82,7 +82,7 @@ static int dump_header(mp3_header *header, FILE *out)
 
   return 0;
 }
-  
+
 static int is_mp3(const uint8_t *p, long length) {
   /* Do we have enough room to see a 4 byte header? */
   if (length < 4) return 0;
@@ -144,7 +144,7 @@ int mp3_sniff(const uint8_t *buf, long length)
     if (is_id3(p, avail)) {
       /* Skip over any id3 tags */
       skip = id3_framesize(p, avail);
-      fprintf(out, " id3 header at 0x%08lx (%ld bytes)\n", 
+      fprintf(out, " id3 header at 0x%08lx (%ld bytes)\n",
 	(long)(p-buf), skip);
       p += skip;
       avail -= skip;
@@ -155,7 +155,7 @@ int mp3_sniff(const uint8_t *buf, long length)
     } else if (is_mp3(p, avail)) {
       mp3_parse(p, &header);
       skip = mp3_framesize(&header);
-      fprintf(out, " mp3 header at 0x%08lx (%ld bytes)\n", 
+      fprintf(out, " mp3 header at 0x%08lx (%ld bytes)\n",
 	(long)(p-buf), skip);
       if (skip + 4 > avail) {
         return 0;
