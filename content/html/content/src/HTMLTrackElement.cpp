@@ -242,5 +242,15 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
   return NS_OK;
 }
 
+void
+HTMLTrackElement::UnbindFromTree(bool aDeep, bool aNullParent)
+{
+  if (mMediaParent) {
+    mMediaParent = nullptr;
+  }
+
+  nsGenericHTMLElement::UnbindFromTree(aDeep, aNullParent);
+}
+
 } // namespace dom
 } // namespace mozilla

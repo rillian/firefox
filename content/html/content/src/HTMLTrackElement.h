@@ -125,6 +125,7 @@ public:
                               nsIContent* aParent,
                               nsIContent* aBindingParent,
                               bool aCompileEventHandlers);
+  virtual void UnbindFromTree(bool aDeep, bool aNullParent);
 
   void DisplayCueText(webvtt_node* head);
 
