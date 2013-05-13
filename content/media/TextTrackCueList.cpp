@@ -36,7 +36,7 @@ TextTrackCueList::Update(double time)
 }
 
 JSObject*
-TextTrackCueList::WrapObject(JSContext* aCx, JSObject* aScope)
+TextTrackCueList::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
 {
   return TextTrackCueListBinding::Wrap(aCx, aScope, this);
 }

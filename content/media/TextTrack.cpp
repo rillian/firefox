@@ -52,7 +52,7 @@ TextTrack::Update(double time)
 }
 
 JSObject*
-TextTrack::WrapObject(JSContext* aCx, JSObject* aScope)
+TextTrack::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
 {
   return TextTrackBinding::Wrap(aCx, aScope, this);
 }

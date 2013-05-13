@@ -76,7 +76,7 @@ TextTrackCue::DisplayCue()
 }
 
 JSObject*
-TextTrackCue::WrapObject(JSContext* aCx, JSObject* aScope)
+TextTrackCue::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
 {
   return TextTrackCueBinding::Wrap(aCx, aScope, this);
 }

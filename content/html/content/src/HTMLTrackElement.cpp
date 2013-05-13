@@ -103,7 +103,7 @@ NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(HTMLTrackElement)
 NS_INTERFACE_MAP_END_INHERITING(nsGenericHTMLElement)
 
 JSObject*
-HTMLTrackElement::WrapNode(JSContext* aCx, JSObject* aScope)
+HTMLTrackElement::WrapNode(JSContext* aCx, JS::Handle<JSObject*> aScope)
 {
   return HTMLTrackElementBinding::Wrap(aCx, aScope, this);
 }

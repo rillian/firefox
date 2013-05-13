@@ -22,7 +22,7 @@ TextTrackList::TextTrackList(nsISupports* aGlobal) : mGlobal(aGlobal)
 }
 
 JSObject*
-TextTrackList::WrapObject(JSContext* aCx, JSObject* aScope)
+TextTrackList::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
 {
   return TextTrackListBinding::Wrap(aCx, aScope, this);
 }
