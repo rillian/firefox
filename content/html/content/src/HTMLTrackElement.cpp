@@ -131,12 +131,8 @@ HTMLTrackElement::CreateTextTrack()
   GetLabel(label);
   mTrack = new TextTrack(OwnerDoc()->GetParentObject(), Kind(), label, srcLang);
 
-  nsCOMPtr<nsIDOMHTMLMediaElement> domMediaElem(do_QueryInterface(mMediaParent));
-  if (domMediaElem) {
-    HTMLMediaElement* mediaElem = static_cast<HTMLMediaElement*>(mMediaParent.get());
-    if (mediaElem) {
-      mediaElem->AddTextTrack(mTrack);
-    }
+  if (mMediaParent) {
+    mMediaParent->AddTextTrack(mTrack);
   }
 }
 

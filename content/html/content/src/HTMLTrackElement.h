@@ -9,6 +9,7 @@
 #define WEBVTT_NO_CONFIG_H 1
 #define WEBVTT_STATIC 1
 
+#include "mozilla/dom/HTMLMediaElement.h"
 #include "mozilla/dom/TextTrack.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsGenericHTMLElement.h"
@@ -136,7 +137,7 @@ protected:
 
   nsRefPtr<TextTrack> mTrack;
   nsCOMPtr<nsIChannel> mChannel;
-  nsCOMPtr<nsIContent> mMediaParent;
+  nsRefPtr<HTMLMediaElement> mMediaParent;
   uint16_t mReadyState;
 
   void CreateTextTrack();
