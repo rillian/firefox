@@ -69,10 +69,10 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   SetIsDOMBinding();
 }
 
-~TextTrackCue::TextTrackCue()
+TextTrackCue::~TextTrackCue()
 {
   if (mHead) {
-    webvtt_release_node(mHead);
+    webvtt_release_node(&mHead);
     mHead = nullptr;
   }
 }
