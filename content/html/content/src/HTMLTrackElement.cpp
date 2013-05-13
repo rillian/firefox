@@ -150,10 +150,16 @@ HTMLTrackElement::Kind() const
   return static_cast<TextTrackKind>(value->GetEnumValue());
 }
 
+static EnumEntry
+StringFromKind(TextTrackKind aKind)
+{
+  return TextTrackKindValues::strings[static_cast<int>(aKind)];
+}
+
 void
 HTMLTrackElement::SetKind(TextTrackKind aKind, ErrorResult& aError)
 {
-  const EnumEntry& string = TextTrackKindValues::strings[aKind];
+  const EnumEntry& string = StringFromKind(aKind);
   nsAutoString kind;
 
   kind.AssignASCII(string.value, string.length);
@@ -168,11 +174,11 @@ HTMLTrackElement::ParseAttribute(int32_t aNamespaceID,
 {
   // Map html attribute string values to TextTrackKind enums.
   static const nsAttrValue::EnumTable kKindTable[] = {
-    { "subtitles", TextTrackKindValues::Subtitles },
-    { "captions", TextTrackKindValues::Captions },
-    { "descriptions", TextTrackKindValues::Descriptions },
-    { "chapters", TextTrackKindValues::Chapters },
-    { "metadata", TextTrackKindValues::Metadata },
+    { "subtitles", static_cast<int16_t>(TextTrackKind::Subtitles) },
+    { "captions", static_cast<int16_t>(TextTrackKind::Captions) },
+    { "descriptions", static_cast<int16_t>(TextTrackKind::Descriptions) },
+    { "chapters", static_cast<int16_t>(TextTrackKind::Chapters) },
+    { "metadata", static_cast<int16_t>(TextTrackKind::Metadata) },
     { 0 }
   };
 
