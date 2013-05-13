@@ -218,6 +218,9 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
     media->NotifyAddedSource();
     LOG(PR_LOG_DEBUG, ("Track element sent notification to parent."));
 
+    // TODO: this section needs to become async in bug 833385.
+    // See https://bugzilla.mozilla.org/show_bug.cgi?id=833385#c55.
+
     // Find our 'src' url
     nsAutoString src;
 
