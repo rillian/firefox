@@ -62,9 +62,19 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   , mTrackElement(aTrackElement)
   , mHead(head)
 {
+  // Use the webvtt library's reference counting.
+  webvtt_ref_node(mHead);
   SetDefaultCueSettings();
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
+}
+
+~TextTrackCue::TextTrackCue()
+{
+  if (mHead) {
+    webvtt_release_node(mHead);
+    mHead = nullptr;
+  }
 }
 
 void

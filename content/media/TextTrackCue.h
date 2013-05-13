@@ -50,6 +50,8 @@ public:
                const nsAString& aText, HTMLTrackElement* aTrackElement,
                webvtt_node* head);
 
+  ~TextTrackCue();
+
   virtual JSObject* WrapObject(JSContext* aCx,
                                JS::Handle<JSObject*> aScope) MOZ_OVERRIDE;
 
