@@ -72,8 +72,8 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
 TextTrackCue::~TextTrackCue()
 {
   if (mHead) {
+    // Release our reference and null mHead.
     webvtt_release_node(&mHead);
-    mHead = nullptr;
   }
 }
 
