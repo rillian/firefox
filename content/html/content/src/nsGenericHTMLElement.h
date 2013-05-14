@@ -795,6 +795,9 @@ protected:
 
   virtual const nsAttrName* InternalGetExistingAttrNameFromQName(const nsAString& aStr) const;
 
+  /**
+   * Create a URI for the given aURISpec string.
+   */
   nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
 
   void GetHTMLAttr(nsIAtom* aName, nsAString& aResult) const

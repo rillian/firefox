@@ -2685,38 +2685,6 @@ void HTMLMediaElement::EndSrcMediaStreamPlayback()
   mSrcStream = nullptr;
 }
 
-nsresult HTMLMediaElement::NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI)
-{
-  NS_ENSURE_ARG_POINTER(aURI);
-
-  *aURI = nullptr;
-
-  nsCOMPtr<nsIDocument> doc = OwnerDoc();
-
-  nsCOMPtr<nsIURI> baseURI = GetBaseURI();
-  nsCOMPtr<nsIURI> uri;
-  nsresult rv = nsContentUtils::NewURIWithDocumentCharset(getter_AddRefs(uri),
-                                                          aURISpec,
-                                                          doc,
-                                                          baseURI);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool equal;
-  if (aURISpec.IsEmpty() &&
-      doc->GetDocumentURI() &&
-      NS_SUCCEEDED(doc->GetDocumentURI()->Equals(uri, &equal)) &&
-      equal) {
-    // It's not possible for a media resource to be embedded in the current
-    // document we extracted aURISpec from, so there's no point returning
-    // the current document URI just to let the caller attempt and fail to
-    // decode it.
-    return NS_ERROR_DOM_INVALID_STATE_ERR;
-  }
-
-  uri.forget(aURI);
-  return NS_OK;
-}
-
 void HTMLMediaElement::ProcessMediaFragmentURI()
 {
   nsMediaFragmentURIParser parser(mLoadingSrc);
