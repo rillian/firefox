@@ -126,7 +126,7 @@ HTMLTrackElement::DisplayCueText(webvtt_node* head)
 void
 HTMLTrackElement::CreateTextTrack()
 {
-  nsString label, srcLang;
+  DOMString label, srcLang;
   GetSrclang(srcLang);
   GetLabel(label);
   mTrack = new TextTrack(OwnerDoc()->GetParentObject(), Kind(), label, srcLang);
