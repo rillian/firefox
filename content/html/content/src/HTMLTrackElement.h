@@ -49,7 +49,7 @@ public:
   TextTrackKind Kind() const;
   void SetKind(TextTrackKind aKind, ErrorResult& aError);
 
-  void GetSrc(nsAString& aSrc) const
+  void GetSrc(DOMString& aSrc) const
   {
     GetHTMLAttr(nsGkAtoms::src, aSrc);
   }
@@ -58,7 +58,7 @@ public:
     SetHTMLAttr(nsGkAtoms::src, aSrc, aError);
   }
 
-  void GetSrclang(nsAString& aSrclang) const
+  void GetSrclang(DOMString& aSrclang) const
   {
     GetHTMLAttr(nsGkAtoms::srclang, aSrclang);
   }
@@ -67,7 +67,7 @@ public:
     SetHTMLAttr(nsGkAtoms::srclang, aSrclang, aError);
   }
 
-  void GetLabel(nsAString& aLabel) const
+  void GetLabel(DOMString& aLabel) const
   {
     GetHTMLAttr(nsGkAtoms::label, aLabel);
   }
@@ -105,7 +105,9 @@ public:
   // For Track, ItemValue reflects the src attribute
   virtual void GetItemValueText(nsAString& aText)
   {
-    GetSrc(aText);
+    DOMString value;
+    GetSrc(value);
+    aText = value;
   }
   virtual void SetItemValueText(const nsAString& aText)
   {
