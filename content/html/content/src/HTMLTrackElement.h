@@ -51,7 +51,7 @@ public:
 
   void GetSrc(DOMString& aSrc) const
   {
-    GetHTMLAttr(nsGkAtoms::src, aSrc);
+    GetHTMLURIAttr(nsGkAtoms::src, aSrc);
   }
   void SetSrc(const nsAString& aSrc, ErrorResult& aError)
   {
