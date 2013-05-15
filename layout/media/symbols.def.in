@@ -578,3 +578,5 @@ webvtt_string_text
 webvtt_create_parser
 webvtt_delete_parser
 webvtt_parse_chunk
+webvtt_ref_node
+webvtt_release_node
