@@ -245,7 +245,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
 void
 HTMLTrackElement::UnbindFromTree(bool aDeep, bool aNullParent)
 {
-  if (mMediaParent) {
+  if (mMediaParent && aNullParent) {
     mMediaParent = nullptr;
   }
 
