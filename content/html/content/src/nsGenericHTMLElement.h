@@ -797,6 +797,7 @@ protected:
 
   /**
    * Create a URI for the given aURISpec string.
+   * Returns INVALID_STATE_ERR and releases *aURI if aURISpec is empty.
    */
   nsresult NewURIFromString(const nsAutoString& aURISpec, nsIURI** aURI);
 
