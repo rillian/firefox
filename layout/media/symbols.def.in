@@ -28,7 +28,6 @@ nestegg_tstamp_scale
 nestegg_has_cues
 nestegg_sniff
 #endif
-mp3_sniff
 #ifdef MOZ_VP8
 #ifndef MOZ_NATIVE_LIBVPX
 vpx_codec_control_

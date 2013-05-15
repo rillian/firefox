@@ -10,7 +10,7 @@
 #include "nsString.h"
 #include "nsMimeTypes.h"
 #include "mozilla/ModuleUtils.h"
-#include "mp3/sniff.h"
+#include "mp3sniff.h"
 #ifdef MOZ_WEBM
 #include "nestegg/nestegg.h"
 #endif
