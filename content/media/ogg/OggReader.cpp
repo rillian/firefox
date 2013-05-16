@@ -404,6 +404,7 @@ nsresult OggReader::DecodeVorbis(ogg_packet* aPacket) {
       }
     }
 
+    printf("Got %d vorbis frames with %u channels\n", frames, channels);
     // More than 2 decoded channels must be downmixed to stereo.
     if (channels > 2) {
       // No channel mapping for more than 8 channels.
@@ -411,6 +412,7 @@ nsresult OggReader::DecodeVorbis(ogg_packet* aPacket) {
         return NS_ERROR_FAILURE;
       StereoDownmix(buffer, channels, frames);
     }
+    printf("Decoded %d vorbis frames to %u channels\n", frames, channels);
 
     int64_t duration = mVorbisState->Time((int64_t)frames);
     int64_t startTime = mVorbisState->Time(endFrame - frames);
