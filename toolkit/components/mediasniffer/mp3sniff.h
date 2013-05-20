@@ -10,6 +10,6 @@ extern "C" {
 
 int mp3_sniff(const uint8_t *buf, long length);
 
-#ifdef _cplusplus
+#ifdef __cplusplus
 }
 #endif
