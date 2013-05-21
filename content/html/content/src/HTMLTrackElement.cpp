@@ -8,6 +8,7 @@
 #include "mozilla/dom/HTMLTrackElement.h"
 #include "mozilla/dom/HTMLTrackElementBinding.h"
 #include "mozilla/dom/HTMLUnknownElement.h"
+#include "mozilla/dom/WebVTTLoadListener.h"
 #include "nsAttrValueInlines.h"
 #include "nsCOMPtr.h"
 #include "nsContentPolicyUtils.h"
@@ -87,12 +88,24 @@ NS_IMPL_ELEMENT_CLONE(HTMLTrackElement)
 NS_IMPL_ADDREF_INHERITED(HTMLTrackElement, Element)
 NS_IMPL_RELEASE_INHERITED(HTMLTrackElement, Element)
 
-NS_IMPL_CYCLE_COLLECTION_INHERITED_3(HTMLTrackElement, nsGenericHTMLElement,
-                                     mTrack, mChannel, mMediaParent)
+NS_IMPL_CYCLE_COLLECTION_INHERITED_4(HTMLTrackElement, nsGenericHTMLElement,
+                                     mTrack, mChannel, mMediaParent,
+                                     mLoadListener)
 
 NS_INTERFACE_MAP_BEGIN_CYCLE_COLLECTION_INHERITED(HTMLTrackElement)
   NS_INTERFACE_MAP_ENTRY(nsIDOMHTMLElement)
 NS_INTERFACE_MAP_END_INHERITING(nsGenericHTMLElement)
+
+nsresult
+HTMLTrackElement::OnChannelRedirect(nsIChannel* aChannel,
+                                    nsIChannel* aNewChannel,
+                                    uint32_t aFlags)
+{
+  NS_ASSERTION(aChannel == mChannel, "Channels should match!");
+  mChannel = aNewChannel;
+
+  return NS_OK;
+}
 
 JSObject*
 HTMLTrackElement::WrapNode(JSContext* aCx, JS::Handle<JSObject*> aScope)
@@ -116,12 +129,6 @@ HTMLTrackElement::Track()
   }
 
   return mTrack;
-}
-
-void
-HTMLTrackElement::DisplayCueText(webvtt_node* head)
-{
-  // TODO: Bug 833382 - Propagate to the LoadListener.
 }
 
 void
@@ -192,6 +199,85 @@ HTMLTrackElement::ParseAttribute(int32_t aNamespaceID,
 }
 
 nsresult
+HTMLTrackElement::SetAcceptHeader(nsIHttpChannel* aChannel)
+{
+  if (IsWebVTTEnabled()) {
+    NS_NAMED_LITERAL_CSTRING(value, "text/webvtt");
+
+    return aChannel->SetRequestHeader(NS_LITERAL_CSTRING("Accept"),
+                                      value,
+                                      false);
+  } else {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
+}
+
+nsresult
+HTMLTrackElement::LoadResource(nsIURI* aURI)
+{
+  if (mChannel) {
+    mChannel->Cancel(NS_BINDING_ABORTED);
+    mChannel = nullptr;
+  }
+
+  int16_t shouldLoad = nsIContentPolicy::ACCEPT;
+  nsresult rv;
+  rv = NS_CheckContentLoadPolicy(nsIContentPolicy::TYPE_MEDIA,
+                                 aURI,
+                                 NodePrincipal(),
+                                 static_cast<nsGenericHTMLElement*>(this),
+                                 EmptyCString(), // mime type
+                                 nullptr, // extra
+                                 &shouldLoad,
+                                 nsContentUtils::GetContentPolicy(),
+                                 nsContentUtils::GetSecurityManager());
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (NS_CP_REJECTED(shouldLoad)) {
+    return NS_ERROR_FAILURE;
+  }
+
+  nsCOMPtr<nsILoadGroup> loadGroup = OwnerDoc()->GetDocumentLoadGroup();
+
+  CreateTextTrack();
+
+  // Check for a Content Security Policy to pass down to the channel
+  // created to load the media content.
+  nsCOMPtr<nsIChannelPolicy> channelPolicy;
+  nsCOMPtr<nsIContentSecurityPolicy> csp;
+  rv = NodePrincipal()->GetCsp(getter_AddRefs(csp));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (csp) {
+    channelPolicy = do_CreateInstance("@mozilla.org/nschannelpolicy;1");
+    if (!channelPolicy) {
+      return NS_ERROR_FAILURE;
+    }
+    channelPolicy->SetContentSecurityPolicy(csp);
+    channelPolicy->SetLoadType(nsIContentPolicy::TYPE_MEDIA);
+  }
+  nsCOMPtr<nsIChannel> channel;
+  rv = NS_NewChannel(getter_AddRefs(channel),
+                     aURI,
+                     nullptr,
+                     loadGroup,
+                     nullptr,
+                     nsICachingChannel::LOAD_BYPASS_LOCAL_CACHE_IF_BUSY,
+                     channelPolicy);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mLoadListener = new WebVTTLoadListener(this);
+  mLoadListener->LoadResource();
+  channel->SetNotificationCallbacks(mLoadListener);
+
+  LOG(PR_LOG_DEBUG, ("opening webvtt channel"));
+  rv = channel->AsyncOpen(mLoadListener, nullptr);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  mChannel = channel;
+
+  return NS_OK;
+}
+
+nsresult
 HTMLTrackElement::BindToTree(nsIDocument* aDocument,
                              nsIContent* aParent,
                              nsIContent* aBindingParent,
@@ -235,7 +321,7 @@ HTMLTrackElement::BindToTree(nsIDocument* aDocument,
       if (NS_SUCCEEDED(rvTwo)) {
         LOG(PR_LOG_ALWAYS, ("%p Trying to load from src=%s", this,
         NS_ConvertUTF16toUTF8(src).get()));
-        // TODO: bug 833382 - dispatch a load request.
+        LoadResource(uri);
       }
     }
   }

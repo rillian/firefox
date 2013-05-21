@@ -161,6 +161,12 @@ static const int64_t USECS_PER_S = 1000000;
 // Number of microseconds per millisecond.
 static const int64_t USECS_PER_MS = 1000;
 
+// Number of milliseconds per second.
+static const int64_t MS_PER_S = 1000;
+
+// Converts seconds to milliseconds.
+#define SECONDS_TO_MS(s) ((s) / MS_PER_S)
+
 // The maximum height and width of the video. Used for
 // sanitizing the memory allocation of the RGB buffer.
 // The maximum resolution we anticipate encountering in the

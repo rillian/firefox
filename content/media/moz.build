@@ -82,6 +82,7 @@ EXPORTS.mozilla.dom += [
     'TextTrackCueList.h',
     'TextTrackList.h',
     'VideoStreamTrack.h',
+    'WebVTTLoadListener.h'
 ]
 
 CPP_SOURCES += [
@@ -111,4 +112,5 @@ CPP_SOURCES += [
     'VideoSegment.cpp',
     'VideoStreamTrack.cpp',
     'VideoUtils.cpp',
+    'WebVTTLoadListener.cpp',
 ]

@@ -6,6 +6,10 @@
 
 MODULE = 'layout'
 
+EXPORTS += [
+  'nsBox.h',
+]
+
 CPP_SOURCES += [
     'nsBox.cpp',
     'nsBoxFrame.cpp',

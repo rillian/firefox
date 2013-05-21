@@ -12,6 +12,8 @@ EXPORTS += [
     'ScrollbarActivity.h',
     'Selection.h',
     'nsCanvasFrame.h',
+    'nsContainerFrame.h',
+    'nsFrame.h',
     'nsFrameIdList.h',
     'nsFrameList.h',
     'nsFrameSelection.h',
@@ -30,7 +32,9 @@ EXPORTS += [
     'nsIStatefulFrame.h',
     'nsObjectFrame.h',
     'nsQueryFrame.h',
+    'nsSplittableFrame.h',
     'nsSubDocumentFrame.h',
+    'nsVideoFrame.h',
 ]
 
 EXPORTS.mozilla += [
