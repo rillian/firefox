@@ -79,6 +79,7 @@ static int is_mp3(const uint8_t *p, long length) {
     if (((p[2] & 0xf0) >> 4) == 15) return 0; /* Bitrate can't be 1111 */
     if (((p[2] & 0x0c) >> 2) == 3) return 0;  /* Samplerate can't be 11 */
     /* Looks like a header. */
+    if ((4 - ((p[1] & 0x06) >> 1)) != 3) return 0; /* Only want level 3 */
     return 1;
   }
   return 0;
@@ -125,20 +126,16 @@ int mp3_sniff(const uint8_t *buf, long length)
   p = buf;
   q = p;
   avail = length;
-  while (avail > 0) {
+  while (avail >= 4) {
     if (is_id3(p, avail)) {
       /* Skip over any id3 tags */
       skip = id3_framesize(p, avail);
       p += skip;
       avail -= skip;
-      /* Is there enough data to continue? */
-      if (skip + 4 > avail) {
-        return 0;
-      }
     } else if (is_mp3(p, avail)) {
       mp3_parse(p, &header);
       skip = mp3_framesize(&header);
-      if (skip + 4 > avail) {
+      if (skip < 4 || skip + 4 > avail) {
         return 0;
       }
       p += skip;
