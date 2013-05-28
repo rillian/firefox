@@ -114,10 +114,6 @@ nsVideoFrame::CreateAnonymousContent(nsTArray<ContentInfo>& aElements)
     mCaptionDiv = NS_NewHTMLDivElement(nodeInfo.forget());
     NS_ENSURE_TRUE(mCaptionDiv, NS_ERROR_OUT_OF_MEMORY);
     nsRefPtr<nsGenericHTMLElement> div = do_QueryObject(mCaptionDiv);
-    if (div) {
-      div->SetClassName(NS_LITERAL_STRING("moz-caption-box"));
-    }
-
     if (!aElements.AppendElement(mCaptionDiv))
       return NS_ERROR_OUT_OF_MEMORY;
   }

@@ -91,6 +91,10 @@ TextTrackCue::CreateCueOverlay()
     nodeInfoManager->GetNodeInfo(nsGkAtoms::div, nullptr, kNameSpaceID_XHTML,
                                  nsIDOMNode::ELEMENT_NODE);
   mCueDiv = NS_NewHTMLDivElement(nodeInfo.forget());
+  nsRefPtr<nsGenericHTMLElement> div = do_QueryObject(mCueDiv);
+  if (div) {
+    div->SetClassName(NS_LITERAL_STRING("moz-caption-box"));
+  }
 }
 
 void
