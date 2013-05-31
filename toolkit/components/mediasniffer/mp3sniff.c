@@ -142,20 +142,15 @@ int mp3_sniff(const uint8_t *buf, long length)
       avail -= skip;
       /* Check for a second header at the expected offset. */
       if (is_mp3(p, avail)) {
-         /* Looks like mp3. */
+        /* Looks like mp3. */
         return 1;
       } else {
-        /* Give up. */
+        /* No second header. Not mp3. */
         return 0;
       }
     } else {
-      /* Advance one byte and look for sync again. */
-      p++;
-      avail--;
-      /* Don't scan for more than the maximum frame size. */
-      if (length - avail > MP3_MAX_SIZE) {
-        return 0;
-      }
+      /* No id3 tag or mp3 header. Not mp3. */
+      return 0;
     }
   }
 

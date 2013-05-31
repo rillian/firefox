@@ -29,6 +29,8 @@ const tests = [
   { path: "data/notags.mp3", expected: "audio/mpeg" },
   // Padding bit flipped in the first header: sniffing should fail.
   { path: "data/notags-bad.mp3", expected: "application/octet-stream" },
+  // Garbage before header: sniffing should fail.
+  { path: "data/notags-scan.mp3", expected: "application/octet-stream" },
   // VBR from the layer III test patterns. We can't sniff this.
   { path: "data/he_free.mp3", expected: "application/octet-stream" },
   // Make sure we reject mp2, which has a similar header.
