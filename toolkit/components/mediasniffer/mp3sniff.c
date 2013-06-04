@@ -4,8 +4,6 @@
 
 /* MPEG format parsing */
 
-#include <stdint.h>
-
 #include "mp3sniff.h"
 
 /* Maximum packet size is 320 kbits/s * 144 / 32 kHz + 1 padding byte */
