@@ -4,8 +4,6 @@
 
 /* MPEG format parsing */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 
 #include "mp3sniff.h"
