@@ -52,6 +52,7 @@ class DynamicsCompressorNode;
 class GainNode;
 class GlobalObject;
 class OfflineRenderSuccessCallback;
+class OscillatorNode;
 class PannerNode;
 class ScriptProcessorNode;
 class WaveShaperNode;
@@ -182,6 +183,9 @@ public:
 
   already_AddRefed<BiquadFilterNode>
   CreateBiquadFilter();
+
+  already_AddRefed<OscillatorNode>
+  CreateOscillator();
 
   already_AddRefed<WaveTable>
   CreateWaveTable(const Float32Array& aRealData, const Float32Array& aImagData,
