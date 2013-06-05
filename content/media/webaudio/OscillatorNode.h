@@ -47,6 +47,18 @@ public:
   }
   void SetType(OscillatorType aType, ErrorResult& aRv)
   {
+    // Handle the alternate enum values
+    switch (aType) {
+    case OscillatorType::_0: aType = OscillatorType::Sine; break;
+    case OscillatorType::_1: aType = OscillatorType::Square; break;
+    case OscillatorType::_2: aType = OscillatorType::Sawtooth; break;
+    case OscillatorType::_3: aType = OscillatorType::Triangle; break;
+    case OscillatorType::_4: aType = OscillatorType::Custom; break;
+    default:
+      // Shut up the compiler warning
+      break;
+    }
+
     if (aType == OscillatorType::Custom) {
       aRv.Throw(NS_ERROR_DOM_NOT_SUPPORTED_ERR);
       return;
