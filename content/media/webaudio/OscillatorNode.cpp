@@ -35,6 +35,7 @@ public:
     , mFrequency(440.f)
     , mDetune(0.f)
     , mType(OscillatorType::Sine)
+    , mPhase(0.)
   {
   }
 
@@ -88,6 +89,42 @@ public:
     }
   }
 
+  double ComputeFrequency(TrackTicks ticks, size_t count)
+  {
+    double frequency, detune;
+    if (mFrequency.HasSimpleValue()) {
+      frequency = mFrequency.GetValue();
+    } else {
+      frequency = mFrequency.GetValueAtTime(ticks, count);
+    }
+    if (mDetune.HasSimpleValue()) {
+      detune = mDetune.GetValue();
+    } else {
+      detune = mDetune.GetValueAtTime(ticks, count);
+    }
+    return frequency * pow(2., detune / 1200.);
+  }
+
+  void ComputeSine(AudioChunk *aOutput)
+  {
+    // Synthesize a waveform.
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    double rate = 2.*M_PI / mSource->SampleRate();
+    double phase = mPhase;
+    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+      phase += ComputeFrequency(ticks, i) * rate;
+      output[i] = sin(phase);
+    }
+    mPhase = phase;
+    while (mPhase > 2.0*M_PI) {
+      // Rescale to avoid precision reductions on long runs.
+      mPhase -= 2.0*M_PI;
+    }
+  }
+
   virtual void ProduceAudioBlock(AudioNodeStream* aStream,
                                  const AudioChunk& aInput,
                                  AudioChunk* aOutput,
@@ -95,8 +132,15 @@ public:
   {
     MOZ_ASSERT(mSource == aStream, "Invalid source stream");
 
-    // TODO: Synthesize a waveform here.
-    *aOutput = aInput;
+    TrackTicks ticks = aStream->GetCurrentPosition();
+    if (mStop < ticks + WEBAUDIO_BLOCK_SIZE) {
+      // No more output to produce.
+      aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
+      *aFinished = true;
+      return;
+    }
+
+    ComputeSine(aOutput);
   }
 
   AudioNodeStream* mSource;
@@ -106,6 +150,7 @@ public:
   AudioParamTimeline mFrequency;
   AudioParamTimeline mDetune;
   OscillatorType mType;
+  double mPhase;
 };
 
 OscillatorNode::OscillatorNode(AudioContext* aContext)
