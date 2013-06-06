@@ -95,8 +95,19 @@ public:
   {
     MOZ_ASSERT(mSource == aStream, "Invalid source stream");
 
-    // TODO: Synthesize a waveform here.
-    *aOutput = aInput;
+    // Synthesize a waveform.
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+    double sampleRate = aStream->SampleRate();
+    double phase = 0.;
+    TrackTicks ticks = aStream->GetCurrentPosition();
+    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+      double frequency = mFrequency.GetValueAtTime(ticks, i);
+      double detune = mDetune.GetValueAtTime(ticks, i);
+      double computedFrequency = frequency * pow(2., detune / 1200.);
+      phase += computedFrequency/sampleRate;
+      output[i] = sin(phase);
+    }
   }
 
   AudioNodeStream* mSource;
