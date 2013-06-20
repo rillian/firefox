@@ -12,7 +12,11 @@
 
 SimpleTest.waitForExplicitFinish();
 addLoadEvent(function() {
-  SpecialPowers.setBoolPref("media.webaudio.enabled", true);
+  SpecialPowers.pushPrefEnv( {"set": [["media.webaudio.enabled", true]]},
+    test_osc);
+});
+
+function test_osc() {
 
   var context = new AudioContext();
   var osc = context.createOscillator();
@@ -21,18 +25,31 @@ addLoadEvent(function() {
   is(osc.channelCountMode, "max", "Correct channelCountMode for the Oscillator node");
   is(osc.channelInterpretation, "speakers", "Correct channelCountInterpretation for the Oscillator node");
   is(osc.type, "sine", "Correct default type");
-  osc.type = "triangle";
-  is(osc.type, "triangle", "Can set the type");
   expectException(function() {
     osc.type = "custom";
   }, DOMException.NOT_SUPPORTED_ERR);
-  is(osc.type, "triangle", "Cannot set the type to custom");
+  expectException(function() {
+    osc.type = osc.CUSTOM;
+  }, DOMException.NOT_SUPPORTED_ERR);
+  is(osc.type, "sine", "Cannot set the type to custom");
   is(osc.frequency.value, 440, "Correct default frequency value");
   is(osc.detune.value, 0, "Correct default detine value");
 
-  SpecialPowers.clearUserPref("media.webaudio.enabled");
+  // Make sure that we can set all of the valid type values
+  var types = [
+    "sine",
+    "square",
+    "sawtooth",
+    "triangle",
+  ];
+  for (var i = 0; i < types.length; ++i) {
+    osc.type = osc[types[i].toUpperCase()];
+    is(osc.type, types[i], "Correct alternname type enum value");
+    osc.type = types[i];
+  }
+
   SimpleTest.finish();
-});
+}
 
 </script>
 </pre>
