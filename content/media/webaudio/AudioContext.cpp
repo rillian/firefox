@@ -28,6 +28,7 @@
 #include "WaveShaperNode.h"
 #include "PeriodicWave.h"
 #include "ConvolverNode.h"
+#include "OscillatorNode.h"
 #include "nsNetUtil.h"
 
 namespace mozilla {
@@ -323,6 +324,14 @@ AudioContext::CreateBiquadFilter()
   nsRefPtr<BiquadFilterNode> filterNode =
     new BiquadFilterNode(this);
   return filterNode.forget();
+}
+
+already_AddRefed<OscillatorNode>
+AudioContext::CreateOscillator()
+{
+  nsRefPtr<OscillatorNode> oscillatorNode =
+    new OscillatorNode(this);
+  return oscillatorNode.forget();
 }
 
 already_AddRefed<PeriodicWave>
