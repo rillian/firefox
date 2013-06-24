@@ -215,6 +215,7 @@ webidl_files = \
   OfflineAudioCompletionEvent.webidl \
   OfflineAudioContext.webidl \
   OfflineResourceList.webidl \
+  OscillatorNode.webidl \
   PaintRequest.webidl \
   PaintRequestList.webidl \
   PannerNode.webidl \
