@@ -136,11 +136,12 @@ public:
     double phase = mPhase;
     for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
+      printf("tick %d phase %lf\n", ticks + i, phase);
       output[i] = phase < M_PI ? 1.0 : -1.0;
     }
     mPhase = phase;
     while (mPhase > 2.0*M_PI) {
-      // Rescale to avoid precision reductions on long runs.
+      // Rescale to avoid precision reduction on long runs.
       mPhase -= 2.0*M_PI;
     }
   }
