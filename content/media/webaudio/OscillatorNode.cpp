@@ -107,7 +107,6 @@ public:
 
   void ComputeSine(AudioChunk *aOutput)
   {
-    // Synthesize a waveform.
     AllocateAudioBlock(1, aOutput);
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
@@ -127,7 +126,6 @@ public:
 
   void ComputeSquare(AudioChunk *aOutput)
   {
-    // Synthesize a waveform.
     AllocateAudioBlock(1, aOutput);
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
@@ -144,6 +142,53 @@ public:
     mPhase = phase;
   }
 
+  void ComputeSawtooth(AudioChunk *aOutput)
+  {
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    double rate = 1.0 / mSource->SampleRate();
+    double phase = mPhase;
+    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+      phase += ComputeFrequency(ticks, i) * rate;
+      if (phase > 1.0) {
+        phase -= 1.0;
+      }
+      output[i] = phase < 0.5 ? 2.0*phase : 2.0*(phase - 1.0);
+    }
+    mPhase = phase;
+  }
+
+  void ComputeTriangle(AudioChunk *aOutput)
+  {
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    double rate = 1.0 / mSource->SampleRate();
+    double phase = mPhase;
+    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+      phase += ComputeFrequency(ticks, i) * rate;
+      if (phase > 1.0) {
+        phase -= 1.0;
+      }
+      if (phase < 0.25) {
+        output[i] = 4.0*phase;
+      } else if (phase < 0.75) {
+        output[i] = 1.0 - 4.0*(phase - 0.25);
+      } else {
+        output[i] = 4.0*(phase - 0.75) - 1.0;
+      }
+    }
+    mPhase = phase;
+  }
+
+  void ComputeSilence(AudioChunk *aOutput)
+  {
+    aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
+  }
+
   virtual void ProduceAudioBlock(AudioNodeStream* aStream,
                                  const AudioChunk& aInput,
                                  AudioChunk* aOutput,
@@ -152,12 +197,17 @@ public:
     MOZ_ASSERT(mSource == aStream, "Invalid source stream");
 
     TrackTicks ticks = aStream->GetCurrentPosition();
-    if (ticks + WEBAUDIO_BLOCK_SIZE < mStart || ticks >= mStop) {
-      // No output to produce.
-      aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
+    if (ticks + WEBAUDIO_BLOCK_SIZE < mStart) {
+      // We're not playing yet.
+      ComputeSilence(aOutput);
+      return;
+    } else if (ticks >= mStop) {
+      // We've finished playing.
+      ComputeSilence(aOutput);
       *aFinished = true;
       return;
     }
+    // Synthesize the correct waveform.
     switch (mType) {
       case OscillatorType::Sine:
         ComputeSine(aOutput);
@@ -165,6 +215,14 @@ public:
       case OscillatorType::Square:
         ComputeSquare(aOutput);
         break;
+      case OscillatorType::Sawtooth:
+        ComputeSawtooth(aOutput);
+        break;
+      case OscillatorType::Triangle:
+        ComputeTriangle(aOutput);
+        break;
+      default:
+        ComputeSilence(aOutput);
     }
   }
 
