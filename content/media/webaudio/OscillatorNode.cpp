@@ -132,18 +132,16 @@ public:
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
-    double rate = 2.*M_PI / mSource->SampleRate();
+    double rate = 1.0 / mSource->SampleRate();
     double phase = mPhase;
     for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
-      printf("tick %d phase %lf\n", ticks + i, phase);
-      output[i] = phase < M_PI ? 1.0 : -1.0;
+      if (phase > 1.0) {
+        phase -= 1.0;
+      }
+      output[i] = phase < 0.5 ? 1.0 : -1.0;
     }
     mPhase = phase;
-    while (mPhase > 2.0*M_PI) {
-      // Rescale to avoid precision reduction on long runs.
-      mPhase -= 2.0*M_PI;
-    }
   }
 
   virtual void ProduceAudioBlock(AudioNodeStream* aStream,
