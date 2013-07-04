@@ -154,8 +154,8 @@ public:
     MOZ_ASSERT(mSource == aStream, "Invalid source stream");
 
     TrackTicks ticks = aStream->GetCurrentPosition();
-    if (mStop < ticks + WEBAUDIO_BLOCK_SIZE) {
-      // No more output to produce.
+    if (ticks + WEBAUDIO_BLOCK_SIZE < mStart || ticks >= mStop) {
+      // No output to produce.
       aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
       *aFinished = true;
       return;
