@@ -217,6 +217,7 @@ public:
   MediaStream* DestinationStream() const;
   void UnregisterAudioBufferSourceNode(AudioBufferSourceNode* aNode);
   void UnregisterPannerNode(PannerNode* aNode);
+  void UnregisterOscillatorNode(OscillatorNode* aNode);
   void UnregisterScriptProcessorNode(ScriptProcessorNode* aNode);
   void UpdatePannerSource();
 
@@ -246,6 +247,7 @@ private:
   // These are all weak pointers.
   nsTHashtable<nsPtrHashKey<PannerNode> > mPannerNodes;
   nsTHashtable<nsPtrHashKey<AudioBufferSourceNode> > mAudioBufferSourceNodes;
+  nsTHashtable<nsPtrHashKey<OscillatorNode> > mOscillatorNodes;
   // Hashset containing all ScriptProcessorNodes in order to stop them.
   // These are all weak pointers.
   nsTHashtable<nsPtrHashKey<ScriptProcessorNode> > mScriptProcessorNodes;
