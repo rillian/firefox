@@ -237,6 +237,7 @@ private:
   // These are all weak pointers.
   nsTHashtable<nsPtrHashKey<PannerNode> > mPannerNodes;
   nsTHashtable<nsPtrHashKey<AudioBufferSourceNode> > mAudioBufferSourceNodes;
+  nsTHashtable<nsPtrHashKey<OscillatorNode> > mOscillatorNodes;
   // Hashset containing all ScriptProcessorNodes in order to stop them.
   // These are all weak pointers.
   nsTHashtable<nsPtrHashKey<ScriptProcessorNode> > mScriptProcessorNodes;
