@@ -58,13 +58,8 @@ static void mp3_parse(const uint8_t *p, mp3_header *header)
 static int mp3_framesize(mp3_header *header)
 {
   int size;
-  int scale;
 
-  if (header->layer == 1) scale = 48;
-  else scale = 144;
-
-  size = header->bitrate * scale / header->freq;
-
+  size = header->bitrate * 144 / header->freq;
   if (header->pad) size += 1;
 
   return size;
