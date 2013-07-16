@@ -27,17 +27,23 @@ typedef struct {
 /* Parse the 4-byte header in p and fill in the header struct. */
 static void mp3_parse(const uint8_t *p, mp3_header *header)
 {
-  const int bitrates[16] =
+  const int bitrates[2][16] = {
+        /* MPEG version 1 layer 3 bitrates. */
 	{0,  32000,  40000,  48000,  56000,  64000,  80000,  96000,
          112000, 128000, 160000, 192000, 224000, 256000, 320000, 0};
+        /* MPEG Version 2 and 2.5 layer 3 bitrates */
+        {0, 8000, 16000, 24000, 32000, 40000, 48000, 56000, 64000,
+         80000, 96000, 112000, 128000, 144000, 160000, 0} };
   const int samplerates[4] = {44100, 48000, 32000, 0};
 
-  header->version = (p[1] & 0x08) >> 3;
+  header->version = (p[1] & 0x18) >> 3;
   header->layer = 4 - ((p[1] & 0x06) >> 1);
   header->errp = (p[1] & 0x01);
 
-  header->bitrate = bitrates[(p[2] & 0xf0) >> 4];
+  header->bitrate = bitrates[header->version&1 ? 0:1][(p[2] & 0xf0) >> 4];
   header->freq = samplerates[(p[2] & 0x0c) >> 2];
+  if (header->version == 3) header->freq >>= 1;
+  else if (header->version == 0) header->freq >>= 2;
   header->pad = (p[2] & 0x02) >> 1;
   header->priv = (p[2] & 0x01);
 
@@ -58,7 +64,6 @@ static int mp3_framesize(mp3_header *header)
   else scale = 144;
 
   size = header->bitrate * scale / header->freq;
-  /* divide by an extra factor of 2 for MPEG-2? */
 
   if (header->pad) size += 1;
 
