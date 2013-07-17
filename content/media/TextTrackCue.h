@@ -12,6 +12,7 @@
 #include "mozilla/dom/TextTrackCueBinding.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsDOMEventTargetHelper.h"
+#include "nsIDocument.h"
 
 struct webvtt_node;
 
@@ -321,8 +322,10 @@ private:
   void CueChanged();
   void SetDefaultCueSettings();
   void CreateCueOverlay();
+  nsresult StashDocument();
 
   nsCOMPtr<nsISupports> mGlobal;
+  nsRefPtr<nsIDocument> mDocument;
   nsString mText;
   double mStartTime;
   double mEndTime;
