@@ -17,8 +17,9 @@
 namespace mozilla {
 namespace dom {
 
-NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_4(TextTrackCue,
+NS_IMPL_CYCLE_COLLECTION_WRAPPERCACHE_5(TextTrackCue,
                                         mGlobal,
+                                        mDocument,
                                         mTrack,
                                         mTrackElement,
                                         mDisplayState)
@@ -55,6 +56,9 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   SetDefaultCueSettings();
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
+  if (NS_FAILED(StashDocument())) {
+    // Throw.
+  }
 }
 
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
@@ -75,6 +79,9 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   SetDefaultCueSettings();
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
+  if (NS_FAILED(StashDocument())) {
+    // How to fail here?
+  }
 }
 
 TextTrackCue::~TextTrackCue()
@@ -101,6 +108,23 @@ TextTrackCue::CreateCueOverlay()
   nsGenericHTMLElement* cueDiv =
     static_cast<nsGenericHTMLElement*>(mDisplayState.get());
   cueDiv->SetClassName(NS_LITERAL_STRING("caption-text"));
+}
+
+/** Save a reference to our creating document so it's available
+ *  to GetCueAsHTML even if mGlobal is unlinked.
+ */
+nsresult
+TextTrackCue::StashDocument()
+{
+  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mGlobal));
+  if (!window) {
+    return NS_ERROR_NO_INTERFACE;
+  }
+  mDocument = window->GetDoc();
+  if (!mDocument) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+  return NS_OK;
 }
 
 void
@@ -146,17 +170,8 @@ TextTrackCue::RenderCue()
 already_AddRefed<DocumentFragment>
 TextTrackCue::GetCueAsHTML()
 {
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mGlobal));
-  if(!window) {
-    return nullptr;
-  }
-  nsIDocument* document = window->GetDoc();
-  if(!document){
-    return nullptr;
-  }
-  nsRefPtr<DocumentFragment> frag =
-    document->CreateDocumentFragment();
-
+  MOZ_ASSERT(mDocument);
+  nsRefPtr<DocumentFragment> frag = mDocument->CreateDocumentFragment();
   ConvertNodeTreeToDOMTree(frag);
 
   return frag.forget();
