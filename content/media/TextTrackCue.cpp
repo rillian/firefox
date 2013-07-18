@@ -45,7 +45,8 @@ TextTrackCue::SetDefaultCueSettings()
 TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            double aStartTime,
                            double aEndTime,
-                           const nsAString& aText)
+                           const nsAString& aText,
+                           ErrorResult& aRv)
   : mGlobal(aGlobal)
   , mText(aText)
   , mStartTime(aStartTime)
@@ -57,7 +58,7 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
   if (NS_FAILED(StashDocument())) {
-    // Throw.
+    aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
   }
 }
 
@@ -66,7 +67,8 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
                            double aEndTime,
                            const nsAString& aText,
                            HTMLTrackElement* aTrackElement,
-                           webvtt_node* head)
+                           webvtt_node* head,
+                           ErrorResult& aRv)
   : mGlobal(aGlobal)
   , mText(aText)
   , mStartTime(aStartTime)
@@ -80,7 +82,7 @@ TextTrackCue::TextTrackCue(nsISupports* aGlobal,
   MOZ_ASSERT(aGlobal);
   SetIsDOMBinding();
   if (NS_FAILED(StashDocument())) {
-    // How to fail here?
+    aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
   }
 }
 
@@ -91,27 +93,8 @@ TextTrackCue::~TextTrackCue()
   }
 }
 
-void
-TextTrackCue::CreateCueOverlay()
-{
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mGlobal));
-  if(!window) {
-    return;
-  }
-  nsIDocument* document = window->GetDoc();
-  if(!document) {
-    return;
-  }
-  document->CreateElem(NS_LITERAL_STRING("div"), nullptr,
-                       kNameSpaceID_XHTML,
-                       getter_AddRefs(mDisplayState));
-  nsGenericHTMLElement* cueDiv =
-    static_cast<nsGenericHTMLElement*>(mDisplayState.get());
-  cueDiv->SetClassName(NS_LITERAL_STRING("caption-text"));
-}
-
 /** Save a reference to our creating document so it's available
- *  to GetCueAsHTML even if mGlobal is unlinked.
+ *  to mGlobal is unlinked during discard/teardown.
  */
 nsresult
 TextTrackCue::StashDocument()
@@ -125,6 +108,17 @@ TextTrackCue::StashDocument()
     return NS_ERROR_NOT_AVAILABLE;
   }
   return NS_OK;
+}
+
+void
+TextTrackCue::CreateCueOverlay()
+{
+  mDocument->CreateElem(NS_LITERAL_STRING("div"), nullptr,
+                       kNameSpaceID_XHTML,
+                       getter_AddRefs(mDisplayState));
+  nsGenericHTMLElement* cueDiv =
+    static_cast<nsGenericHTMLElement*>(mDisplayState.get());
+  cueDiv->SetClassName(NS_LITERAL_STRING("caption-text"));
 }
 
 void
@@ -203,15 +197,7 @@ TextTrackCue::ConvertInternalNodeToContent(const webvtt_node* aWebVTTNode)
   nsIAtom* atom = nsGkAtoms::span;
 
   nsCOMPtr<nsIContent> cueTextContent;
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mGlobal));
-  if(!window) {
-    return nullptr;
-  }
-  nsIDocument* document = window->GetDoc();
-  if(!document){
-    return nullptr;
-  }
-  document->CreateElem(nsDependentAtomString(atom), nullptr,
+  mDocument->CreateElem(nsDependentAtomString(atom), nullptr,
                        kNameSpaceID_XHTML,
                        getter_AddRefs(cueTextContent));
   return cueTextContent.forget();
@@ -221,14 +207,8 @@ already_AddRefed<nsIContent>
 TextTrackCue::ConvertLeafNodeToContent(const webvtt_node* aWebVTTNode)
 {
   nsCOMPtr<nsIContent> cueTextContent;
-  nsCOMPtr<nsPIDOMWindow> window(do_QueryInterface(mGlobal));
-  if(!window) {
-    return nullptr;
-  }
-  nsIDocument* document = window->GetDoc();
-  if(!document) {
-    return nullptr;
-  }
+  // Use mDocument to create nodes on cueTextContent.
+
   return cueTextContent.forget();
 }
 

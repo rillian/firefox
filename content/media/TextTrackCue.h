@@ -39,15 +39,15 @@ public:
               ErrorResult& aRv)
   {
     nsRefPtr<TextTrackCue> ttcue = new TextTrackCue(aGlobal.Get(), aStartTime,
-                                                    aEndTime, aText);
+                                                    aEndTime, aText, aRv);
     return ttcue.forget();
   }
   TextTrackCue(nsISupports* aGlobal, double aStartTime, double aEndTime,
-               const nsAString& aText);
+               const nsAString& aText, ErrorResult& aRv);
 
   TextTrackCue(nsISupports* aGlobal, double aStartTime, double aEndTime,
                const nsAString& aText, HTMLTrackElement* aTrackElement,
-               webvtt_node* head);
+               webvtt_node* head, ErrorResult& aRv);
 
   ~TextTrackCue();
 
