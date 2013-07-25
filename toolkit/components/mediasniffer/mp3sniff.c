@@ -60,7 +60,8 @@ static int mp3_framesize(mp3_header *header)
   int size;
   int scale;
 
-  if (header->version&1 == 0) scale = 72;
+//  if (header->version&1 == 0) scale = 72;
+  if (header->version == 0 || header->version == 2) scale = 72;
   else scale = 144;
   size = header->bitrate * scale;
   if (header->version&1 == 0) size /= 2;
