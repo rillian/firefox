@@ -13,6 +13,8 @@
 namespace mozilla {
 namespace dom {
 
+NS_IMPL_CYCLE_COLLECTION_CLASS(OscillatorNode)
+
 NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN(OscillatorNode)
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mPeriodicWave)
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mFrequency)
