@@ -144,9 +144,23 @@ public:
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
+    size_t start = 0;
+    if (ticks < mStart) {
+      start = mStart - ticks;
+      for (size_t i = 0; i < start; ++i) {
+        output[i] = 0.0;
+      }
+    }
+    size_t end = WEBAUDIO_BLOCK_SIZE;
+    if (ticks + end > mStop) {
+      end = mStop - ticks;
+      for (size_t i = end; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+        output[i] = 0.0;
+      }
+    }
     double rate = 1.0 / mSource->SampleRate();
     double phase = mPhase;
-    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+    for (size_t i = start; i < end; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
       if (phase > 1.0) {
         phase -= 1.0;
