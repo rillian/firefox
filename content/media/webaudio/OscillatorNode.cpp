@@ -119,15 +119,40 @@ public:
     return frequency * pow(2., detune / 1200.);
   }
 
+  void FillBounds(float* output, TrackTicks ticks,
+                  uint32_t& start, uint32_t& end)
+  {
+    MOZ_ASSERT(output);
+    static_assert(TrackTicks(WEBAUDIO_BLOCK_SIZE) < UINT_MAX,
+        "WEBAUDIO_BLOCK_SIZE overflows interator bounds.");
+    start = 0;
+    if (ticks < mStart) {
+      start = mStart - ticks;
+      for (uint i = 0; i < start; ++i) {
+        output[i] = 0.0;
+      }
+    }
+    end = WEBAUDIO_BLOCK_SIZE;
+    if (ticks + end > mStop) {
+      end = mStop - ticks;
+      for (uint i = end; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+        output[i] = 0.0;
+      }
+    }
+  }
+
   void ComputeSine(AudioChunk *aOutput)
   {
     AllocateAudioBlock(1, aOutput);
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
     double rate = 2.*M_PI / mSource->SampleRate();
     double phase = mPhase;
-    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+    for (int i = start; i < end; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
       output[i] = sin(phase);
     }
@@ -144,23 +169,12 @@ public:
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
-    size_t start = 0;
-    if (ticks < mStart) {
-      start = mStart - ticks;
-      for (size_t i = 0; i < start; ++i) {
-        output[i] = 0.0;
-      }
-    }
-    size_t end = WEBAUDIO_BLOCK_SIZE;
-    if (ticks + end > mStop) {
-      end = mStop - ticks;
-      for (size_t i = end; i < WEBAUDIO_BLOCK_SIZE; ++i) {
-        output[i] = 0.0;
-      }
-    }
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
     double rate = 1.0 / mSource->SampleRate();
     double phase = mPhase;
-    for (size_t i = start; i < end; ++i) {
+    for (int i = start; i < end; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
       if (phase > 1.0) {
         phase -= 1.0;
@@ -176,9 +190,12 @@ public:
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
     double rate = 1.0 / mSource->SampleRate();
     double phase = mPhase;
-    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+    for (int i = start; i < end; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
       if (phase > 1.0) {
         phase -= 1.0;
@@ -194,9 +211,12 @@ public:
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
 
     TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
     double rate = 1.0 / mSource->SampleRate();
     double phase = mPhase;
-    for (size_t i = 0; i < WEBAUDIO_BLOCK_SIZE; ++i) {
+    for (int i = start; i < end; ++i) {
       phase += ComputeFrequency(ticks, i) * rate;
       if (phase > 1.0) {
         phase -= 1.0;
