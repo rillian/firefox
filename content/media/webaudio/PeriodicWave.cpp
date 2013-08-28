@@ -6,6 +6,7 @@
 
 #include "PeriodicWave.h"
 #include "AudioContext.h"
+#include "AudioNodeEngine.h"
 #include "mozilla/dom/PeriodicWaveBinding.h"
 
 namespace mozilla {
@@ -18,13 +19,33 @@ NS_IMPL_CYCLE_COLLECTION_UNROOT_NATIVE(PeriodicWave, Release)
 
 PeriodicWave::PeriodicWave(AudioContext* aContext,
                            const float* aRealData,
-                           uint32_t aRealDataLength,
                            const float* aImagData,
-                           uint32_t aImagDataLength)
+                           const uint32_t aLength)
   : mContext(aContext)
 {
   MOZ_ASSERT(aContext);
   SetIsDOMBinding();
+
+  // Caller should have checked this and thrown.
+  MOZ_ASSERT(aLength > 0);
+  MOZ_ASSERT(aLength <= 4096);
+  mLength = static_cast<int32_t>(aLength);
+
+  // Copy coefficient data. The two arrays share an allocation.
+  mCoefficients = new ThreadSharedFloatArrayBufferList(2);
+  uint32_t size = aLength*sizeof(float);
+  float *buffer = static_cast<float*>(malloc(size*2));
+  MOZ_ASSERT(buffer, "allocation failure");
+  PodCopy(buffer, aRealData, aLength);
+  mCoefficients->SetData(0, buffer, buffer);
+  PodCopy(buffer+size, aImagData, aLength);
+  mCoefficients->SetData(1, buffer+size, nullptr);
+}
+
+ThreadSharedFloatArrayBufferList*
+PeriodicWave::GetThreadSharedBuffer()
+{
+  return mCoefficients;
 }
 
 JSObject*
@@ -33,6 +54,6 @@ PeriodicWave::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
   return PeriodicWaveBinding::Wrap(aCx, aScope, this);
 }
 
-}
-}
+} // namespace dom
+} // namespace mozilla
 
