@@ -77,11 +77,12 @@ public:
       // Shut up the compiler warning
       break;
     }
-
+#if 0
     if (aType == OscillatorType::Custom) {
       aRv.Throw(NS_ERROR_DOM_NOT_SUPPORTED_ERR);
       return;
     }
+#endif
     mType = aType;
     SendTypeToStream();
   }
@@ -108,8 +109,9 @@ public:
   void SetPeriodicWave(PeriodicWave& aPeriodicWave)
   {
     mPeriodicWave = &aPeriodicWave;
-    mType = OscillatorType::Custom;
-    SendTypeToStream();
+    //SetType will call SendPeriodicWaveToStream for us.
+    ErrorResult rv;
+    SetType(OscillatorType::Custom, rv);
   }
 
   IMPL_EVENT_HANDLER(ended)
@@ -120,6 +122,7 @@ private:
   static void SendFrequencyToStream(AudioNode* aNode);
   static void SendDetuneToStream(AudioNode* aNode);
   void SendTypeToStream();
+  void SendPeriodicWaveToStream();
 
 private:
   OscillatorType mType;
