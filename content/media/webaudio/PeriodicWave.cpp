@@ -18,13 +18,30 @@ NS_IMPL_CYCLE_COLLECTION_UNROOT_NATIVE(PeriodicWave, Release)
 
 PeriodicWave::PeriodicWave(AudioContext* aContext,
                            const float* aRealData,
-                           uint32_t aRealDataLength,
                            const float* aImagData,
-                           uint32_t aImagDataLength)
+                           uint32_t aLength)
   : mContext(aContext)
 {
   MOZ_ASSERT(aContext);
   SetIsDOMBinding();
+
+  /* Caller should have checked this and thrown. */
+  MOZ_ASSERT(aLength > 0);
+  MOZ_ASSERT(aLength <= 4096);
+
+  /* Copy frequency-domain data into the form kiss_fft uses. */
+  mCoefficients = new kiss_fft_cpx[aLength];
+  for (uint32_t i = 0; i < aLength; ++i) {
+    mCoefficients[i].r = aRealData[i];
+    mCoefficients[i].i = aImagData[i];
+  }
+  mCoeffLength = aLength;
+}
+
+PeriodicWave::~PeriodicWave()
+{
+  delete mCoefficients;
+  mCoeffLength = 0;
 }
 
 JSObject*
