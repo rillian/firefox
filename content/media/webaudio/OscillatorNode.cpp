@@ -98,9 +98,15 @@ public:
   {
     switch (aIndex) {
     case TYPE: mType = static_cast<OscillatorType>(aParam); break;
+    case PERIODICWAVE:
+      mCustomLength = aParam; break;
     default:
       NS_ERROR("Bad OscillatorNodeEngine Int32Parameter");
     }
+  }
+  virtual void SetBuffer(already_AddRefed<ThreadSharedFloatArrayBufferList> aBuffer)
+  {
+    mCustom = aBuffer;
   }
 
   double ComputeFrequency(TrackTicks ticks, size_t count)
@@ -232,6 +238,21 @@ public:
     mPhase = phase;
   }
 
+  void ComputeCustom(AudioChunk *aOutput)
+  {
+    MOZ_ASSERT(mCustom, "No custom waveform data");
+
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
+    // TODO: Interpolate data from blink's PeriodicWave here.
+
+  }
+
   void ComputeSilence(AudioChunk *aOutput)
   {
     aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
@@ -288,6 +309,8 @@ public:
   AudioParamTimeline mDetune;
   OscillatorType mType;
   double mPhase;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> mCustom;
+  int32_t mCustomLength;
 };
 
 OscillatorNode::OscillatorNode(AudioContext* aContext)
@@ -340,8 +363,22 @@ OscillatorNode::SendTypeToStream()
 {
   SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
   if (mType == OscillatorType::Custom) {
-    // TODO: Send the custom wave table somehow
+    SendPeriodicWaveToStream();
   }
+}
+
+void OscillatorNode::SendPeriodicWaveToStream()
+{
+  NS_ASSERTION(mType == OscillatorType::Custom,
+               "Sending custom waveform to engine thread with non-custom type");
+  AudioNodeStream* ns = static_cast<AudioNodeStream*>(mStream.get());
+  MOZ_ASSERT(ns, "Missing node stream.");
+  MOZ_ASSERT(mPeriodicWave, "Send called without PeriodicWave object.");
+  nsRefPtr<ThreadSharedFloatArrayBufferList> data =
+    mPeriodicWave->GetThreadSharedBuffer();
+  ns->SetBuffer(data.forget());
+  SendInt32ParameterToStream(OscillatorNodeEngine::PERIODICWAVE,
+                             mPeriodicWave->DataLength());
 }
 
 void
