@@ -9,6 +9,7 @@
 #include "AudioNodeStream.h"
 #include "AudioDestinationNode.h"
 #include "WebAudioUtils.h"
+#include "blink/PeriodicWave.h"
 
 namespace mozilla {
 namespace dom {
@@ -50,6 +51,7 @@ public:
     , mDetune(0.f)
     , mType(OscillatorType::Sine)
     , mPhase(0.)
+    , mCustomLength(0)
   {
   }
 
@@ -97,10 +99,30 @@ public:
   virtual void SetInt32Parameter(uint32_t aIndex, int32_t aParam)
   {
     switch (aIndex) {
-    case TYPE: mType = static_cast<OscillatorType>(aParam); break;
+    case TYPE:
+      mType = static_cast<OscillatorType>(aParam);
+      if (mType != OscillatorType::Custom) {
+        // Forget any previous custom data.
+        mCustom = nullptr;
+        mCustomLength = 0;
+        mPeriodicWave = nullptr;
+      }
+      break;
+    case PERIODICWAVE:
+      MOZ_ASSERT(aParam >= 0, "negative custom array length");
+      mCustomLength = static_cast<uint32_t>(aParam); break;
     default:
       NS_ERROR("Bad OscillatorNodeEngine Int32Parameter");
     }
+  }
+  virtual void SetBuffer(already_AddRefed<ThreadSharedFloatArrayBufferList> aBuffer)
+  {
+    MOZ_ASSERT(mCustomLength, "Custom buffer sent before length");
+    mCustom = aBuffer;
+    MOZ_ASSERT(mCustom->GetChannels() == 2,
+               "PeriodicWave should have sent two channels");
+    mPeriodicWave = WebCore::PeriodicWave::create(mSource->SampleRate(),
+        mCustom->GetData(0), mCustom->GetData(1), mCustomLength);
   }
 
   double ComputeFrequency(TrackTicks ticks, size_t count)
@@ -232,6 +254,50 @@ public:
     mPhase = phase;
   }
 
+  void ComputeCustom(AudioChunk *aOutput)
+  {
+    MOZ_ASSERT(mPeriodicWave, "No custom waveform data");
+
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
+    uint32_t periodicWaveSize = mPeriodicWave->periodicWaveSize();
+    float *higherWaveData = nullptr;
+    float *lowerWaveData = nullptr;
+    float tableInterpolationFactor;
+    float rate = 1.0 / mSource->SampleRate();
+
+    for (uint32_t i = start; i < end; ++i) {
+      float frequency = ComputeFrequency(ticks, i);
+      mPeriodicWave->waveDataForFundamentalFrequency(frequency,
+                                                     lowerWaveData,
+                                                     higherWaveData,
+                                                     tableInterpolationFactor);
+      // mPhase runs 0..periodicWaveSize here instead of 0..2*M_PI.
+      mPhase += periodicWaveSize * frequency * rate;
+      if (mPhase >= periodicWaveSize) {
+        mPhase -= periodicWaveSize;
+      }
+      // Bilinear interpolation between adjacent samples in each table.
+      uint32_t j1 = floor(mPhase);
+      uint32_t j2 = j1 + 1;
+      if (j2 >= periodicWaveSize) {
+        j2 -= periodicWaveSize;
+      }
+      float sampleInterpolationFactor = mPhase - j1;
+      float lower = sampleInterpolationFactor * lowerWaveData[j1] +
+                    (1 - sampleInterpolationFactor) * lowerWaveData[j2];
+      float higher = sampleInterpolationFactor * higherWaveData[j1] +
+                    (1 - sampleInterpolationFactor) * higherWaveData[j2];
+      output[i] = tableInterpolationFactor * lower +
+                   (1 - tableInterpolationFactor) * higher;
+    }
+  }
+
   void ComputeSilence(AudioChunk *aOutput)
   {
     aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
@@ -275,6 +341,9 @@ public:
       case OscillatorType::Triangle:
         ComputeTriangle(aOutput);
         break;
+      case OscillatorType::Custom:
+        ComputeCustom(aOutput);
+        break;
       default:
         ComputeSilence(aOutput);
     }
@@ -288,6 +357,9 @@ public:
   AudioParamTimeline mDetune;
   OscillatorType mType;
   double mPhase;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> mCustom;
+  uint32_t mCustomLength;
+  nsAutoPtr<WebCore::PeriodicWave> mPeriodicWave;
 };
 
 OscillatorNode::OscillatorNode(AudioContext* aContext)
@@ -338,10 +410,25 @@ OscillatorNode::SendDetuneToStream(AudioNode* aNode)
 void
 OscillatorNode::SendTypeToStream()
 {
-  SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
   if (mType == OscillatorType::Custom) {
-    // TODO: Send the custom wave table somehow
+    // The engine assumes we'll send the custom data before updating the type.
+    SendPeriodicWaveToStream();
   }
+  SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
+}
+
+void OscillatorNode::SendPeriodicWaveToStream()
+{
+  NS_ASSERTION(mType == OscillatorType::Custom,
+               "Sending custom waveform to engine thread with non-custom type");
+  AudioNodeStream* ns = static_cast<AudioNodeStream*>(mStream.get());
+  MOZ_ASSERT(ns, "Missing node stream.");
+  MOZ_ASSERT(mPeriodicWave, "Send called without PeriodicWave object.");
+  SendInt32ParameterToStream(OscillatorNodeEngine::PERIODICWAVE,
+                             static_cast<uint32_t>(mPeriodicWave->DataLength()));
+  nsRefPtr<ThreadSharedFloatArrayBufferList> data =
+    mPeriodicWave->GetThreadSharedBuffer();
+  ns->SetBuffer(data.forget());
 }
 
 void
