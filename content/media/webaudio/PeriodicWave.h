@@ -12,6 +12,7 @@
 #include "mozilla/Attributes.h"
 #include "EnableWebAudioCheck.h"
 #include "AudioContext.h"
+#include "AudioNodeEngine.h"
 #include "nsAutoPtr.h"
 
 namespace mozilla {
@@ -24,9 +25,8 @@ class PeriodicWave MOZ_FINAL : public nsWrapperCache,
 public:
   PeriodicWave(AudioContext* aContext,
                const float* aRealData,
-               uint32_t aRealDataLength,
                const float* aImagData,
-               uint32_t aImagDataLength);
+               const uint32_t aLength);
 
   NS_INLINE_DECL_CYCLE_COLLECTING_NATIVE_REFCOUNTING(PeriodicWave)
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_NATIVE_CLASS(PeriodicWave)
@@ -39,12 +39,20 @@ public:
   virtual JSObject* WrapObject(JSContext* aCx,
                                JS::Handle<JSObject*> aScope) MOZ_OVERRIDE;
 
+  ThreadSharedFloatArrayBufferList* GetThreadSharedBuffer();
+
+  int32_t DataLength() const
+  {
+    return mLength;
+  }
+
 private:
   nsRefPtr<AudioContext> mContext;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> mCoefficients;
+  int32_t mLength;
 };
 
 }
 }
 
 #endif
-
