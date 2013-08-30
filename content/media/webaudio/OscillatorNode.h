@@ -108,6 +108,7 @@ public:
   void SetPeriodicWave(PeriodicWave& aPeriodicWave)
   {
     mPeriodicWave = &aPeriodicWave;
+    SendPeriodicWaveToStream();
     mType = OscillatorType::Custom;
     SendTypeToStream();
   }
@@ -120,6 +121,7 @@ private:
   static void SendFrequencyToStream(AudioNode* aNode);
   static void SendDetuneToStream(AudioNode* aNode);
   void SendTypeToStream();
+  void SendPeriodicWaveToStream();
 
 private:
   OscillatorType mType;
