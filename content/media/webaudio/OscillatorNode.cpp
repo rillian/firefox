@@ -232,6 +232,31 @@ public:
     mPhase = phase;
   }
 
+  void ComputeCustom(AudioChunk *aOutput)
+  {
+    MOZ_ASSERT(mPeriodicWave);
+
+    AllocateAudioBlock(1, aOutput);
+    float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
+
+    TrackTicks ticks = mSource->GetCurrentPosition();
+    uint32_t start, end;
+    FillBounds(output, ticks, start, end);
+
+    uint32_t length = mPeriodicWave.mCoeffLength
+    kiss_fft_cfg cfg = kiss_fft_alloc(length, 1, nullptr, nullptr);
+    MOZ_ASSERT(cfg);
+    kiss_fft_cpx* out = new kiss_fft_cpx[length];
+    kiss_fft(cfg, mPeriodWave.mCoeffients, out);
+    MOZ_ASSERT(out <= length);
+    for (uint32_t i = start; i < end; ++i) {
+      output[i] = out[i].r;
+    }
+    delete out;
+    free(cfg);
+
+  }
+
   void ComputeSilence(AudioChunk *aOutput)
   {
     aOutput->SetNull(WEBAUDIO_BLOCK_SIZE);
