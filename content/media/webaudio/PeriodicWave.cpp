@@ -6,6 +6,7 @@
 
 #include "PeriodicWave.h"
 #include "AudioContext.h"
+#include "AudioNodeEngine.h"
 #include "mozilla/dom/PeriodicWaveBinding.h"
 
 namespace mozilla {
@@ -29,19 +30,27 @@ PeriodicWave::PeriodicWave(AudioContext* aContext,
   MOZ_ASSERT(aLength > 0);
   MOZ_ASSERT(aLength <= 4096);
 
-  /* Copy frequency-domain data into the form kiss_fft uses. */
-  mCoefficients = new kiss_fft_cpx[aLength];
-  for (uint32_t i = 0; i < aLength; ++i) {
-    mCoefficients[i].r = aRealData[i];
-    mCoefficients[i].i = aImagData[i];
-  }
-  mCoeffLength = aLength;
+  /* Copy frequency-domain data. */
+  mRealData = new float[aLength];
+  memcpy(mRealData, aRealData, aLength*sizeof(float));
+  mImagData = new float[aLength];
+  memcpy(mImagData, aImagData, aLength*sizeof(float));
+  mLength = static_cast<int32_t>(aLength);
 }
 
-PeriodicWave::~PeriodicWave()
+already_AddRefed<ThreadSharedFloatArrayBufferList> 
+  PeriodicWave::GetThreadSharedBuffer()
 {
-  delete mCoefficients;
-  mCoeffLength = 0;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> data =
+    new ThreadSharedFloatArrayBufferList(2);
+  /* FIXME: copy again? See the neutered buffer stuff. */
+  float *real = new float[mLength];
+  memcpy(real, mRealData, mLength*sizeof(float));
+  data->SetData(0, real, real);
+  float *imag = new float[mLength];
+  memcpy(imag, mImagData, mLength*sizeof(float));
+  data->SetData(1, imag, imag);
+  return data.forget();
 }
 
 JSObject*

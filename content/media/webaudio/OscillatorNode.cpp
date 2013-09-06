@@ -8,6 +8,7 @@
 #include "AudioNodeEngine.h"
 #include "AudioNodeStream.h"
 #include "AudioDestinationNode.h"
+#include "kiss_fft/kiss_fft.h"
 #include "WebAudioUtils.h"
 
 namespace mozilla {
@@ -98,9 +99,15 @@ public:
   {
     switch (aIndex) {
     case TYPE: mType = static_cast<OscillatorType>(aParam); break;
+    case PERIODICWAVE:
+      mCustomLength = aParam; break;
     default:
       NS_ERROR("Bad OscillatorNodeEngine Int32Parameter");
     }
+  }
+  virtual void SetBuffer(already_AddRefed<ThreadSharedFloatArrayBufferList> aBuffer)
+  {
+    mCustom = aBuffer;
   }
 
   double ComputeFrequency(TrackTicks ticks, size_t count)
@@ -234,7 +241,7 @@ public:
 
   void ComputeCustom(AudioChunk *aOutput)
   {
-    MOZ_ASSERT(mPeriodicWave);
+    MOZ_ASSERT(mCustom, "No custom waveform data");
 
     AllocateAudioBlock(1, aOutput);
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
@@ -243,12 +250,12 @@ public:
     uint32_t start, end;
     FillBounds(output, ticks, start, end);
 
-    uint32_t length = mPeriodicWave.mCoeffLength
+    uint32_t length = mCustomLength;
     kiss_fft_cfg cfg = kiss_fft_alloc(length, 1, nullptr, nullptr);
     MOZ_ASSERT(cfg);
     kiss_fft_cpx* out = new kiss_fft_cpx[length];
-    kiss_fft(cfg, mPeriodWave.mCoeffients, out);
-    MOZ_ASSERT(out <= length);
+    //kiss_fft(cfg, mCoeffients, out);
+    //MOZ_ASSERT(out <= length);
     for (uint32_t i = start; i < end; ++i) {
       output[i] = out[i].r;
     }
@@ -313,6 +320,8 @@ public:
   AudioParamTimeline mDetune;
   OscillatorType mType;
   double mPhase;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> mCustom;
+  int32_t mCustomLength;
 };
 
 OscillatorNode::OscillatorNode(AudioContext* aContext)
@@ -365,7 +374,7 @@ OscillatorNode::SendTypeToStream()
 {
   SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
   if (mType == OscillatorType::Custom) {
-    // TODO: Send the custom wave table somehow
+    SendPeriodicWaveToStream();
   }
 }
 
@@ -373,12 +382,14 @@ void OscillatorNode::SendPeriodicWaveToStream()
 {
   NS_ASSERTION(mType == OscillatorType::Custom,
                "Sending custom waveform to engine thread with non-custom type");
-  AudioNodeStream* ns = mStream.get();
+  AudioNodeStream* ns = static_cast<AudioNodeStream*>(mStream.get());
   MOZ_ASSERT(ns, "Missing node stream.");
   MOZ_ASSERT(mPeriodicWave, "Send called without PeriodicWave object.");
   nsRefPtr<ThreadSharedFloatArrayBufferList> data =
-    mPeriodicWave->GetTheadSharedBuffer();
+    mPeriodicWave->GetThreadSharedBuffer();
   ns->SetBuffer(data.forget());
+  SendInt32ParameterToStream(OscillatorNodeEngine::PERIODICWAVE,
+                             mPeriodicWave->DataLength());
 }
 
 void

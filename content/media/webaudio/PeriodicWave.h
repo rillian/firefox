@@ -8,7 +8,6 @@
 #define PeriodicWave_h_
 
 #include "AudioContext.h"
-#include "kiss_fft/kiss_fft.h"
 #include "nsWrapperCache.h"
 #include "nsCycleCollectionParticipant.h"
 #include "mozilla/Attributes.h"
@@ -16,7 +15,11 @@
 #include "nsAutoPtr.h"
 
 namespace mozilla {
+
+class ThreadSharedFloatArrayBufferList;
+
 namespace dom {
+
 
 class PeriodicWave MOZ_FINAL : public nsWrapperCache,
                                public EnableWebAudioCheck
@@ -26,8 +29,6 @@ public:
                const float* aRealData,
                const float* aImagData,
                uint32_t aLength);
-
-  ~PeriodicWave();
 
   NS_INLINE_DECL_CYCLE_COLLECTING_NATIVE_REFCOUNTING(PeriodicWave)
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_NATIVE_CLASS(PeriodicWave)
@@ -40,11 +41,20 @@ public:
   virtual JSObject* WrapObject(JSContext* aCx,
                                JS::Handle<JSObject*> aScope) MOZ_OVERRIDE;
 
+  already_AddRefed<ThreadSharedFloatArrayBufferList>
+    GetThreadSharedBuffer();
+
+  int32_t DataLength() const
+  {
+    return mLength;
+  }
+
 private:
   nsRefPtr<AudioContext> mContext;
 
-  kiss_fft_cpx* mCoefficients;
-  uint32_t mCoeffLength;
+  nsAutoPtr<float> mRealData;
+  nsAutoPtr<float> mImagData;
+  int32_t mLength;
 };
 
 }
