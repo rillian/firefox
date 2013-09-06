@@ -369,6 +369,18 @@ OscillatorNode::SendTypeToStream()
   }
 }
 
+void OscillatorNode::SendPeriodicWaveToStream()
+{
+  NS_ASSERTION(mType == OscillatorType::Custom,
+               "Sending custom waveform to engine thread with non-custom type");
+  AudioNodeStream* ns = mStream.get();
+  MOZ_ASSERT(ns, "Missing node stream.");
+  MOZ_ASSERT(mPeriodicWave, "Send called without PeriodicWave object.");
+  nsRefPtr<ThreadSharedFloatArrayBufferList> data =
+    mPeriodicWave->GetTheadSharedBuffer();
+  ns->SetBuffer(data.forget());
+}
+
 void
 OscillatorNode::Start(double aWhen, ErrorResult& aRv)
 {
