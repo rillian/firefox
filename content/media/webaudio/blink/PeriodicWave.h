@@ -29,6 +29,7 @@
 #ifndef PeriodicWave_h
 #define PeriodicWave_h
 
+#include "mozilla/dom/OscillatorNodeBinding.h"
 #include <nsAutoPtr.h>
 #include <nsTArray.h>
 
@@ -65,7 +66,7 @@ public:
 private:
     explicit PeriodicWave(float sampleRate);
 
-    void generateBasicWaveform(int);
+    void generateBasicWaveform(mozilla::dom::OscillatorType);
 
     float m_sampleRate;
     unsigned m_periodicWaveSize;
