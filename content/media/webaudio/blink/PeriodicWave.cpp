@@ -27,6 +27,7 @@
  */
 
 #include "PeriodicWave.h"
+#include <cmath>
 #include "mozilla/FFTBlock.h"
 #include <algorithm>
 
@@ -197,6 +198,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
 
 void PeriodicWave::generateBasicWaveform(int shape)
 {
+    const float piFloat = M_PI;
     unsigned fftSize = periodicWaveSize();
     unsigned halfSize = fftSize / 2;
 
