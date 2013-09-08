@@ -29,13 +29,13 @@
 #include "PeriodicWave.h"
 #include <cmath>
 #include "mozilla/FFTBlock.h"
-#include <algorithm>
 
 const unsigned PeriodicWaveSize = 4096; // This must be a power of two.
 const unsigned NumberOfRanges = 36; // There should be 3 * log2(PeriodicWaveSize) 1/3 octave ranges.
 const float CentsPerRange = 1200 / 3; // 1/3 Octave.
 
 using namespace mozilla;
+using mozilla::dom::OscillatorType;
 
 namespace WebCore {
 
@@ -196,7 +196,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
     }
 }
 
-void PeriodicWave::generateBasicWaveform(int shape)
+void PeriodicWave::generateBasicWaveform(OscillatorType shape)
 {
     const float piFloat = M_PI;
     unsigned fftSize = periodicWaveSize();
@@ -223,24 +223,24 @@ void PeriodicWave::generateBasicWaveform(int shape)
         // Note that the overall scaling (magnitude) of the waveforms
         // is normalized in createBandLimitedTables().
         switch (shape) {
-        case OscillatorNode::SINE:
+        case OscillatorType::Sine:
             // Standard sine wave function.
             a = 0;
             b = (n == 1) ? 1 : 0;
             break;
-        case OscillatorNode::SQUARE:
+        case OscillatorType::Square:
             // Square-shaped waveform with the first half its maximum value
             // and the second half its minimum value.
             a = 0;
             b = invOmega * ((n & 1) ? 2 : 0);
             break;
-        case OscillatorNode::SAWTOOTH:
+        case OscillatorType::Sawtooth:
             // Sawtooth-shaped waveform with the first half ramping from
             // zero to maximum and the second half from minimum to zero.
             a = 0;
             b = -invOmega * cos(0.5 * omega);
             break;
-        case OscillatorNode::TRIANGLE:
+        case OscillatorType::Triangle:
             // Triangle-shaped waveform going from its maximum value to
             // its minimum value then back to the maximum value.
             a = (4 - 4 * cos(0.5 * omega)) / (n * n * piFloat * piFloat);
