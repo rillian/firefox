@@ -247,7 +247,7 @@ void PeriodicWave::generateBasicWaveform(OscillatorType shape)
             b = 0;
             break;
         default:
-            MOZ_ASSERT(false, "Shouldn't reach this point.");
+            NS_ASSERTION(false, "Shouldn't reach this point.");
             a = 0;
             b = 0;
             break;
