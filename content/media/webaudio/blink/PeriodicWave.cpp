@@ -175,7 +175,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
 
         // Create the band-limited table.
         nsRefPtr<AudioFloatArray> table = new AudioFloatArray(m_periodicWaveSize);
-        m_bandLimitedTables.append(table.forget());
+        m_bandLimitedTables.AppendElement(table.forget());
 
         // Apply an inverse FFT to generate the time-domain table data.
         float* data = m_bandLimitedTables[rangeIndex]->Elements();
