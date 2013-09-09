@@ -51,8 +51,8 @@ public:
 private:
   nsRefPtr<AudioContext> mContext;
 
-  nsAutoPtr<float> mRealData;
-  nsAutoPtr<float> mImagData;
+  nsAutoArrayPtr<float> mRealData;
+  nsAutoArrayPtr<float> mImagData;
   int32_t mLength;
 };
 

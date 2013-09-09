@@ -30,11 +30,11 @@ PeriodicWave::PeriodicWave(AudioContext* aContext,
   MOZ_ASSERT(aLength > 0);
   MOZ_ASSERT(aLength <= 4096);
 
-  /* Copy frequency-domain data. */
+  /* Copy coefficient data. */
   mRealData = new float[aLength];
-  memcpy(mRealData, aRealData, aLength*sizeof(float));
+  PodCopy(mRealData.get(), aRealData, aLength);
   mImagData = new float[aLength];
-  memcpy(mImagData, aImagData, aLength*sizeof(float));
+  PodCopy(mImagData.get(), aImagData, aLength);
   mLength = static_cast<int32_t>(aLength);
 }
 
@@ -43,13 +43,15 @@ already_AddRefed<ThreadSharedFloatArrayBufferList>
 {
   nsRefPtr<ThreadSharedFloatArrayBufferList> data =
     new ThreadSharedFloatArrayBufferList(2);
+  // Copy real and complex arrays into a single shared buffer.
   /* FIXME: copy again? See the neutered buffer stuff. */
-  float *real = new float[mLength];
-  memcpy(real, mRealData, mLength*sizeof(float));
-  data->SetData(0, real, real);
-  float *imag = new float[mLength];
-  memcpy(imag, mImagData, mLength*sizeof(float));
-  data->SetData(1, imag, imag);
+  uint32_t size = mLength*sizeof(float);
+  float *buffer = static_cast<float*>(malloc(size*2));
+  MOZ_ASSERT(buffer, "allocation failure");
+  PodCopy(buffer, mRealData.get(), mLength);
+  data->SetData(0, buffer, buffer);
+  PodCopy(buffer+size, mImagData.get(), mLength);
+  data->SetData(1, buffer+size, nullptr);
   return data.forget();
 }
 
