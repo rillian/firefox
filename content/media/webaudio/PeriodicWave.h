@@ -7,11 +7,11 @@
 #ifndef PeriodicWave_h_
 #define PeriodicWave_h_
 
-#include "AudioContext.h"
 #include "nsWrapperCache.h"
 #include "nsCycleCollectionParticipant.h"
 #include "mozilla/Attributes.h"
 #include "EnableWebAudioCheck.h"
+#include "AudioContext.h"
 #include "nsAutoPtr.h"
 
 namespace mozilla {
@@ -19,7 +19,6 @@ namespace mozilla {
 class ThreadSharedFloatArrayBufferList;
 
 namespace dom {
-
 
 class PeriodicWave MOZ_FINAL : public nsWrapperCache,
                                public EnableWebAudioCheck
