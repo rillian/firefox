@@ -8,7 +8,6 @@
 #include "AudioNodeEngine.h"
 #include "AudioNodeStream.h"
 #include "AudioDestinationNode.h"
-#include "kiss_fft/kiss_fft.h"
 #include "WebAudioUtils.h"
 
 namespace mozilla {
@@ -250,17 +249,7 @@ public:
     uint32_t start, end;
     FillBounds(output, ticks, start, end);
 
-    uint32_t length = mCustomLength;
-    kiss_fft_cfg cfg = kiss_fft_alloc(length, 1, nullptr, nullptr);
-    MOZ_ASSERT(cfg);
-    kiss_fft_cpx* out = new kiss_fft_cpx[length];
-    //kiss_fft(cfg, mCoeffients, out);
-    //MOZ_ASSERT(out <= length);
-    for (uint32_t i = start; i < end; ++i) {
-      output[i] = out[i].r;
-    }
-    delete out;
-    free(cfg);
+    // TODO: Interpolate data from blink's PeriodicWave here.
 
   }
 
