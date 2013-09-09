@@ -12,11 +12,10 @@
 #include "mozilla/Attributes.h"
 #include "EnableWebAudioCheck.h"
 #include "AudioContext.h"
+#include "AudioNodeEngine.h"
 #include "nsAutoPtr.h"
 
 namespace mozilla {
-
-class ThreadSharedFloatArrayBufferList;
 
 namespace dom {
 
@@ -40,8 +39,7 @@ public:
   virtual JSObject* WrapObject(JSContext* aCx,
                                JS::Handle<JSObject*> aScope) MOZ_OVERRIDE;
 
-  already_AddRefed<ThreadSharedFloatArrayBufferList>
-    GetThreadSharedBuffer();
+  ThreadSharedFloatArrayBufferList* GetThreadSharedBuffer();
 
   int32_t DataLength() const
   {
@@ -50,9 +48,7 @@ public:
 
 private:
   nsRefPtr<AudioContext> mContext;
-
-  nsAutoArrayPtr<float> mRealData;
-  nsAutoArrayPtr<float> mImagData;
+  nsRefPtr<ThreadSharedFloatArrayBufferList> mCoefficients;
   int32_t mLength;
 };
 
@@ -60,4 +56,3 @@ private:
 }
 
 #endif
-

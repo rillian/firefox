@@ -26,33 +26,26 @@ PeriodicWave::PeriodicWave(AudioContext* aContext,
   MOZ_ASSERT(aContext);
   SetIsDOMBinding();
 
-  /* Caller should have checked this and thrown. */
+  // Caller should have checked this and thrown.
   MOZ_ASSERT(aLength > 0);
   MOZ_ASSERT(aLength <= 4096);
-
-  /* Copy coefficient data. */
-  mRealData = new float[aLength];
-  PodCopy(mRealData.get(), aRealData, aLength);
-  mImagData = new float[aLength];
-  PodCopy(mImagData.get(), aImagData, aLength);
   mLength = static_cast<int32_t>(aLength);
-}
 
-already_AddRefed<ThreadSharedFloatArrayBufferList> 
-  PeriodicWave::GetThreadSharedBuffer()
-{
-  nsRefPtr<ThreadSharedFloatArrayBufferList> data =
-    new ThreadSharedFloatArrayBufferList(2);
-  // Copy real and complex arrays into a single shared buffer.
-  /* FIXME: copy again? See the neutered buffer stuff. */
-  uint32_t size = mLength*sizeof(float);
+  // Copy coefficient data. The two arrays share an allocation.
+  mCoefficients = new ThreadSharedFloatArrayBufferList(2);
+  uint32_t size = aLength*sizeof(float);
   float *buffer = static_cast<float*>(malloc(size*2));
   MOZ_ASSERT(buffer, "allocation failure");
-  PodCopy(buffer, mRealData.get(), mLength);
-  data->SetData(0, buffer, buffer);
-  PodCopy(buffer+size, mImagData.get(), mLength);
-  data->SetData(1, buffer+size, nullptr);
-  return data.forget();
+  PodCopy(buffer, aRealData, aLength);
+  mCoefficients->SetData(0, buffer, buffer);
+  PodCopy(buffer+size, aImagData, aLength);
+  mCoefficients->SetData(1, buffer+size, nullptr);
+}
+
+ThreadSharedFloatArrayBufferList*
+PeriodicWave::GetThreadSharedBuffer()
+{
+  return mCoefficients;
 }
 
 JSObject*
@@ -61,6 +54,6 @@ PeriodicWave::WrapObject(JSContext* aCx, JS::Handle<JSObject*> aScope)
   return PeriodicWaveBinding::Wrap(aCx, aScope, this);
 }
 
-}
-}
+} // namespace dom
+} // namespace mozilla
 
