@@ -27,7 +27,7 @@ public:
   PeriodicWave(AudioContext* aContext,
                const float* aRealData,
                const float* aImagData,
-               uint32_t aLength);
+               const uint32_t aLength);
 
   NS_INLINE_DECL_CYCLE_COLLECTING_NATIVE_REFCOUNTING(PeriodicWave)
   NS_DECL_CYCLE_COLLECTION_SCRIPT_HOLDER_NATIVE_CLASS(PeriodicWave)

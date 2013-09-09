@@ -20,7 +20,7 @@ NS_IMPL_CYCLE_COLLECTION_UNROOT_NATIVE(PeriodicWave, Release)
 PeriodicWave::PeriodicWave(AudioContext* aContext,
                            const float* aRealData,
                            const float* aImagData,
-                           uint32_t aLength)
+                           const uint32_t aLength)
   : mContext(aContext)
 {
   MOZ_ASSERT(aContext);
