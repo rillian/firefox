@@ -127,23 +127,23 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
     float normalizationScale = 1;
 
     unsigned fftSize = m_periodicWaveSize;
-    unsigned halfSize = fftSize / 2;
+    unsigned halfSize = fftSize / 2 + 1;
     unsigned i;
 
     numberOfComponents = std::min(numberOfComponents, halfSize);
 
-    //m_bandLimitedTables.reserveCapacity(m_numberOfRanges);
+    m_bandLimitedTables.SetLength(m_numberOfRanges);
 
     for (unsigned rangeIndex = 0; rangeIndex < m_numberOfRanges; ++rangeIndex) {
         // This FFTBlock is used to cull partials (represented by frequency bins).
         FFTBlock frame(fftSize);
-        float* realP = frame.RealData();
-        float* imagP = frame.ImagData();
+        float* realP = new float[halfSize];
+        float* imagP = new float[halfSize];
 
         // Copy from loaded frequency data and scale.
         float scale = fftSize;
-        vsmul(realData, 1, &scale, realP, 1, numberOfComponents);
-        vsmul(imagData, 1, &scale, imagP, 1, numberOfComponents);
+        AudioBufferCopyWithScale(realData, scale, realP, numberOfComponents);
+        AudioBufferCopyWithScale(imagData, scale, imagP, numberOfComponents);
 
         // If fewer components were provided than 1/2 FFT size,
         // then clear the remaining bins.
@@ -155,7 +155,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
         // Generate complex conjugate because of the way the
         // inverse FFT is defined.
         float minusOne = -1;
-        vsmul(imagP, 1, &minusOne, imagP, 1, halfSize);
+        AudioBufferInPlaceScale(imagP, 1, minusOne, halfSize);
 
         // Find the starting bin where we should start culling.
         // We need to clear out the highest frequencies to band-limit
@@ -175,25 +175,25 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
         realP[0] = 0;
 
         // Create the band-limited table.
-        nsRefPtr<AudioFloatArray> table = new AudioFloatArray(m_periodicWaveSize);
-        m_bandLimitedTables.AppendElement(table.forget());
+        AudioFloatArray* table = new AudioFloatArray(m_periodicWaveSize);
+        m_bandLimitedTables.AppendElement(table);
 
         // Apply an inverse FFT to generate the time-domain table data.
         float* data = m_bandLimitedTables[rangeIndex]->Elements();
-        frame.doInverseFFT(data);
+        frame.PerformInverseFFT(realP, imagP, data);
 
         // For the first range (which has the highest power), calculate
         // its peak value then compute normalization scale.
         if (!rangeIndex) {
             float maxValue;
-            vmaxmgv(data, 1, &maxValue, m_periodicWaveSize);
+            maxValue = AudioBufferPeakValue(data, m_periodicWaveSize);
 
             if (maxValue)
                 normalizationScale = 1.0f / maxValue;
         }
 
         // Apply normalization scale.
-        vsmul(data, 1, &normalizationScale, data, 1, m_periodicWaveSize);
+        AudioBufferInPlaceScale(data, 1, normalizationScale, m_periodicWaveSize);
     }
 }
 
