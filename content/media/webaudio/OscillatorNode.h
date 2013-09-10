@@ -77,12 +77,12 @@ public:
       // Shut up the compiler warning
       break;
     }
-#if 0
     if (aType == OscillatorType::Custom) {
-      aRv.Throw(NS_ERROR_DOM_NOT_SUPPORTED_ERR);
+      // ::Custom can only be set by setPeriodicWave().
+      // https://www.w3.org/Bugs/Public/show_bug.cgi?id=17368 for exception.
+      aRv.Throw(NS_ERROR_DOM_INVALID_STATE_ERR);
       return;
     }
-#endif
     mType = aType;
     SendTypeToStream();
   }
