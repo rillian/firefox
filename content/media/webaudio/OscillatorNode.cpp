@@ -97,7 +97,14 @@ public:
   virtual void SetInt32Parameter(uint32_t aIndex, int32_t aParam)
   {
     switch (aIndex) {
-    case TYPE: mType = static_cast<OscillatorType>(aParam); break;
+    case TYPE:
+      mType = static_cast<OscillatorType>(aParam);
+      if (mType != OscillatorType::Custom) {
+        // Forget any previous custom data.
+        mCustom = nullptr;
+        mCustomLength = 0;
+      }
+      break;
     case PERIODICWAVE:
       mCustomLength = aParam; break;
     default:
@@ -296,6 +303,9 @@ public:
       case OscillatorType::Triangle:
         ComputeTriangle(aOutput);
         break;
+      case OscillatorType::Custom:
+        ComputeCustom(aOutput);
+        break;
       default:
         ComputeSilence(aOutput);
     }
@@ -361,10 +371,11 @@ OscillatorNode::SendDetuneToStream(AudioNode* aNode)
 void
 OscillatorNode::SendTypeToStream()
 {
-  SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
   if (mType == OscillatorType::Custom) {
+    // The engine assumes we'll send the custom data before updating the type.
     SendPeriodicWaveToStream();
   }
+  SendInt32ParameterToStream(OscillatorNodeEngine::TYPE, static_cast<int32_t>(mType));
 }
 
 void OscillatorNode::SendPeriodicWaveToStream()
