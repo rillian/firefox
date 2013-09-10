@@ -42,9 +42,9 @@ public:
 
     // Creates an arbitrary periodic wave given the frequency components
     // (Fourier coefficients).
-    static nsRefPtr<PeriodicWave> create(float sampleRate,
-                                         AudioFloatArray* real,
-                                         AudioFloatArray* imag);
+    static PeriodicWave* create(float sampleRate,
+                                AudioFloatArray* real,
+                                AudioFloatArray* imag);
 
     // Returns pointers to the lower and higher wave data for the pitch range
     // containing the given fundamental frequency. These two tables are in
@@ -90,7 +90,7 @@ private:
 
     // Creates tables based on numberOfComponents Fourier coefficients.
     void createBandLimitedTables(const float* real, const float* imag, unsigned numberOfComponents);
-    nsTArray<nsRefPtr<AudioFloatArray> > m_bandLimitedTables;
+    nsTArray<AudioFloatArray*> m_bandLimitedTables;
 };
 
 } // namespace WebCore

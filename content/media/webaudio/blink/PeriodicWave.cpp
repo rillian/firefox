@@ -40,14 +40,14 @@ using mozilla::dom::OscillatorType;
 
 namespace WebCore {
 
-nsRefPtr<PeriodicWave> PeriodicWave::create(float sampleRate,
-                                            AudioFloatArray* real,
-                                            AudioFloatArray* imag)
+PeriodicWave* PeriodicWave::create(float sampleRate,
+                                   AudioFloatArray* real,
+                                   AudioFloatArray* imag)
 {
     bool isGood = real && imag && real->Length() == imag->Length();
     MOZ_ASSERT(isGood);
     if (isGood) {
-        nsRefPtr<PeriodicWave> periodicWave = new PeriodicWave(sampleRate);
+        PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
         size_t numberOfComponents = real->Length();
         periodicWave->createBandLimitedTables(real->Elements(),
                                               imag->Elements(),
