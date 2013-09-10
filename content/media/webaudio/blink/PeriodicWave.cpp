@@ -27,6 +27,7 @@
  */
 
 #include "PeriodicWave.h"
+#include <algorithm>
 #include <cmath>
 #include "mozilla/FFTBlock.h"
 
@@ -137,7 +138,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
         // This FFTBlock is used to cull partials (represented by frequency bins).
         FFTBlock frame(fftSize);
         float* realP = frame.RealData();
-        float* imagP = frame.imagData();
+        float* imagP = frame.ImagData();
 
         // Copy from loaded frequency data and scale.
         float scale = fftSize;
