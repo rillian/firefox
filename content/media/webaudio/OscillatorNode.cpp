@@ -113,6 +113,7 @@ public:
   }
   virtual void SetBuffer(already_AddRefed<ThreadSharedFloatArrayBufferList> aBuffer)
   {
+    MOZ_ASSERT(mCustomLength, "Custom buffer sent before length");
     mCustom = aBuffer;
   }
 
@@ -385,11 +386,11 @@ void OscillatorNode::SendPeriodicWaveToStream()
   AudioNodeStream* ns = static_cast<AudioNodeStream*>(mStream.get());
   MOZ_ASSERT(ns, "Missing node stream.");
   MOZ_ASSERT(mPeriodicWave, "Send called without PeriodicWave object.");
+  SendInt32ParameterToStream(OscillatorNodeEngine::PERIODICWAVE,
+                             mPeriodicWave->DataLength());
   nsRefPtr<ThreadSharedFloatArrayBufferList> data =
     mPeriodicWave->GetThreadSharedBuffer();
   ns->SetBuffer(data.forget());
-  SendInt32ParameterToStream(OscillatorNodeEngine::PERIODICWAVE,
-                             mPeriodicWave->DataLength());
 }
 
 void

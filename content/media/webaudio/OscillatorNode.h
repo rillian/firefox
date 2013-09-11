@@ -109,9 +109,9 @@ public:
   void SetPeriodicWave(PeriodicWave& aPeriodicWave)
   {
     mPeriodicWave = &aPeriodicWave;
-    //SetType will call SendPeriodicWaveToStream for us.
-    ErrorResult rv;
-    SetType(OscillatorType::Custom, rv);
+    // SendTypeToStream will call SendPeriodicWaveToStream for us.
+    mType = OscillatorType::Custom;
+    SendTypeToStream();
   }
 
   IMPL_EVENT_HANDLER(ended)
