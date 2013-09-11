@@ -248,7 +248,7 @@ void PeriodicWave::generateBasicWaveform(OscillatorType shape)
             b = 0;
             break;
         default:
-            NS_ASSERTION(false, "Shouldn't reach this point.");
+            NS_NOTREACHED("invalid oscillator type");
             a = 0;
             b = 0;
             break;
