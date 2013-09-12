@@ -45,7 +45,8 @@ PeriodicWave* PeriodicWave::create(float sampleRate,
                                    const float* imag,
                                    size_t numberOfComponents)
 {
-    bool isGood = real && imag;
+    bool isGood = real && imag && numberOfComponents > 0 &&
+         numberOfComponents <= PeriodicWaveSize;
     MOZ_ASSERT(isGood);
     if (isGood) {
         PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
