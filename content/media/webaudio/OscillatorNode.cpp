@@ -9,6 +9,7 @@
 #include "AudioNodeStream.h"
 #include "AudioDestinationNode.h"
 #include "WebAudioUtils.h"
+#include "blink/PeriodicWave.h"
 
 namespace mozilla {
 namespace dom {
@@ -322,6 +323,7 @@ public:
   double mPhase;
   nsRefPtr<ThreadSharedFloatArrayBufferList> mCustom;
   int32_t mCustomLength;
+  nsAutoPtr<WebCore::PeriodicWave> mPeriodicWave;
 };
 
 OscillatorNode::OscillatorNode(AudioContext* aContext)
