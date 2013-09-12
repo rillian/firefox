@@ -104,6 +104,7 @@ public:
         // Forget any previous custom data.
         mCustom = nullptr;
         mCustomLength = 0;
+        mPeriodicWave = nullptr;
       }
       break;
     case PERIODICWAVE:
@@ -116,6 +117,10 @@ public:
   {
     MOZ_ASSERT(mCustomLength, "Custom buffer sent before length");
     mCustom = aBuffer;
+    MOZ_ASSERT(mCustom->GetChannels() == 2,
+               "PeriodicWave should have sent two channels");
+    mPeriodicWave = WebCore::PeriodicWave::create(mSource->SampleRate(),
+        mCustom->GetData(0), mCustom->GetData(1), mCustomLength);
   }
 
   double ComputeFrequency(TrackTicks ticks, size_t count)
@@ -249,7 +254,7 @@ public:
 
   void ComputeCustom(AudioChunk *aOutput)
   {
-    MOZ_ASSERT(mCustom, "No custom waveform data");
+    MOZ_ASSERT(mPeriodicWave, "No custom waveform data");
 
     AllocateAudioBlock(1, aOutput);
     float* output = static_cast<float*>(const_cast<void*>(aOutput->mChannelData[0]));
