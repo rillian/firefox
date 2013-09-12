@@ -41,17 +41,15 @@ using mozilla::dom::OscillatorType;
 namespace WebCore {
 
 PeriodicWave* PeriodicWave::create(float sampleRate,
-                                   AudioFloatArray* real,
-                                   AudioFloatArray* imag)
+                                   const float* real,
+                                   const float* imag,
+                                   size_t numberOfComponents)
 {
-    bool isGood = real && imag && real->Length() == imag->Length();
+    bool isGood = real && imag;
     MOZ_ASSERT(isGood);
     if (isGood) {
         PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
-        size_t numberOfComponents = real->Length();
-        periodicWave->createBandLimitedTables(real->Elements(),
-                                              imag->Elements(),
-                                              numberOfComponents);
+        periodicWave->createBandLimitedTables(real, imag, numberOfComponents);
         return periodicWave;
     }
     return 0;

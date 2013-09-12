@@ -47,8 +47,9 @@ public:
     // Creates an arbitrary periodic wave given the frequency components
     // (Fourier coefficients).
     static PeriodicWave* create(float sampleRate,
-                                AudioFloatArray* real,
-                                AudioFloatArray* imag);
+                                const float* real,
+                                const float* imag,
+                                size_t numberOfComponents);
 
     // Returns pointers to the lower and higher wave data for the pitch range
     // containing the given fundamental frequency. These two tables are in
