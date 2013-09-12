@@ -38,7 +38,7 @@ PeriodicWave::PeriodicWave(AudioContext* aContext,
   PodCopy(buffer, aRealData, aLength);
   mCoefficients->SetData(0, buffer, buffer);
   PodCopy(buffer+aLength, aImagData, aLength);
-  mCoefficients->SetData(1, buffer+aLength, nullptr);
+  mCoefficients->SetData(1, nullptr, buffer+aLength);
 }
 
 ThreadSharedFloatArrayBufferList*
