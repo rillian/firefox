@@ -195,12 +195,16 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
             realP[i] = 0;
             imagP[i] = 0;
         }
-        // Clear packed-nyquist if necessary.
+        // Clear nyquist if necessary.
         if (numberOfPartials < halfSize)
-            imagP[0] = 0;
+            realP[halfSize-1] = 0;
 
         // Clear any DC-offset.
         realP[0] = 0;
+
+        // Clear values which have no effect.
+        imagP[0] = 0;
+        imagP[halfSize-1] = 0;
 
         // Create the band-limited table.
         AudioFloatArray* table = new AudioFloatArray(m_periodicWaveSize);
@@ -229,7 +233,7 @@ void PeriodicWave::generateBasicWaveform(OscillatorType shape)
 {
     const float piFloat = M_PI;
     unsigned fftSize = periodicWaveSize();
-    unsigned halfSize = fftSize / 2;
+    unsigned halfSize = fftSize / 2 + 1;
 
     AudioFloatArray real(halfSize);
     AudioFloatArray imag(halfSize);
@@ -239,6 +243,8 @@ void PeriodicWave::generateBasicWaveform(OscillatorType shape)
     // Clear DC and Nyquist.
     realP[0] = 0;
     imagP[0] = 0;
+    realP[halfSize-1] = 0;
+    imagP[halfSize-1] = 0;
 
     for (unsigned n = 1; n < halfSize; ++n) {
         float omega = 2 * piFloat * n;
