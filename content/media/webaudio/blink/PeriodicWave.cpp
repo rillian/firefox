@@ -57,6 +57,34 @@ PeriodicWave* PeriodicWave::create(float sampleRate,
     return 0;
 }
 
+PeriodicWave* PeriodicWave::createSine(float sampleRate)
+{
+      PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
+          periodicWave->generateBasicWaveform(OscillatorType::Sine);
+              return periodicWave;
+}
+
+PeriodicWave* PeriodicWave::createSquare(float sampleRate)
+{
+      PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
+          periodicWave->generateBasicWaveform(OscillatorType::Square);
+              return periodicWave;
+}
+
+PeriodicWave* PeriodicWave::createSawtooth(float sampleRate)
+{
+      PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
+          periodicWave->generateBasicWaveform(OscillatorType::Sawtooth);
+              return periodicWave;
+}
+
+PeriodicWave* PeriodicWave::createTriangle(float sampleRate)
+{
+      PeriodicWave* periodicWave = new PeriodicWave(sampleRate);
+          periodicWave->generateBasicWaveform(OscillatorType::Triangle);
+              return periodicWave;
+}
+
 PeriodicWave::PeriodicWave(float sampleRate)
     : m_sampleRate(sampleRate)
     , m_periodicWaveSize(PeriodicWaveSize)

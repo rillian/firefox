@@ -39,6 +39,10 @@ typedef nsTArray<float> AudioFloatArray;
 
 class PeriodicWave {
 public:
+    static PeriodicWave* createSine(float sampleRate);
+    static PeriodicWave* createSquare(float sampleRate);
+    static PeriodicWave* createSawtooth(float sampleRate);
+    static PeriodicWave* createTriangle(float sampleRate);
 
     // Creates an arbitrary periodic wave given the frequency components
     // (Fourier coefficients).
