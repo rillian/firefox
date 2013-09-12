@@ -33,13 +33,12 @@ PeriodicWave::PeriodicWave(AudioContext* aContext,
 
   // Copy coefficient data. The two arrays share an allocation.
   mCoefficients = new ThreadSharedFloatArrayBufferList(2);
-  uint32_t size = aLength*sizeof(float);
-  float *buffer = static_cast<float*>(malloc(size*2));
+  float *buffer = static_cast<float*>(malloc(aLength*sizeof(float)*2));
   MOZ_ASSERT(buffer, "allocation failure");
   PodCopy(buffer, aRealData, aLength);
   mCoefficients->SetData(0, buffer, buffer);
-  PodCopy(buffer+size, aImagData, aLength);
-  mCoefficients->SetData(1, buffer+size, nullptr);
+  PodCopy(buffer+aLength, aImagData, aLength);
+  mCoefficients->SetData(1, buffer+aLength, nullptr);
 }
 
 ThreadSharedFloatArrayBufferList*
