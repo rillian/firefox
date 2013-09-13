@@ -159,7 +159,7 @@ void PeriodicWave::createBandLimitedTables(const float* realData, const float* i
 
     numberOfComponents = std::min(numberOfComponents, halfSize);
 
-    m_bandLimitedTables.SetLength(m_numberOfRanges);
+    m_bandLimitedTables.SetCapacity(m_numberOfRanges);
 
     for (unsigned rangeIndex = 0; rangeIndex < m_numberOfRanges; ++rangeIndex) {
         // This FFTBlock is used to cull partials (represented by frequency bins).
