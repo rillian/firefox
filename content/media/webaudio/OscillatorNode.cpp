@@ -264,7 +264,26 @@ public:
     FillBounds(output, ticks, start, end);
 
     // TODO: Interpolate data from blink's PeriodicWave here.
+    unsigned periodicWaveSize = mPeriodicWave->periodicWaveSize();
+    double invPeriodicWaveSize = 1.0 / periodicWaveSize;
+    float rateScale = mPeriodicWave->rateScale();
+    float invRateScale = 1.0 / rateScale;
+    float frequency = 0;
+    float *higherWaveData = nullptr;
+    float *lowerWaveData = nullptr
+    float tableInterpolationFactor;
+    float incr = frequency * rateScale;
+    unsigned readIndexMask = periodicWaveSize - 1;
 
+    for (uint32_t i = start; i < end; ++i) {
+      mPeriodicWave->waveDataForFundamentalFrequency(mFrequency,
+                                                     lowerWaveData,
+                                                     higherWaveData,
+                                                     tableInterpolationFactor);
+      /* Bilinear interpolation between adjacent samples in each table. */
+      aOutput[i] = tableInterpolationFactor * lowerWaveData[i] +
+                   (1 - tableInterpolationFactor) * higherWaveData[i];
+    }
   }
 
   void ComputeSilence(AudioChunk *aOutput)
