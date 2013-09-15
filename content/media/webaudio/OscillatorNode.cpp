@@ -51,6 +51,8 @@ public:
     , mDetune(0.f)
     , mType(OscillatorType::Sine)
     , mPhase(0.)
+    , mCustomLength(0)
+    , mCustomIndex(0)
   {
   }
 
@@ -264,26 +266,32 @@ public:
     FillBounds(output, ticks, start, end);
 
     // TODO: Interpolate data from blink's PeriodicWave here.
-    unsigned periodicWaveSize = mPeriodicWave->periodicWaveSize();
+    uint32_t periodicWaveSize = mPeriodicWave->periodicWaveSize();
     double invPeriodicWaveSize = 1.0 / periodicWaveSize;
     float rateScale = mPeriodicWave->rateScale();
     float invRateScale = 1.0 / rateScale;
-    float frequency = 0;
     float *higherWaveData = nullptr;
-    float *lowerWaveData = nullptr
+    float *lowerWaveData = nullptr;
     float tableInterpolationFactor;
-    float incr = frequency * rateScale;
-    unsigned readIndexMask = periodicWaveSize - 1;
+    // Assume periodicWaveSize is a power of two so we can wrap by masking.
+    uint32_t readIndexMask = periodicWaveSize - 1;
+    uint32_t j = mCustomIndex;
+    float rate = 1.0 / mSource->SampleRate();
 
     for (uint32_t i = start; i < end; ++i) {
-      mPeriodicWave->waveDataForFundamentalFrequency(mFrequency,
+      float frequency = ComputeFrequency(mSource->GetCurrentPosition(), i);
+      mPeriodicWave->waveDataForFundamentalFrequency(frequency,
                                                      lowerWaveData,
                                                      higherWaveData,
                                                      tableInterpolationFactor);
+      mPhase += frequency * rateScale;
       /* Bilinear interpolation between adjacent samples in each table. */
-      aOutput[i] = tableInterpolationFactor * lowerWaveData[i] +
-                   (1 - tableInterpolationFactor) * higherWaveData[i];
+      output[i] = tableInterpolationFactor * lowerWaveData[j] +
+                   (1 - tableInterpolationFactor) * higherWaveData[j];
+      uint32_t inc = periodicWaveSize * frequency * rate;
+      j = (j + inc) & readIndexMask;
     }
+    mCustomIndex = j;
   }
 
   void ComputeSilence(AudioChunk *aOutput)
@@ -347,6 +355,7 @@ public:
   double mPhase;
   nsRefPtr<ThreadSharedFloatArrayBufferList> mCustom;
   int32_t mCustomLength;
+  uint32_t mCustomIndex;
   nsAutoPtr<WebCore::PeriodicWave> mPeriodicWave;
 };
 
