@@ -13,7 +13,7 @@ if [ $# -lt 1 ]; then
   echo   * objdir/x86_64-darwin9-gcc
   echo   * objdir/armv7-linux-gcc
   echo You can configure these from objdir/$target with the following command:
-  echo $ ../../configure --target=$target --disable-vp8-encoder --disable-examples --disable-install-docs
+  echo $ ../../configure --target=$target --disable-examples --disable-install-docs
   echo On Mac, you also need --enable-pic
   exit -1
 fi
