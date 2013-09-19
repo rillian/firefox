@@ -11,10 +11,11 @@ if [ $# -lt 1 ]; then
   echo   * objdir/generic-gnu
   echo   * objdir/x86-darwin9-gcc
   echo   * objdir/x86_64-darwin9-gcc
-  echo   * objdir/armv7-linux-gcc
+  echo   * objdir/armv7-android-gcc
   echo You can configure these from objdir/$target with the following command:
   echo $ ../../configure --target=$target --disable-examples --disable-install-docs
-  echo On Mac, you also need --enable-pic
+  echo For Android you need --sdk-path=/path/to/android-ndk-r$REV
+  echo For Mac, you also need --enable-pic
   exit -1
 fi
 
