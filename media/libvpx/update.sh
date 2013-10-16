@@ -404,58 +404,6 @@ done
 cp -v $1/vpx_scale/arm/scalesystemdependent.c \
          vpx_scale/arm/arm_scalesystemdependent.c
 
-# Upstream patch to fix variance overflow.
-patch -p3 < I1bad27ea.patch
-
-# Upstream patch to remove __inline for compiler compatibility.
-patch -p3 < I6f2b218d.patch
-
-# Patch to move SAD and variance functions to common (based on an upstream
-# patch).
-patch -p3 < I256a37c6.patch
-
-# These get moved by I256a37c6.patch above, but patch won't do the actual move
-# for us.
-encoderMovedFiles=(
-  vp8/encoder/sad_c.c
-  vp8/encoder/variance_c.c
-  vp8/encoder/arm/variance_arm.c
-  vp8/encoder/x86/variance_mmx.c
-  vp8/encoder/x86/variance_sse2.c
-  vp8/encoder/x86/variance_ssse3.c
-  vp8/encoder/variance.h
-  vp8/encoder/arm/variance_arm.h
-  vp8/encoder/x86/variance_x86.h
-  vp8/encoder/arm/armv6/vp8_mse16x16_armv6.asm
-  vp8/encoder/arm/armv6/vp8_sad16x16_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance16x16_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance8x8_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_h_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_hv_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_v_armv6.asm
-  vp8/encoder/arm/neon/sad16_neon.asm
-  vp8/encoder/arm/neon/sad8_neon.asm
-  vp8/encoder/arm/neon/variance_neon.asm
-  vp8/encoder/arm/neon/vp8_mse16x16_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance16x16_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance16x16s_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance8x8_neon.asm
-  vp8/encoder/x86/sad_mmx.asm
-  vp8/encoder/x86/sad_sse2.asm
-  vp8/encoder/x86/sad_sse3.asm
-  vp8/encoder/x86/sad_ssse3.asm
-  vp8/encoder/x86/sad_sse4.asm
-  vp8/encoder/x86/variance_impl_mmx.asm
-  vp8/encoder/x86/variance_impl_sse2.asm
-  vp8/encoder/x86/variance_impl_ssse3.asm
-)
-
-# Move encoder source files into the common tree.
-for f in ${encoderMovedFiles[@]}
-do
-  mv -v $f ${f/encoder/common}
-done
-
 # Patch to fix text relocations in the variance functions.
 patch -p3 < textrels.patch
 
