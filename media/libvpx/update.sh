@@ -404,29 +404,8 @@ done
 cp -v $1/vpx_scale/arm/scalesystemdependent.c \
          vpx_scale/arm/arm_scalesystemdependent.c
 
-# Patch to fix text relocations in the variance functions.
-patch -p3 < textrels.patch
-
 # Patch to use VARIANCE_INVOKE in multiframe_quality_enhance_block().
-patch -p3 < variance-invoke.patch
-
-# Upstream patch to fix potential use of uninitialized rate_y.
-patch -p3 < I8a35831e.patch
-
-# Upstream patch to reset segmentation map on keyframes.
-patch -p3 < I9713c9f0.patch
-
-# Upstream patch to support Android x86 NDK build.
-patch -p3 < I42ab00e3.patch
-
-# Upstream patch to align internal mfqe framebuffer dimensions.
-patch -p3 < I3915d597.patch
-
-# Patch to compile with Sun Studio on Solaris
-patch -p3 < solaris.patch
-
-# Patch to fix errors including C headers in C++
-patch -p3 < compile_errors.patch
+#patch -p3 < variance-invoke.patch
 
 # Patch to permit vpx users to specify their own <stdint.h> types.
 patch -p3 < stdint.patch
