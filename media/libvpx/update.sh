@@ -21,62 +21,55 @@ fi
 
 # These are relative to SDK source dir.
 commonFiles=(
-  vp8/vp8_cx_iface.c
-  vp8/vp8_dx_iface.c
+  vpx/src/vpx_decoder.c
+  vpx/src/vpx_image.c
+  vpx_mem/vpx_mem.c
+  vpx_scale/generic/vpxscale.c
+  vpx_scale/generic/yv12config.c
+  vpx_scale/generic/yv12extend.c
+  vpx_scale/generic/gen_scalers.c
+  vpx_ports/x86_cpuid.c
   vp8/common/alloccommon.c
   vp8/common/asm_com_offsets.c
-  vp8/common/blockd.c
   vp8/common/debugmodes.c
+  vp8/common/blockd.c
   vp8/common/dequantize.c
   vp8/common/entropy.c
   vp8/common/entropymode.c
   vp8/common/entropymv.c
   vp8/common/extend.c
-  vp8/common/filter.c
   vp8/common/findnearmv.c
+  vp8/common/filter.c
+  vp8/common/generic/systemdependent.c
   vp8/common/idct_blk.c
   vp8/common/idctllm.c
+  vp8/common/rtcd.c
   vp8/common/loopfilter.c
   vp8/common/loopfilter_filters.c
   vp8/common/mbpitch.c
   vp8/common/modecont.c
-  vp8/common/modecontext.c
-  vp8/common/postproc.c
   vp8/common/quant_common.c
   vp8/common/reconinter.c
   vp8/common/reconintra.c
   vp8/common/reconintra4x4.c
+  vp8/common/sad_c.c
   vp8/common/setupintrarecon.c
   vp8/common/swapyv12buffer.c
+  vp8/common/variance_c.c
   vp8/common/treecoder.c
-  vp8/common/arm/arm_systemdependent.c
-  vp8/common/arm/bilinearfilter_arm.c
-  vp8/common/arm/dequantize_arm.c
-  vp8/common/arm/filter_arm.c
-  vp8/common/arm/loopfilter_arm.c
-  vp8/common/arm/reconintra_arm.c
-  vp8/common/arm/armv6/idct_blk_v6.c
-  vp8/common/arm/neon/idct_blk_neon.c
-  vp8/common/generic/systemdependent.c
   vp8/common/x86/filter_x86.c
-  vp8/common/x86/idct_blk_mmx.c
-  vp8/common/x86/idct_blk_sse2.c
-  vp8/common/x86/loopfilter_x86.c
-  vp8/common/x86/recon_wrapper_sse2.c
   vp8/common/x86/vp8_asm_stubs.c
-  vp8/common/x86/x86_systemdependent.c
-  vp8/decoder/asm_dec_offsets.c
-  vp8/decoder/dboolhuff.c
-  vp8/decoder/decodemv.c
-  vp8/decoder/decodframe.c
-  vp8/decoder/detokenize.c
-  vp8/decoder/error_concealment.c
-  vp8/decoder/onyxd_if.c
-  vp8/decoder/reconintra_mt.c
-  vp8/decoder/threading.c
-  vp8/decoder/arm/arm_dsystemdependent.c
-  vp8/decoder/generic/dsystemdependent.c
-  vp8/decoder/x86/x86_dsystemdependent.c
+  vp8/common/x86/loopfilter_x86.c
+  vp8/common/mfqe.c
+  vp8/common/postproc.c
+  vp8/common/x86/idct_blk_mmx.c
+  vp8/common/x86/variance_mmx.c
+  vp8/common/x86/idct_blk_sse2.c
+  vp8/common/x86/recon_wrapper_sse2.c
+  vp8/common/x86/variance_sse2.c
+  vp8/common/x86/variance_ssse3.c
+  vp8/common/x86/postproc_x86.c
+  vp8/vp8_cx_iface.c
   vp8/encoder/asm_enc_offsets.c
   vp8/encoder/bitstream.c
   vp8/encoder/boolhuff.c
@@ -87,10 +80,10 @@ commonFiles=(
   vp8/encoder/encodemv.c
   vp8/encoder/ethreading.c
   vp8/encoder/firstpass.c
+  vp8/encoder/denoising.c
   vp8/encoder/lookahead.c
   vp8/encoder/mcomp.c
   vp8/encoder/modecosts.c
-  vp8/encoder/mr_dissim.c
   vp8/encoder/onyx_if.c
   vp8/encoder/pickinter.c
   vp8/encoder/picklpf.c
@@ -98,36 +91,21 @@ commonFiles=(
   vp8/encoder/quantize.c
   vp8/encoder/ratectrl.c
   vp8/encoder/rdopt.c
-  vp8/encoder/sad_c.c
   vp8/encoder/segmentation.c
-  vp8/encoder/temporal_filter.c
   vp8/encoder/tokenize.c
   vp8/encoder/treewriter.c
-  vp8/encoder/variance_c.c
-  vp8/encoder/arm/arm_csystemdependent.c
-  vp8/encoder/arm/boolhuff_arm.c
-  vp8/encoder/arm/dct_arm.c
-  vp8/encoder/arm/quantize_arm.c
-  vp8/encoder/arm/variance_arm.c
-  vp8/encoder/arm/neon/picklpf_arm.c
-  vp8/encoder/generic/csystemdependent.c
-  vp8/encoder/x86/variance_mmx.c
-  vp8/encoder/x86/variance_sse2.c
-  vp8/encoder/x86/variance_ssse3.c
-  vp8/encoder/x86/x86_csystemdependent.c
-  vpx/src/vpx_codec.c
-  vpx/src/vpx_decoder.c
-  vpx/src/vpx_decoder_compat.c
-  vpx/src/vpx_encoder.c
-  vpx/src/vpx_image.c
-  vpx_mem/vpx_mem.c
-  vpx_ports/arm_cpudetect.c
-  vpx_scale/arm/neon/yv12extend_arm.c
-  vpx_scale/generic/gen_scalers.c
-  vpx_scale/generic/scalesystemdependent.c
-  vpx_scale/generic/vpxscale.c
-  vpx_scale/generic/yv12config.c
-  vpx_scale/generic/yv12extend.c
+  vp8/encoder/temporal_filter.c
+  vp8/encoder/x86/vp8_enc_stubs_mmx.c
+  vp8/encoder/x86/denoising_sse2.c
+  vp8/encoder/x86/vp8_enc_stubs_sse2.c
+  vp8/vp8_dx_iface.c
+  vp8/decoder/asm_dec_offsets.c
+  vp8/decoder/dboolhuff.c
+  vp8/decoder/decodemv.c
+  vp8/decoder/decodframe.c
+  vp8/decoder/detokenize.c
+  vp8/decoder/onyxd_if.c
+  vp8/decoder/threading.c
   vp8/common/alloccommon.h
   vp8/common/blockd.h
   vp8/common/coefupdateprobs.h
