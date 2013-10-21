@@ -3,18 +3,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+PLATFORMS='
+  x86-win32-vs8
+  x86-linux-gcc
+  generic-gnu
+  x86-darwin9-gcc
+  x86_64-darwin9-gcc
+  armv7-android-gcc
+  '
+
 if [ $# -lt 1 ]; then
   echo Usage: update.sh /path/to/libvpx/
   echo The libvpx dir must contain a directory "objdir" with the following directories configured in it:
-  echo   * objdir/x86-win32-vs8
-  echo   * objdir/x86-linux-gcc
-  echo   * objdir/generic-gnu
-  echo   * objdir/x86-darwin9-gcc
-  echo   * objdir/x86_64-darwin9-gcc
-  echo   * objdir/armv7-android-gcc
-  echo You can configure these from objdir/$target with the following command:
-  echo $ ../../configure --target=$target --disable-examples --disable-install-docs
-  echo For Android you need --sdk-path=/path/to/android-ndk-r$REV
+  for target in ${PLATFORMS}; do
+    echo -e "   * objdir/${target}"
+  done
+  echo You can configure these from objdir/\$target with the following command:
+  echo $ ../../configure --target=\$target --disable-examples --disable-install-docs
+  echo For Android you need --sdk-path=/path/to/android-ndk-r\$REV
   echo For Mac, you also need --enable-pic
   exit -1
 fi
@@ -332,41 +338,11 @@ commonFiles=(
   PATENTS
 )
 
-# configure files specific to x86-win32-vs8
-cp $1/objdir/x86-win32-vs8/vpx_config.c vpx_config_x86-win32-vs8.c
-cp $1/objdir/x86-win32-vs8/vpx_config.asm vpx_config_x86-win32-vs8.asm
-cp $1/objdir/x86-win32-vs8/vpx_config.h vpx_config_x86-win32-vs8.h
-
-# Should be same for all platforms...
-cp $1/objdir/x86-win32-vs8/vpx_version.h vpx_version.h
-
-# Config files for x86-linux-gcc and other x86 elf platforms
-cp $1/objdir/x86-linux-gcc/vpx_config.c vpx_config_x86-linux-gcc.c
-cp $1/objdir/x86-linux-gcc/vpx_config.asm vpx_config_x86-linux-gcc.asm
-cp $1/objdir/x86-linux-gcc/vpx_config.h vpx_config_x86-linux-gcc.h
-
-# Config files for x86_64-linux-gcc and other x86_64 elf platforms
-cp $1/objdir/x86_64-linux-gcc/vpx_config.c vpx_config_x86_64-linux-gcc.c
-cp $1/objdir/x86_64-linux-gcc/vpx_config.asm vpx_config_x86_64-linux-gcc.asm
-cp $1/objdir/x86_64-linux-gcc/vpx_config.h vpx_config_x86_64-linux-gcc.h
-
-# Copy config files for mac...
-cp $1/objdir/x86-darwin9-gcc/vpx_config.c vpx_config_x86-darwin9-gcc.c
-cp $1/objdir/x86-darwin9-gcc/vpx_config.asm vpx_config_x86-darwin9-gcc.asm
-cp $1/objdir/x86-darwin9-gcc/vpx_config.h vpx_config_x86-darwin9-gcc.h
-
-# Copy config files for Mac64
-cp $1/objdir/x86_64-darwin9-gcc/vpx_config.c vpx_config_x86_64-darwin9-gcc.c
-cp $1/objdir/x86_64-darwin9-gcc/vpx_config.asm vpx_config_x86_64-darwin9-gcc.asm
-cp $1/objdir/x86_64-darwin9-gcc/vpx_config.h vpx_config_x86_64-darwin9-gcc.h
-
-# Config files for arm-linux-gcc
-cp $1/objdir/armv7-linux-gcc/vpx_config.c vpx_config_arm-linux-gcc.c
-cp $1/objdir/armv7-linux-gcc/vpx_config.h vpx_config_arm-linux-gcc.h
-
-# Config files for generic-gnu
-cp $1/objdir/generic-gnu/vpx_config.c vpx_config_generic-gnu.c
-cp $1/objdir/generic-gnu/vpx_config.h vpx_config_generic-gnu.h
+# Copy configuration files for each platform
+for target in PLATFORMS; do
+  cp ${1}/objdir/${target}/vpx_config.h vpx_config_${target}.h
+  cp ${1}/objdir/${target}/vpx_config.c vpx_config_${target}.c
+done
 
 # Copy common source files into mozilla tree.
 for f in ${commonFiles[@]}
@@ -377,8 +353,8 @@ done
 
 # This has to be renamed because there's already a scalesystemdependent.c in
 # vpx_scale/generic/
-cp -v $1/vpx_scale/arm/scalesystemdependent.c \
-         vpx_scale/arm/arm_scalesystemdependent.c
+#cp -v $1/vpx_scale/arm/scalesystemdependent.c \
+#         vpx_scale/arm/arm_scalesystemdependent.c
 
 # Patch to use VARIANCE_INVOKE in multiframe_quality_enhance_block().
 #patch -p3 < variance-invoke.patch
