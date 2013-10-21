@@ -213,7 +213,6 @@ commonFiles=(
   vp8/common/arm/armv6/dc_only_idct_add_v6.asm
   vp8/common/arm/armv6/dequant_idct_v6.asm
   vp8/common/arm/armv6/dequantize_v6.asm
-  vp8/common/arm/armv6/iwalsh_v6.asm
   vp8/common/arm/armv6/filter_v6.asm
   vp8/common/arm/armv6/idct_v6.asm
   vp8/common/arm/armv6/intra4x4_predict_v6.asm
@@ -221,6 +220,12 @@ commonFiles=(
   vp8/common/arm/armv6/loopfilter_v6.asm
   vp8/common/arm/armv6/simpleloopfilter_v6.asm
   vp8/common/arm/armv6/sixtappredict8x4_v6.asm
+  vp8/common/arm/armv6/vp8_sad16x16_armv6.asm
+  vp8/common/arm/armv6/vp8_variance16x16_armv6.asm
+  vp8/common/arm/armv6/vp8_variance8x8_armv6.asm
+  vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_h_armv6.asm
+  vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_hv_armv6.asm
+  vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_v_armv6.asm
   vp8/common/arm/neon/bilinearpredict16x16_neon.asm
   vp8/common/arm/neon/bilinearpredict4x4_neon.asm
   vp8/common/arm/neon/bilinearpredict8x4_neon.asm
@@ -239,12 +244,28 @@ commonFiles=(
   vp8/common/arm/neon/loopfiltersimplehorizontaledge_neon.asm
   vp8/common/arm/neon/loopfiltersimpleverticaledge_neon.asm
   vp8/common/arm/neon/mbloopfilter_neon.asm
-  vp8/common/arm/neon/save_neon_reg.asm
+  vp8/common/arm/neon/sad16_neon.asm
+  vp8/common/arm/neon/sad8_neon.asm
+  vp8/common/arm/neon/save_reg_neon.asm
   vp8/common/arm/neon/shortidct4x4llm_neon.asm
   vp8/common/arm/neon/sixtappredict16x16_neon.asm
   vp8/common/arm/neon/sixtappredict4x4_neon.asm
   vp8/common/arm/neon/sixtappredict8x4_neon.asm
   vp8/common/arm/neon/sixtappredict8x8_neon.asm
+  vp8/common/arm/neon/variance_neon.asm
+  vp8/common/arm/neon/vp8_subpixelvariance16x16_neon.asm
+  vp8/common/arm/neon/vp8_subpixelvariance16x16s_neon.asm
+  vp8/common/arm/neon/vp8_subpixelvariance8x8_neon.asm
+  vp8/common/ppc/copy_altivec.asm
+  vp8/common/ppc/filter_altivec.asm
+  vp8/common/ppc/filter_bilinear_altivec.asm
+  vp8/common/ppc/idctllm_altivec.asm
+  vp8/common/ppc/loopfilter_filters_altivec.asm
+  vp8/common/ppc/platform_altivec.asm
+  vp8/common/ppc/recon_altivec.asm
+  vp8/common/ppc/sad_altivec.asm
+  vp8/common/ppc/variance_altivec.asm
+  vp8/common/ppc/variance_subpixel_altivec.asm
   vp8/common/x86/dequantize_mmx.asm
   vp8/common/x86/idctllm_mmx.asm
   vp8/common/x86/idctllm_sse2.asm
@@ -253,63 +274,57 @@ commonFiles=(
   vp8/common/x86/loopfilter_block_sse2.asm
   vp8/common/x86/loopfilter_mmx.asm
   vp8/common/x86/loopfilter_sse2.asm
+  vp8/common/x86/mfqe_sse2.asm
   vp8/common/x86/postproc_mmx.asm
   vp8/common/x86/postproc_sse2.asm
   vp8/common/x86/recon_mmx.asm
   vp8/common/x86/recon_sse2.asm
+  vp8/common/x86/sad_mmx.asm
+  vp8/common/x86/sad_sse2.asm
+  vp8/common/x86/sad_sse3.asm
+  vp8/common/x86/sad_sse4.asm
+  vp8/common/x86/sad_ssse3.asm
   vp8/common/x86/subpixel_mmx.asm
   vp8/common/x86/subpixel_sse2.asm
   vp8/common/x86/subpixel_ssse3.asm
+  vp8/common/x86/variance_impl_mmx.asm
+  vp8/common/x86/variance_impl_sse2.asm
+  vp8/common/x86/variance_impl_ssse3.asm
   vp8/encoder/arm/armv5te/boolhuff_armv5te.asm
   vp8/encoder/arm/armv5te/vp8_packtokens_armv5.asm
   vp8/encoder/arm/armv5te/vp8_packtokens_mbrow_armv5.asm
   vp8/encoder/arm/armv5te/vp8_packtokens_partitions_armv5.asm
   vp8/encoder/arm/armv6/vp8_fast_quantize_b_armv6.asm
   vp8/encoder/arm/armv6/vp8_mse16x16_armv6.asm
-  vp8/encoder/arm/armv6/vp8_sad16x16_armv6.asm
   vp8/encoder/arm/armv6/vp8_short_fdct4x4_armv6.asm
   vp8/encoder/arm/armv6/vp8_subtract_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance16x16_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance8x8_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_h_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_hv_armv6.asm
-  vp8/encoder/arm/armv6/vp8_variance_halfpixvar16x16_v_armv6.asm
   vp8/encoder/arm/armv6/walsh_v6.asm
   vp8/encoder/arm/neon/fastquantizeb_neon.asm
-  vp8/encoder/arm/neon/sad16_neon.asm
-  vp8/encoder/arm/neon/sad8_neon.asm
   vp8/encoder/arm/neon/shortfdct_neon.asm
   vp8/encoder/arm/neon/subtract_neon.asm
-  vp8/encoder/arm/neon/variance_neon.asm
   vp8/encoder/arm/neon/vp8_memcpy_neon.asm
   vp8/encoder/arm/neon/vp8_mse16x16_neon.asm
   vp8/encoder/arm/neon/vp8_shortwalsh4x4_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance16x16_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance16x16s_neon.asm
-  vp8/encoder/arm/neon/vp8_subpixelvariance8x8_neon.asm
+  vp8/encoder/ppc/encodemb_altivec.asm
+  vp8/encoder/ppc/fdct_altivec.asm
+  vp8/encoder/ppc/rdopt_altivec.asm
   vp8/encoder/x86/dct_mmx.asm
   vp8/encoder/x86/dct_sse2.asm
   vp8/encoder/x86/encodeopt.asm
   vp8/encoder/x86/fwalsh_sse2.asm
   vp8/encoder/x86/quantize_mmx.asm
   vp8/encoder/x86/quantize_sse2.asm
-  vp8/encoder/x86/quantize_ssse3.asm
   vp8/encoder/x86/quantize_sse4.asm
-  vp8/encoder/x86/sad_mmx.asm
-  vp8/encoder/x86/sad_sse2.asm
-  vp8/encoder/x86/sad_sse3.asm
-  vp8/encoder/x86/sad_ssse3.asm
-  vp8/encoder/x86/sad_sse4.asm
+  vp8/encoder/x86/quantize_ssse3.asm
+  vp8/encoder/x86/ssim_opt.asm
   vp8/encoder/x86/subtract_mmx.asm
   vp8/encoder/x86/subtract_sse2.asm
   vp8/encoder/x86/temporal_filter_apply_sse2.asm
-  vp8/encoder/x86/variance_impl_mmx.asm
-  vp8/encoder/x86/variance_impl_sse2.asm
-  vp8/encoder/x86/variance_impl_ssse3.asm
   vpx_ports/emms.asm
   vpx_ports/x86_abi_support.asm
   vpx_scale/arm/neon/vp8_vpxyv12_copy_y_neon.asm
   vpx_scale/arm/neon/vp8_vpxyv12_copyframe_func_neon.asm
+  vpx_scale/arm/neon/vp8_vpxyv12_copysrcframe_func_neon.asm
   vpx_scale/arm/neon/vp8_vpxyv12_extendframeborders_neon.asm
   build/make/ads2gas.pl
   build/make/obj_int_extract.c
