@@ -107,11 +107,11 @@ commonFiles=(
   vp8/decoder/onyxd_if.c
   vp8/decoder/threading.c
   vp8/common/alloccommon.h
+  vp8/common/arm/bilinearfilter_arm.h
   vp8/common/blockd.h
   vp8/common/coefupdateprobs.h
   vp8/common/common.h
   vp8/common/default_coef_probs.h
-  vp8/common/dequantize.h
   vp8/common/entropy.h
   vp8/common/entropymode.h
   vp8/common/entropymv.h
@@ -119,7 +119,6 @@ commonFiles=(
   vp8/common/filter.h
   vp8/common/findnearmv.h
   vp8/common/header.h
-  vp8/common/idct.h
   vp8/common/invtrans.h
   vp8/common/loopfilter.h
   vp8/common/modecont.h
@@ -131,29 +130,16 @@ commonFiles=(
   vp8/common/ppflags.h
   vp8/common/pragmas.h
   vp8/common/quant_common.h
-  vp8/common/recon.h
   vp8/common/reconinter.h
-  vp8/common/reconintra.h
   vp8/common/reconintra4x4.h
   vp8/common/setupintrarecon.h
-  vp8/common/subpixel.h
   vp8/common/swapyv12buffer.h
   vp8/common/systemdependent.h
   vp8/common/threading.h
   vp8/common/treecoder.h
-  vp8/common/arm/bilinearfilter_arm.h
-  vp8/common/arm/dequantize_arm.h
-  vp8/common/arm/idct_arm.h
-  vp8/common/arm/loopfilter_arm.h
-  vp8/common/arm/recon_arm.h
-  vp8/common/arm/subpixel_arm.h
-  vp8/common/x86/dequantize_x86.h
+  vp8/common/variance.h
+  vp8/common/vp8_entropymodedata.h
   vp8/common/x86/filter_x86.h
-  vp8/common/x86/idct_x86.h
-  vp8/common/x86/loopfilter_x86.h
-  vp8/common/x86/postproc_x86.h
-  vp8/common/x86/recon_x86.h
-  vp8/common/x86/subpixel_x86.h
   vp8/decoder/dboolhuff.h
   vp8/decoder/decodemv.h
   vp8/decoder/decoderthreading.h
@@ -161,13 +147,15 @@ commonFiles=(
   vp8/decoder/ec_types.h
   vp8/decoder/error_concealment.h
   vp8/decoder/onyxd_int.h
-  vp8/decoder/reconintra_mt.h
   vp8/decoder/treereader.h
   vp8/encoder/bitstream.h
   vp8/encoder/block.h
   vp8/encoder/boolhuff.h
-  vp8/encoder/dct.h
+  vp8/encoder/dct_value_cost.h
+  vp8/encoder/dct_value_tokens.h
   vp8/encoder/defaultcoefcounts.h
+  vp8/encoder/denoising.h
+  vp8/encoder/encodeframe.h
   vp8/encoder/encodeintra.h
   vp8/encoder/encodemb.h
   vp8/encoder/encodemv.h
@@ -183,46 +171,41 @@ commonFiles=(
   vp8/encoder/ratectrl.h
   vp8/encoder/rdopt.h
   vp8/encoder/segmentation.h
-  vp8/encoder/temporal_filter.h
   vp8/encoder/tokenize.h
   vp8/encoder/treewriter.h
-  vp8/encoder/variance.h
-  vp8/encoder/arm/dct_arm.h
-  vp8/encoder/arm/encodemb_arm.h
-  vp8/encoder/arm/quantize_arm.h
-  vp8/encoder/arm/variance_arm.h
-  vp8/encoder/x86/dct_x86.h
-  vp8/encoder/x86/encodemb_x86.h
-  vp8/encoder/x86/mcomp_x86.h
-  vp8/encoder/x86/quantize_x86.h
-  vp8/encoder/x86/temporal_filter_x86.h
-  vp8/encoder/x86/variance_x86.h
   vpx/internal/vpx_codec_internal.h
+  vpx/vp8.h
   vpx/vp8cx.h
   vpx/vp8dx.h
-  vpx/vp8e.h
-  vpx/vp8.h
   vpx/vpx_codec.h
   vpx/vpx_codec_impl_bottom.h
   vpx/vpx_codec_impl_top.h
-  vpx/vpx_decoder_compat.h
   vpx/vpx_decoder.h
   vpx/vpx_encoder.h
   vpx/vpx_image.h
   vpx/vpx_integer.h
   vpx_mem/include/vpx_mem_intrnl.h
+  vpx_mem/include/vpx_mem_tracker.h
+  vpx_mem/memory_manager/include/cavl_if.h
+  vpx_mem/memory_manager/include/cavl_impl.h
+  vpx_mem/memory_manager/include/heapmm.h
+  vpx_mem/memory_manager/include/hmm_cnfg.h
+  vpx_mem/memory_manager/include/hmm_intrnl.h
   vpx_mem/vpx_mem.h
   vpx_ports/arm.h
   vpx_ports/asm_offsets.h
   vpx_ports/mem.h
+  vpx_ports/mem_ops.h
+  vpx_ports/mem_ops_aligned.h
   vpx_ports/vpx_timer.h
+  vpx_ports/vpxtypes.h
   vpx_ports/x86.h
+  vpx_scale/generic/yv12extend_generic.h
+  vpx_scale/include/generic/vpxscale_arbitrary.h
+  vpx_scale/include/generic/vpxscale_depricated.h
   vpx_scale/scale_mode.h
   vpx_scale/vpxscale.h
   vpx_scale/yv12config.h
-  vpx_scale/yv12extend.h
-  vpx_scale/arm/yv12extend_arm.h
-  vpx_scale/generic/yv12extend_generic.h
   vp8/common/arm/armv6/bilinearfilter_v6.asm
   vp8/common/arm/armv6/copymem16x16_v6.asm
   vp8/common/arm/armv6/copymem8x4_v6.asm
