@@ -4,7 +4,40 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['include', 'lib']
-
 MODULE = 'theora'
 
+EXPORTS.theora += [
+    'include/theora/codec.h',
+    'include/theora/theora.h',
+    'include/theora/theoradec.h',
+    'include/theora/theoraenc.h',
+]
+
+LIBRARY_NAME = 'theora'
+
+if CONFIG['OS_TEST'] == 'arm' and CONFIG['GNU_AS']:
+    asm_suffix = CONFIG['ASM_SUFFIX']
+    ASFILES += [ '%s.%s' % (f, asm_suffix) for f in [
+        'armbits-gnu',
+        'armfrag-gnu',
+        'armidct-gnu',
+        'armloop-gnu',
+    ]]
+
+CSRCS += [
+    'lib/apiwrapper.c',
+    'lib/bitpack.c',
+    'lib/decapiwrapper.c',
+    'lib/decinfo.c',
+    'lib/decode.c',
+    'lib/dequant.c',
+    'lib/fragment.c',
+    'lib/huffdec.c',
+    'lib/idct.c',
+    'lib/info.c',
+    'lib/internal.c',
+    'lib/quant.c',
+    'lib/state.c',
+]
+
+MSVC_ENABLE_PGO = True

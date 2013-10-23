@@ -39,7 +39,7 @@ endif
 
 ifdef MOZ_OGG
 SHARED_LIBRARY_LIBS 	+= \
-	$(DEPTH)/media/libtheora/lib/$(LIB_PREFIX)theora.$(LIB_SUFFIX) \
+	$(DEPTH)/media/libtheora/$(LIB_PREFIX)theora.$(LIB_SUFFIX) \
 	$(NULL)
 endif
 

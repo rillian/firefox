@@ -3,6 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 FORCE_STATIC_LIB = 1
+
 ifeq (WINNT,$(OS_TARGET))
 VISIBILITY_FLAGS =
 endif
@@ -26,7 +27,7 @@ VPATH := $(srcdir)
 ifeq ($(findstring 86,$(OS_TEST)), 86)
 ifdef _MSC_VER
 ifneq (64,$(findstring 64,$(OS_TEST)))
-VPATH += $(srcdir)/x86_vc
+VPATH += $(srcdir)/lib/x86_vc
 
 CSRCS += \
   mmxidct.c \
@@ -37,7 +38,7 @@ CSRCS += \
   $(NULL)
 endif
 else
-VPATH += $(srcdir)/x86
+VPATH += $(srcdir)/lib/x86
 
 CSRCS += \
   mmxidct.c \
@@ -53,7 +54,7 @@ endif
 ifdef GNU_AS
 ifeq ($(findstring arm,$(OS_TEST)), arm)
 
-VPATH += $(srcdir)/arm
+VPATH += $(srcdir)/lib/arm
 
 CSRCS += \
   armcpu.c \
@@ -79,10 +80,10 @@ armloop-gnu.$(ASM_SUFFIX): armopts-gnu.S
 # armopts needs a specific rule, because arm2gnu.pl will always add the .S
 # suffix when translating the files that include it.
 armopts-gnu.S: armopts.s
-	$(PERL) $(srcdir)/arm/arm2gnu.pl < $< > $@
+	$(PERL) $(srcdir)/lib/arm/arm2gnu.pl < $< > $@
 # For all others, we can use an implicit rule with the configured $(ASM_SUFFIX).
 %-gnu.$(ASM_SUFFIX): %.s
-	$(PERL) $(srcdir)/arm/arm2gnu.pl < $< > $@
+	$(PERL) $(srcdir)/lib/arm/arm2gnu.pl < $< > $@
 
 endif
 endif
