@@ -99,7 +99,6 @@ CSRCS += \
   temporal_filter.c \
   tokenize.c \
   treewriter.c \
-  csystemdependent.c \
   $(NULL)
 endif
 
@@ -118,8 +117,6 @@ CSRCS += \
   variance_sse2.c \
   variance_ssse3.c \
   vp8_asm_stubs.c \
-  x86_systemdependent.c \
-  x86_dsystemdependent.c \
   $(NULL)
 
 ASFILES += \
@@ -153,10 +150,6 @@ ASFILES += loopfilter_block_sse2.asm
 endif
 
 ifdef MOZ_VP8_ENCODER
-
-CSRCS += \
-  x86_csystemdependent.c \
-  $(NULL)
 
 # Files which depend on asm_enc_offsets.asm
 VPX_ASM_ENC_OFFSETS_SRCS = \
@@ -202,7 +195,6 @@ endif
 
 CSRCS += \
   arm_cpudetect.c \
-  arm_systemdependent.c \
   bilinearfilter_arm.c \
   dequantize_arm.c \
   filter_arm.c \
@@ -211,8 +203,6 @@ CSRCS += \
   variance_arm.c \
   idct_blk_v6.c \
   idct_blk_neon.c \
-  arm_dsystemdependent.c \
-  arm_scalesystemdependent.c \
   yv12extend_arm.c \
   $(NULL)
 
@@ -281,7 +271,6 @@ VPX_ASFILES = \
 
 ifdef MOZ_VP8_ENCODER
 CSRCS += \
-  arm_csystemdependent.c \
   boolhuff_arm.c \
   dct_arm.c \
   picklpf_arm.c \
