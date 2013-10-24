@@ -35,5 +35,7 @@ CSRCS += [
     'lib/vorbis_window.c',
 ]
 
-MSVC_ENABLE_PGO = True
+if CONFIG['OS_ARCH'] == 'AIX':
+  DEFINES['alloca'] = '__alloca'
 
+MSVC_ENABLE_PGO = True
