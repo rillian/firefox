@@ -90,6 +90,7 @@ commonFiles=(
   vp8/encoder/lookahead.c
   vp8/encoder/mcomp.c
   vp8/encoder/modecosts.c
+  vp8/encoder/mr_dissim.c
   vp8/encoder/onyx_if.c
   vp8/encoder/pickinter.c
   vp8/encoder/picklpf.c
@@ -110,6 +111,7 @@ commonFiles=(
   vp8/decoder/decodemv.c
   vp8/decoder/decodframe.c
   vp8/decoder/detokenize.c
+  vp8/decoder/error_concealment.c
   vp8/decoder/onyxd_if.c
   vp8/decoder/threading.c
   vp8/common/alloccommon.h
