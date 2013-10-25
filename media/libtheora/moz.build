@@ -34,6 +34,8 @@ CSRCS += [
     'lib/state.c',
 ]
 
+LOCAL_INCLUDES += [ SRCDIR, 'lib' ]
+
 # Enable appropriate assembly for the target platform.
 
 if '86' in CONFIG['OS_TEST']:
