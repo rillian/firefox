@@ -74,7 +74,7 @@ if CONFIG['OS_TEST'] == 'arm' and CONFIG['GNU_AS']:
     })
     CSRCS += [
         'lib/arm/armcpu.c',
-        'lib/arm/armstat.c',
+        'lib/arm/armstate.c',
     ]
     asm_suffix = CONFIG['ASM_SUFFIX']
     ASFILES += [ '%s.%s' % (f, asm_suffix) for f in [
