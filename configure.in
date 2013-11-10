@@ -9010,6 +9010,19 @@ if test -z "$MOZ_NATIVE_JEMALLOC" -a "$MOZ_MEMORY" && test -n "$MOZ_JEMALLOC3" -
   ac_configure_args="$_SUBDIR_CONFIG_ARGS"
 fi
 
+# Run libvpx configure script
+
+if test -n "$MOZ_VP8" -a -z "$MOZ_NATIVE_LIBVPX"; then
+    AC_MSG_RESULT([generating libvpx config...])
+    _save_dir=$(CWD)
+    mkdir -p ${objsdir}/media/libvpx/src
+    cd ${_objdir}/media/libvpx/src && ${srcdir}/media/libvpx/src/configure
+    cd ${_save_dir}
+    if test "$?" != 0; then
+        AC_MSG_ERROR([failed to generate libvpx Makefiles])
+    fi
+fi
+
 # Run freetype configure script
 
 if test "$MOZ_TREE_FREETYPE"; then
