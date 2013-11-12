@@ -8959,7 +8959,7 @@ if test -n "$MOZ_VP8" -a -z "$MOZ_NATIVE_LIBVPX"; then
         VPX_CONFIG_FLAGS="--target=x86-win32-vs8"
     ;;
     *:arm*)
-        VPX_CONFIG_FLAGS="--target=armv7-android-gcc"
+        VPX_CONFIG_FLAGS="--target=armv7-android-gcc --sdk-path=$ANDROID_NDK"
     ;;
     Linux:x86)
         VPX_CONFIG_FLAGS="--target=x86-linux-gcc"
