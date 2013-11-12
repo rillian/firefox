@@ -8980,8 +8980,8 @@ if test -n "$MOZ_VP8" -a -z "$MOZ_NATIVE_LIBVPX"; then
     _save_dir=`pwd`
     mkdir -p ${_objdir}/media/libvpx/src
     cd ${_objdir}/media/libvpx/src && ${srcdir}/media/libvpx/src/configure \
-        $VPX_CONFIG_FLAGS --enable-pic \
-        --disable-examples --disable-install-docs --disable-unit_tests
+        $VPX_CONFIG_FLAGS --enable-pic --disable-unit_tests \
+        --disable-examples --disable-docs --disable-install-docs
     cd ${_save_dir}
     if test "$?" != 0; then
         AC_MSG_ERROR([failed to generate libvpx Makefiles])
