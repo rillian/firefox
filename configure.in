@@ -5380,90 +5380,6 @@ if test "$MOZ_WEBM" -o "$MOZ_OGG"; then
     fi
 fi
 
-if test -n "$MOZ_VP8" -a -z "$MOZ_NATIVE_LIBVPX"; then
-
-    dnl Detect if we can use an assembler to compile optimized assembly for libvpx.
-    dnl We currently require yasm on all x86 platforms and require yasm 1.1.0 on Win32.
-    dnl We currently require gcc on all arm platforms.
-    VPX_AS=$YASM
-    VPX_ASM_SUFFIX=asm
-    VPX_NEED_OBJ_INT_EXTRACT=
-
-    dnl See if we have assembly on this platform.
-    case "$OS_ARCH:$CPU_ARCH" in
-    Darwin:x86)
-      VPX_ASFLAGS="-f macho32 -rnasm -pnasm -DPIC"
-      VPX_X86_ASM=1
-    ;;
-    Darwin:x86_64)
-      VPX_ASFLAGS="-f macho64 -rnasm -pnasm -DPIC"
-      VPX_X86_ASM=1
-    ;;
-    WINNT:x86_64)
-      VPX_ASFLAGS="-f x64 -rnasm -pnasm"
-      VPX_X86_ASM=1
-    ;;
-    WINNT:x86)
-      dnl Check for yasm 1.1 or greater.
-      if test -n "$COMPILE_ENVIRONMENT" -a -z "$YASM"; then
-        AC_MSG_ERROR([yasm 1.1 or greater is required to build libvpx on Win32, but it appears not to be installed.  Install it (included in MozillaBuild 1.5.1 and newer) or configure with --disable-webm (which disables the WebM video format). See https://developer.mozilla.org/en/YASM for more details.])
-      elif test -n "$COMPILE_ENVIRONMENT" -a "$_YASM_MAJOR_VERSION" -lt "1" -o \( "$_YASM_MAJOR_VERSION" -eq "1" -a "$_YASM_MINOR_VERSION" -lt "1" \) ; then
-        AC_MSG_ERROR([yasm 1.1 or greater is required to build libvpx on Win32, but you appear to have version $_YASM_MAJOR_VERSION.$_YASM_MINOR_VERSION.  Upgrade to the newest version (included in MozillaBuild 1.5.1 and newer) or configure with --disable-webm (which disables the WebM video format). See https://developer.mozilla.org/en/YASM for more details.])
-      else
-        VPX_ASFLAGS="-f win32 -rnasm -pnasm -DPIC"
-        VPX_X86_ASM=1
-        dnl The encoder needs obj_int_extract to get asm offsets.
-      fi
-    ;;
-    *:arm*)
-      if test -n "$GNU_AS" ; then
-        VPX_AS=$AS
-        dnl These flags are a lie; they're just used to enable the requisite
-        dnl opcodes; actual arch detection is done at runtime.
-        VPX_ASFLAGS="-march=armv7-a -mfpu=neon"
-        VPX_DASH_C_FLAG="-c"
-        VPX_AS_CONVERSION='$(PERL) $(topsrcdir)/media/libvpx/build/make/ads2gas.pl'
-        VPX_ASM_SUFFIX="$ASM_SUFFIX"
-        VPX_ARM_ASM=1
-      fi
-    ;;
-    *:x86)
-      if $CC -E -dM -</dev/null | grep -q __ELF__; then
-        VPX_ASFLAGS="-f elf32 -rnasm -pnasm"
-        VPX_X86_ASM=1
-      fi
-    ;;
-    *:x86_64)
-      if $CC -E -dM -</dev/null | grep -q __ELF__; then
-        VPX_ASFLAGS="-f elf64 -rnasm -pnasm -DPIC"
-        VPX_X86_ASM=1
-      fi
-    ;;
-    esac
-
-    if test -n "$COMPILE_ENVIRONMENT" -a -n "$VPX_X86_ASM" -a -z "$VPX_AS"; then
-      AC_MSG_ERROR([yasm is a required build tool for this architecture when webm is enabled. You may either install yasm or --disable-webm (which disables the WebM video format). See https://developer.mozilla.org/en/YASM for more details.])
-    fi
-
-    if test -n "$MOZ_VP8_ENCODER" -a \
-            -z "$GNU_CC" -a -z "$INTEL_CC" -a -z "$CLANG_CC" ; then
-      dnl We prefer to get asm offsets using inline assembler, which the above
-      dnl compilers can do. When we're not using one of those, we have to fall
-      dnl back to obj_int_extract, which reads them from a compiled object
-      dnl file. Unfortunately, that only works if we're compiling on a system
-      dnl with the header files for the appropriate object file format.
-      VPX_NEED_OBJ_INT_EXTRACT=1
-    fi
-
-    if test -n "$VPX_X86_ASM"; then
-      AC_DEFINE(VPX_X86_ASM)
-    elif test -n "$VPX_ARM_ASM"; then
-      AC_DEFINE(VPX_ARM_ASM)
-    else
-      AC_MSG_WARN([No assembler or assembly support for libvpx. Using unoptimized C routines.])
-    fi
-fi
-
 dnl ========================================================
 dnl = Disable Wave decoder support
 dnl ========================================================
@@ -9023,6 +8939,53 @@ if test -z "$MOZ_NATIVE_JEMALLOC" -a "$MOZ_MEMORY" && test -n "$MOZ_JEMALLOC3" -
   AC_OUTPUT_SUBDIRS(memory/jemalloc/src)
   cache_file="$_save_cache_file"
   ac_configure_args="$_SUBDIR_CONFIG_ARGS"
+fi
+
+# Run libvpx configure script
+
+if test -n "$MOZ_VP8" -a -z "$MOZ_NATIVE_LIBVPX"; then
+    AC_MSG_RESULT([generating libvpx config...])
+    case "$OS_ARCH:$CPU_ARCH" in
+    Darwin:x86)
+        VPX_CONFIG_FLAGS="--target=x86-darwin9-gcc"
+    ;;
+    Darwin:x86_64)
+        VPX_CONFIG_FLAGS="--target=x86_64-darwin9-gcc"
+    ;;
+    WINNT:x86_64)
+        VPX_CONFIG_FLAGS="--target=x86_64-win64-vs8"
+    ;;
+    WINNT:x86)
+        VPX_CONFIG_FLAGS="--target=x86-win32-vs8"
+    ;;
+    *:arm*)
+        VPX_CONFIG_FLAGS="--target=armv7-android-gcc --sdk-path=$ANDROID_NDK"
+    ;;
+    Linux:x86)
+        VPX_CONFIG_FLAGS="--target=x86-linux-gcc"
+    ;;
+    Linux:x86_64)
+        VPX_CONFIG_FLAGS="--target=x86_64-linux-gcc --extra-cflags=-fvisibility=hidden"
+    ;;
+    *)
+        VPX_CONFIG_FLAGS="--target=generic-gnu"
+    ;;
+    esac
+    if test -z "$MOZ_VP8_ENCODER" ; then
+        VPX_CONFIG_FLAGS="$VPX_CONFIG_FLAGS --disable-vp8-encoder"
+    fi
+    if test -n "$MOZ_VP8_ERROR_CONCEALMENT" ; then
+        VPX_CONFIG_FLAGS="$VPX_CONFIG_FLAGS --enable-error-concealment"
+    fi
+    _save_dir=`pwd`
+    mkdir -p ${_objdir}/media/libvpx/src
+    cd ${_objdir}/media/libvpx/src && ${srcdir}/media/libvpx/src/configure \
+        $VPX_CONFIG_FLAGS --enable-pic --disable-unit_tests \
+        --disable-examples --disable-docs --disable-install-docs
+    cd ${_save_dir}
+    if test "$?" != 0; then
+        AC_MSG_ERROR([failed to generate libvpx Makefiles])
+    fi
 fi
 
 # Run freetype configure script
