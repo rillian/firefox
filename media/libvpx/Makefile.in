@@ -1,4 +1,11 @@
 
+# We can't use pymake, so use gmake instead. mozmake is ok.
+ifdef .PYMAKE
+  VPX_MAKE = $(GMAKE) -j1
+else
+  VPX_MAKE = $(MAKE)
+endif
+
 default export::
-	$(MAKE) -C src
+	$(VPX_MAKE) -C src
 
