@@ -30,6 +30,10 @@
 /* 64 bit ELF platforms. */
 #include "vpx_rtcd_x86_64-linux-gcc.h"
 
+#elif defined(VPX_ARM_ASM)
+/* Android */
+#include "vpx_rtcd_armv7-android-gcc.h"
+
 #else
 /* Assume generic GNU/GCC configuration. */
 #include "vpx_rtcd_generic-gnu.h"
