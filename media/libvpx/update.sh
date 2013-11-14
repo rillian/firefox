@@ -36,6 +36,7 @@ commonFiles=(
   vpx_scale/generic/yv12config.c
   vpx_scale/generic/yv12extend.c
   vpx_scale/generic/gen_scalers.c
+  vpx_scale/arm/neon/yv12extend_arm.c
   vp8/common/alloccommon.c
   vp8/common/asm_com_offsets.c
   vp8/common/debugmodes.c
@@ -86,6 +87,7 @@ commonFiles=(
   vp8/encoder/asm_enc_offsets.c
   vp8/encoder/bitstream.c
   vp8/encoder/boolhuff.c
+  vp8/encoder/arm/boolhuff_arm.c
   vp8/encoder/dct.c
   vp8/encoder/encodeframe.c
   vp8/encoder/encodeintra.c
