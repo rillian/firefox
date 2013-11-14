@@ -226,8 +226,6 @@ VPX_ASFILES = \
 ifdef MOZ_VP8_ENCODER
 CSRCS += \
   boolhuff_arm.c \
-  dct_arm.c \
-  picklpf_arm.c \
   $(NULL)
 
 # Files which depend on asm_enc_offsets.asm

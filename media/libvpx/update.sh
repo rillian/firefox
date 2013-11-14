@@ -88,6 +88,7 @@ commonFiles=(
   vp8/encoder/bitstream.c
   vp8/encoder/boolhuff.c
   vp8/encoder/arm/boolhuff_arm.c
+  vp8/encoder/arm/neon/picklpf_arm.c
   vp8/encoder/dct.c
   vp8/encoder/encodeframe.c
   vp8/encoder/encodeintra.c
@@ -114,6 +115,8 @@ commonFiles=(
   vp8/encoder/x86/vp8_enc_stubs_mmx.c
   vp8/encoder/x86/denoising_sse2.c
   vp8/encoder/x86/vp8_enc_stubs_sse2.c
+  vp8/encoder/arm/dct_arm.c
+  vp8/encoder/arm/quantize_arm.c
   vp8/vp8_dx_iface.c
   vp8/decoder/asm_dec_offsets.c
   vp8/decoder/dboolhuff.c

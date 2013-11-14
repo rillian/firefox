@@ -145,6 +145,12 @@ if CONFIG['VPX_ARM_ASM']: SOURCES += [
     'vpx_ports/arm_cpudetect.c',
 ]
 
+if CONFIG['MOZ_VP8_ENCODER'] and CONFIG['VPX_ARM_ASM']: SOURCES += [
+    'vp8/encoder/arm/dct_arm.c',
+    'vp8/encoder/arm/neon/picklpf_arm.c',
+    'vp8/encoder/arm/quantize_arm.c',
+]
+
 MSVC_ENABLE_PGO = True
 
 FORCE_STATIC_LIB = True
