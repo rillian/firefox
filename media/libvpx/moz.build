@@ -134,10 +134,12 @@ if CONFIG['VPX_X86_ASM']: SOURCES += [
 ]
 
 if CONFIG['VPX_ARM_ASM']: SOURCES += [
+    'vp8/common/arm/armv6/idct_blk_v6.c',
     'vp8/common/arm/bilinearfilter_arm.c',
     'vp8/common/arm/dequantize_arm.c',
     'vp8/common/arm/filter_arm.c',
     'vp8/common/arm/loopfilter_arm.c',
+    'vp8/common/arm/neon/idct_blk_neon.c',
     'vp8/common/arm/reconintra_arm.c',
     'vp8/common/arm/variance_arm.c',
     'vpx_ports/arm_cpudetect.c',
