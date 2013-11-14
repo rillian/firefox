@@ -36,7 +36,6 @@ commonFiles=(
   vpx_scale/generic/yv12config.c
   vpx_scale/generic/yv12extend.c
   vpx_scale/generic/gen_scalers.c
-  vpx_ports/x86_cpuid.c
   vp8/common/alloccommon.c
   vp8/common/asm_com_offsets.c
   vp8/common/debugmodes.c
@@ -203,6 +202,7 @@ commonFiles=(
   vpx_mem/memory_manager/include/hmm_intrnl.h
   vpx_mem/vpx_mem.h
   vpx_ports/arm.h
+  vpx_ports/arm_cpudetect.c
   vpx_ports/asm_offsets.h
   vpx_ports/mem.h
   vpx_ports/mem_ops.h
@@ -210,6 +210,8 @@ commonFiles=(
   vpx_ports/vpx_timer.h
   vpx_ports/vpxtypes.h
   vpx_ports/x86.h
+  vpx_ports/x86_abi_support.asm
+  vpx_ports/x86_cpuid.c
   vpx_scale/generic/yv12extend_generic.h
   vpx_scale/include/generic/vpxscale_arbitrary.h
   vpx_scale/include/generic/vpxscale_depricated.h
