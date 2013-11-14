@@ -200,7 +200,7 @@ VPX_ASFILES = \
   loopfiltersimplehorizontaledge_neon.asm \
   loopfiltersimpleverticaledge_neon.asm \
   mbloopfilter_neon.asm \
-  save_neon_reg.asm \
+  save_reg_neon.asm \
   vp8_mse16x16_armv6.asm \
   vp8_sad16x16_armv6.asm \
   vp8_variance16x16_armv6.asm \
