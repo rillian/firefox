@@ -91,7 +91,6 @@ if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp8/encoder/asm_enc_offsets.c',
     'vp8/encoder/bitstream.c',
     'vp8/encoder/dct.c',
-    'vp8/encoder/denoising.c',
     'vp8/encoder/encodeframe.c',
     'vp8/encoder/encodeintra.c',
     'vp8/encoder/encodemb.c',
@@ -131,10 +130,17 @@ if CONFIG['VPX_X86_ASM']: SOURCES += [
 ]
 
 if CONFIG['VPX_X86_ASM'] and CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
-    'vp8/encoder/x86/denoising_sse2.c',
     'vp8/encoder/x86/vp8_enc_stubs_mmx.c',
     'vp8/encoder/x86/vp8_enc_stubs_sse2.c',
 ]
+
+if CONFIG['MOZ_VP8_ENCODER'] and CONFIG['VPX_TEMPORAL_DENOISING']:
+    SOURCES += [
+        'vp8/encoder/denoising.c',
+    ]
+    if CONFIG['VPX_X86_ASM']: SOURCES += [
+        'vp8/encoder/x86/denoising_sse2.c',
+    ]
 
 if CONFIG['VPX_ARM_ASM']: SOURCES += [
     'vp8/common/arm/armv6/idct_blk_v6.c',
