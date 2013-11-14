@@ -32,7 +32,7 @@
 
 #if defined(__linux__) && defined(__GNUC__)
 /* ARM Linux */
-#include "vpx_config_arm-linux-gcc.h"
+#include "vpx_config_armv7-android-gcc.h"
 
 #else
 #error VPX_ARM_ASM is defined, but assembly not supported on this platform!
