@@ -69,6 +69,12 @@ commonFiles=(
   vp8/common/x86/loopfilter_x86.c
   vp8/common/mfqe.c
   vp8/common/postproc.c
+  vp8/common/arm/bilinearfilter_arm.c
+  vp8/common/arm/dequantize_arm.c
+  vp8/common/arm/filter_arm.c
+  vp8/common/arm/loopfilter_arm.c
+  vp8/common/arm/reconintra_arm.c
+  vp8/common/arm/variance_arm.c
   vp8/common/x86/idct_blk_mmx.c
   vp8/common/x86/variance_mmx.c
   vp8/common/x86/idct_blk_sse2.c
@@ -218,6 +224,9 @@ commonFiles=(
   vpx_scale/scale_mode.h
   vpx_scale/vpxscale.h
   vpx_scale/yv12config.h
+  vp8/common/arm/bilinearfilter_arm.c
+  vp8/common/arm/bilinearfilter_arm.h
+  vp8/common/arm/armv6/idct_blk_v6.c
   vp8/common/arm/armv6/bilinearfilter_v6.asm
   vp8/common/arm/armv6/copymem16x16_v6.asm
   vp8/common/arm/armv6/copymem8x4_v6.asm
@@ -238,6 +247,7 @@ commonFiles=(
   vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_h_armv6.asm
   vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_hv_armv6.asm
   vp8/common/arm/armv6/vp8_variance_halfpixvar16x16_v_armv6.asm
+  vp8/common/arm/neon/idct_blk_neon.c
   vp8/common/arm/neon/bilinearpredict16x16_neon.asm
   vp8/common/arm/neon/bilinearpredict4x4_neon.asm
   vp8/common/arm/neon/bilinearpredict8x4_neon.asm

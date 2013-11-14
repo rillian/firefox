@@ -133,6 +133,16 @@ if CONFIG['VPX_X86_ASM']: SOURCES += [
     'vp8/common/x86/vp8_asm_stubs.c',
 ]
 
+if CONFIG['VPX_ARM_ASM']: SOURCES += [
+    'vp8/common/arm/bilinearfilter_arm.c',
+    'vp8/common/arm/dequantize_arm.c',
+    'vp8/common/arm/filter_arm.c',
+    'vp8/common/arm/loopfilter_arm.c',
+    'vp8/common/arm/reconintra_arm.c',
+    'vp8/common/arm/variance_arm.c',
+    'vpx_ports/arm_cpudetect.c',
+]
+
 MSVC_ENABLE_PGO = True
 
 FORCE_STATIC_LIB = True

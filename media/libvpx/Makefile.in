@@ -157,13 +157,6 @@ endif
 endif
 
 CSRCS += \
-  arm_cpudetect.c \
-  bilinearfilter_arm.c \
-  dequantize_arm.c \
-  filter_arm.c \
-  loopfilter_arm.c \
-  reconintra_arm.c \
-  variance_arm.c \
   idct_blk_v6.c \
   idct_blk_neon.c \
   yv12extend_arm.c \
