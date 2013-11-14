@@ -73,51 +73,13 @@ VPATH += \
   $(srcdir)/vpx_scale/arm \
   $(srcdir)/vpx_scale/arm/neon \
   $(NULL)
-
-CSRCS += \
-  vp8_cx_iface.c \
-  bitstream.c \
-  dct.c \
-  encodeframe.c \
-  encodeintra.c \
-  encodemb.c \
-  encodemv.c \
-  ethreading.c \
-  firstpass.c \
-  lookahead.c \
-  mcomp.c \
-  modecosts.c \
-  mr_dissim.c \
-  onyx_if.c \
-  pickinter.c \
-  picklpf.c \
-  psnr.c \
-  quantize.c \
-  ratectrl.c \
-  rdopt.c \
-  segmentation.c \
-  temporal_filter.c \
-  tokenize.c \
-  treewriter.c \
-  $(NULL)
 endif
 
 ifdef VPX_X86_ASM
 # Building on an x86 platform with a supported assembler, include
 # the optimized assembly in the build.
 
-CSRCS += \
-  filter_x86.c \
-  idct_blk_mmx.c \
-  idct_blk_sse2.c \
-  loopfilter_x86.c \
-  postproc_x86.c \
-  recon_wrapper_sse2.c \
-  variance_mmx.c \
-  variance_sse2.c \
-  variance_ssse3.c \
-  vp8_asm_stubs.c \
-  $(NULL)
+# CSRCS are set in moz.build
 
 ASFILES += \
   dequantize_mmx.asm \
@@ -127,6 +89,7 @@ ASFILES += \
   iwalsh_sse2.asm \
   loopfilter_mmx.asm \
   loopfilter_sse2.asm \
+  mfqe_sse2.asm \
   postproc_mmx.asm \
   postproc_sse2.asm \
   recon_mmx.asm \

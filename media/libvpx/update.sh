@@ -27,7 +27,9 @@ fi
 
 # These are relative to SDK source dir.
 commonFiles=(
+  vpx/src/vpx_codec.c
   vpx/src/vpx_decoder.c
+  vpx/src/vpx_encoder.c
   vpx/src/vpx_image.c
   vpx_mem/vpx_mem.c
   vpx_scale/generic/vpxscale.c
