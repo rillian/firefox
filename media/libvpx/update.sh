@@ -341,9 +341,10 @@ commonFiles=(
 )
 
 # Copy configuration files for each platform
-for target in PLATFORMS; do
+for target in ${PLATFORMS}; do
   cp ${1}/objdir/${target}/vpx_config.h vpx_config_${target}.h
   cp ${1}/objdir/${target}/vpx_config.c vpx_config_${target}.c
+  cp ${1}/objdir/${target}/vpx_rtcd.h vpx_rtcd_${target}.h
 done
 
 # Copy common source files into mozilla tree.
