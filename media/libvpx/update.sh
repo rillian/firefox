@@ -2,10 +2,13 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+set -e
 
 PLATFORMS='
   x86-win32-vs8
+  x86_64-win64-vs8
   x86-linux-gcc
+  x86_64-linux-gcc
   generic-gnu
   x86-darwin9-gcc
   x86_64-darwin9-gcc
@@ -365,6 +368,9 @@ for target in ${PLATFORMS}; do
   cp ${1}/objdir/${target}/vpx_config.c vpx_config_${target}.c
   cp ${1}/objdir/${target}/vpx_rtcd.h vpx_rtcd_${target}.h
 done
+
+# Copy vpx_version.h from one of the build targets
+cp ${1}/objdir/x86-linux-gcc/vpx_version.h vpx_version.h
 
 # Copy common source files into mozilla tree.
 for f in ${commonFiles[@]}
