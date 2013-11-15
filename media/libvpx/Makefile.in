@@ -108,8 +108,13 @@ ASFILES += \
   emms.asm \
   $(NULL)
 
+# Files included from other .asm files
+# x86_abi_support.asm
+
 ifeq (64,$(findstring 64,$(OS_TEST)))
-ASFILES += loopfilter_block_sse2.asm
+ASFILES += loopfilter_block_sse2.asm \
+  ssim_opt.asm \
+  $(NULL)
 endif
 
 ifdef MOZ_VP8_ENCODER
@@ -164,6 +169,7 @@ CSRCS += \
 VPX_ASM_COM_OFFSETS_SRCS = \
   vp8_vpxyv12_copy_y_neon.asm \
   vp8_vpxyv12_copyframe_func_neon.asm \
+  vp8_vpxyv12_copysrcframe_func_neon.asm \
   vp8_vpxyv12_extendframeborders_neon.asm \
   $(NULL)
 
