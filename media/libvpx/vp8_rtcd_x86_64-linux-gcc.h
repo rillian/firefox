@@ -1,5 +1,5 @@
-#ifndef VPX_RTCD_
-#define VPX_RTCD_
+#ifndef VP8_RTCD_H_
+#define VP8_RTCD_H_
 
 #ifdef RTCD_C
 #define RTCD_EXTERN
@@ -7,7 +7,9 @@
 #define RTCD_EXTERN extern
 #endif
 
-#include "vp8/common/blockd.h"
+/*
+ * VP8
+ */
 
 struct blockd;
 struct macroblockd;
@@ -19,6 +21,10 @@ struct macroblock;
 struct variance_vtable;
 union int_mv;
 struct yv12_buffer_config;
+
+void vp8_clear_system_state_c();
+void vpx_reset_mmx_state();
+#define vp8_clear_system_state vpx_reset_mmx_state
 
 void vp8_dequantize_b_c(struct blockd*, short *dqc);
 void vp8_dequantize_b_mmx(struct blockd*, short *dqc);
@@ -117,7 +123,7 @@ void vp8_build_intra_predictors_mbuv_s_sse2(struct macroblockd *x, unsigned char
 void vp8_build_intra_predictors_mbuv_s_ssse3(struct macroblockd *x, unsigned char * uabove_row, unsigned char * vabove_row,  unsigned char *uleft, unsigned char *vleft, int left_stride, unsigned char * upred_ptr, unsigned char * vpred_ptr, int pred_stride);
 RTCD_EXTERN void (*vp8_build_intra_predictors_mbuv_s)(struct macroblockd *x, unsigned char * uabove_row, unsigned char * vabove_row,  unsigned char *uleft, unsigned char *vleft, int left_stride, unsigned char * upred_ptr, unsigned char * vpred_ptr, int pred_stride);
 
-void vp8_intra4x4_predict_c(unsigned char *Above, unsigned char *yleft, int left_stride, B_PREDICTION_MODE b_mode, unsigned char *dst, int dst_stride, unsigned char top_left);
+void vp8_intra4x4_predict_c(unsigned char *Above, unsigned char *yleft, int left_stride, int b_mode, unsigned char *dst, int dst_stride, unsigned char top_left);
 #define vp8_intra4x4_predict vp8_intra4x4_predict_c
 
 void vp8_mbpost_proc_down_c(unsigned char *dst, int pitch, int rows, int cols,int flimit);
@@ -396,8 +402,7 @@ void vp8_short_walsh4x4_sse2(short *input, short *output, int pitch);
 
 void vp8_regular_quantize_b_c(struct block *, struct blockd *);
 void vp8_regular_quantize_b_sse2(struct block *, struct blockd *);
-void vp8_regular_quantize_b_sse4(struct block *, struct blockd *);
-RTCD_EXTERN void (*vp8_regular_quantize_b)(struct block *, struct blockd *);
+#define vp8_regular_quantize_b vp8_regular_quantize_b_sse2
 
 void vp8_fast_quantize_b_c(struct block *, struct blockd *);
 void vp8_fast_quantize_b_sse2(struct block *, struct blockd *);
@@ -473,82 +478,7 @@ int vp8_denoiser_filter_c(struct yv12_buffer_config* mc_running_avg, struct yv12
 int vp8_denoiser_filter_sse2(struct yv12_buffer_config* mc_running_avg, struct yv12_buffer_config* running_avg, struct macroblock* signal, unsigned int motion_magnitude2, int y_offset, int uv_offset);
 #define vp8_denoiser_filter vp8_denoiser_filter_sse2
 
-void vp8_horizontal_line_4_5_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_4_5_scale vp8_horizontal_line_4_5_scale_c
-
-void vp8_vertical_band_4_5_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_4_5_scale vp8_vertical_band_4_5_scale_c
-
-void vp8_last_vertical_band_4_5_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_last_vertical_band_4_5_scale vp8_last_vertical_band_4_5_scale_c
-
-void vp8_horizontal_line_2_3_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_2_3_scale vp8_horizontal_line_2_3_scale_c
-
-void vp8_vertical_band_2_3_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_2_3_scale vp8_vertical_band_2_3_scale_c
-
-void vp8_last_vertical_band_2_3_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_last_vertical_band_2_3_scale vp8_last_vertical_band_2_3_scale_c
-
-void vp8_horizontal_line_3_5_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_3_5_scale vp8_horizontal_line_3_5_scale_c
-
-void vp8_vertical_band_3_5_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_3_5_scale vp8_vertical_band_3_5_scale_c
-
-void vp8_last_vertical_band_3_5_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_last_vertical_band_3_5_scale vp8_last_vertical_band_3_5_scale_c
-
-void vp8_horizontal_line_3_4_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_3_4_scale vp8_horizontal_line_3_4_scale_c
-
-void vp8_vertical_band_3_4_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_3_4_scale vp8_vertical_band_3_4_scale_c
-
-void vp8_last_vertical_band_3_4_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_last_vertical_band_3_4_scale vp8_last_vertical_band_3_4_scale_c
-
-void vp8_horizontal_line_1_2_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_1_2_scale vp8_horizontal_line_1_2_scale_c
-
-void vp8_vertical_band_1_2_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_1_2_scale vp8_vertical_band_1_2_scale_c
-
-void vp8_last_vertical_band_1_2_scale_c(unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_last_vertical_band_1_2_scale vp8_last_vertical_band_1_2_scale_c
-
-void vp8_horizontal_line_5_4_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_5_4_scale vp8_horizontal_line_5_4_scale_c
-
-void vp8_vertical_band_5_4_scale_c(unsigned char *source, unsigned int src_pitch, unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_5_4_scale vp8_vertical_band_5_4_scale_c
-
-void vp8_horizontal_line_5_3_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_5_3_scale vp8_horizontal_line_5_3_scale_c
-
-void vp8_vertical_band_5_3_scale_c(unsigned char *source, unsigned int src_pitch, unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_5_3_scale vp8_vertical_band_5_3_scale_c
-
-void vp8_horizontal_line_2_1_scale_c(const unsigned char *source, unsigned int source_width, unsigned char *dest, unsigned int dest_width);
-#define vp8_horizontal_line_2_1_scale vp8_horizontal_line_2_1_scale_c
-
-void vp8_vertical_band_2_1_scale_c(unsigned char *source, unsigned int src_pitch, unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_2_1_scale vp8_vertical_band_2_1_scale_c
-
-void vp8_vertical_band_2_1_scale_i_c(unsigned char *source, unsigned int src_pitch, unsigned char *dest, unsigned int dest_pitch, unsigned int dest_width);
-#define vp8_vertical_band_2_1_scale_i vp8_vertical_band_2_1_scale_i_c
-
-void vp8_yv12_extend_frame_borders_c(struct yv12_buffer_config *ybf);
-#define vp8_yv12_extend_frame_borders vp8_yv12_extend_frame_borders_c
-
-void vp8_yv12_copy_frame_c(struct yv12_buffer_config *src_ybc, struct yv12_buffer_config *dst_ybc);
-#define vp8_yv12_copy_frame vp8_yv12_copy_frame_c
-
-void vp8_yv12_copy_y_c(struct yv12_buffer_config *src_ybc, struct yv12_buffer_config *dst_ybc);
-#define vp8_yv12_copy_y vp8_yv12_copy_y_c
-
-void vpx_rtcd(void);
+void vp8_rtcd(void);
 
 #ifdef RTCD_C
 #include "vpx_ports/x86.h"
@@ -557,6 +487,7 @@ static void setup_rtcd_internal(void)
     int flags = x86_simd_caps();
 
     (void)flags;
+
 
 
 
@@ -695,8 +626,6 @@ static void setup_rtcd_internal(void)
 
 
 
-    vp8_regular_quantize_b = vp8_regular_quantize_b_sse2;
-    if (flags & HAS_SSE4_1) vp8_regular_quantize_b = vp8_regular_quantize_b_sse4;
 
     vp8_fast_quantize_b = vp8_fast_quantize_b_sse2;
     if (flags & HAS_SSSE3) vp8_fast_quantize_b = vp8_fast_quantize_b_ssse3;
