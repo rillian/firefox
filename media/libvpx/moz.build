@@ -55,9 +55,7 @@ SOURCES += [
     'vp8/common/loopfilter.c',
     'vp8/common/loopfilter_filters.c',
     'vp8/common/mbpitch.c',
-    'vp8/common/mfqe.c',
     'vp8/common/modecont.c',
-    'vp8/common/postproc.c',
     'vp8/common/quant_common.c',
     'vp8/common/reconinter.c',
     'vp8/common/reconintra.c',
@@ -109,10 +107,15 @@ if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp8/encoder/ratectrl.c',
     'vp8/encoder/rdopt.c',
     'vp8/encoder/segmentation.c',
-    'vp8/encoder/temporal_filter.c',
     'vp8/encoder/tokenize.c',
     'vp8/encoder/treewriter.c',
     'vp8/vp8_cx_iface.c',
+]
+#postproc is only enabled on x86 with asm
+if CONFIG['VPX_X86_ASM']: SOURCES += [
+    'vp8/encoder/temporal_filter.c',
+    'vp8/common/postproc.c',
+    'vp8/common/mfqe.c',
 ]
 
 if CONFIG['VPX_X86_ASM']: SOURCES += [
@@ -134,7 +137,7 @@ if CONFIG['VPX_X86_ASM'] and CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp8/encoder/x86/vp8_enc_stubs_sse2.c',
 ]
 
-if CONFIG['MOZ_VP8_ENCODER'] and CONFIG['VPX_TEMPORAL_DENOISING']:
+if CONFIG['MOZ_VP8_ENCODER']:
     SOURCES += [
         'vp8/encoder/denoising.c',
     ]
