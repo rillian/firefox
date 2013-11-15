@@ -121,7 +121,6 @@ ifdef MOZ_VP8_ENCODER
 
 # Files which depend on asm_enc_offsets.asm
 VPX_ASM_ENC_OFFSETS_SRCS = \
-  quantize_sse2.asm \
   quantize_sse4.asm \
   quantize_ssse3.asm \
   $(NULL)

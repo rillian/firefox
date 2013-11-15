@@ -11,8 +11,6 @@ EXPORTS.vpx += [
     'vpx/vp8cx.h',
     'vpx/vp8dx.h',
     'vpx/vpx_codec.h',
-    'vpx/vpx_codec_impl_bottom.h',
-    'vpx/vpx_codec_impl_top.h',
     'vpx/vpx_decoder.h',
     'vpx/vpx_encoder.h',
     'vpx/vpx_image.h',
@@ -23,8 +21,7 @@ EXPORTS.vpx += [
     'vpx_ports/mem.h',
     'vpx_ports/vpx_timer.h',
     'vpx_ports/x86.h',
-    'vpx_scale/scale_mode.h',
-    'vpx_scale/vpxscale.h',
+    'vpx_scale/vpx_scale.h',
     'vpx_scale/yv12config.h',
 ]
 
@@ -39,7 +36,6 @@ LIBRARY_NAME = 'vpx'
 
 SOURCES += [
     'vp8/common/alloccommon.c',
-    'vp8/common/asm_com_offsets.c',
     'vp8/common/blockd.c',
     'vp8/common/debugmodes.c',
     'vp8/common/dequantize.c',
@@ -66,7 +62,6 @@ SOURCES += [
     'vp8/common/swapyv12buffer.c',
     'vp8/common/treecoder.c',
     'vp8/common/variance_c.c',
-    'vp8/decoder/asm_dec_offsets.c',
     'vp8/decoder/dboolhuff.c',
     'vp8/decoder/decodemv.c',
     'vp8/decoder/decodframe.c',
@@ -80,13 +75,12 @@ SOURCES += [
     'vpx/src/vpx_image.c',
     'vpx_mem/vpx_mem.c',
     'vpx_scale/generic/gen_scalers.c',
-    'vpx_scale/generic/vpxscale.c',
+    'vpx_scale/generic/vpx_scale.c',
     'vpx_scale/generic/yv12config.c',
     'vpx_scale/generic/yv12extend.c',
 ]
 
 if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
-    'vp8/encoder/asm_enc_offsets.c',
     'vp8/encoder/bitstream.c',
     'vp8/encoder/dct.c',
     'vp8/encoder/encodeframe.c',
@@ -135,6 +129,7 @@ if CONFIG['VPX_X86_ASM']: SOURCES += [
 if CONFIG['VPX_X86_ASM'] and CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp8/encoder/x86/vp8_enc_stubs_mmx.c',
     'vp8/encoder/x86/vp8_enc_stubs_sse2.c',
+    'vp8/encoder/x86/quantize_sse2.c',
 ]
 
 if CONFIG['MOZ_VP8_ENCODER']:

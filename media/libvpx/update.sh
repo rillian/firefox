@@ -34,6 +34,7 @@ commonFiles=(
   PATENTS
   build/make/ads2gas.pl
   build/make/obj_int_extract.c
+  third_party/x86inc/x86inc.asm
   vp8/common/alloccommon.c
   vp8/common/alloccommon.h
   vp8/common/arm/armv6/bilinearfilter_v6.asm
@@ -95,7 +96,6 @@ commonFiles=(
   vp8/common/arm/neon/vp8_subpixelvariance8x8_neon.asm
   vp8/common/arm/reconintra_arm.c
   vp8/common/arm/variance_arm.c
-  vp8/common/asm_com_offsets.c
   vp8/common/blockd.c
   vp8/common/blockd.h
   vp8/common/coefupdateprobs.h
@@ -190,7 +190,6 @@ commonFiles=(
   vp8/common/x86/variance_sse2.c
   vp8/common/x86/variance_ssse3.c
   vp8/common/x86/vp8_asm_stubs.c
-  vp8/decoder/asm_dec_offsets.c
   vp8/decoder/dboolhuff.c
   vp8/decoder/dboolhuff.h
   vp8/decoder/decodemv.c
@@ -225,7 +224,6 @@ commonFiles=(
   vp8/encoder/arm/neon/vp8_mse16x16_neon.asm
   vp8/encoder/arm/neon/vp8_shortwalsh4x4_neon.asm
   vp8/encoder/arm/quantize_arm.c
-  vp8/encoder/asm_enc_offsets.c
   vp8/encoder/bitstream.c
   vp8/encoder/bitstream.h
   vp8/encoder/block.h
@@ -276,13 +274,14 @@ commonFiles=(
   vp8/encoder/tokenize.h
   vp8/encoder/treewriter.c
   vp8/encoder/treewriter.h
+  vp8/encoder/vp8_asm_enc_offsets.c
   vp8/encoder/x86/dct_mmx.asm
   vp8/encoder/x86/dct_sse2.asm
   vp8/encoder/x86/denoising_sse2.c
   vp8/encoder/x86/encodeopt.asm
   vp8/encoder/x86/fwalsh_sse2.asm
   vp8/encoder/x86/quantize_mmx.asm
-  vp8/encoder/x86/quantize_sse2.asm
+  vp8/encoder/x86/quantize_sse2.c
   vp8/encoder/x86/quantize_sse4.asm
   vp8/encoder/x86/quantize_ssse3.asm
   vp8/encoder/x86/ssim_opt.asm
@@ -293,17 +292,205 @@ commonFiles=(
   vp8/encoder/x86/vp8_enc_stubs_sse2.c
   vp8/vp8_cx_iface.c
   vp8/vp8_dx_iface.c
+  vp9/common/arm/neon/vp9_avg_neon.asm
+  vp9/common/arm/neon/vp9_convolve8_avg_neon.asm
+  vp9/common/arm/neon/vp9_convolve8_neon.asm
+  vp9/common/arm/neon/vp9_convolve_neon.c
+  vp9/common/arm/neon/vp9_copy_neon.asm
+  vp9/common/arm/neon/vp9_dc_only_idct_add_neon.asm
+  vp9/common/arm/neon/vp9_idct16x16_neon.c
+  vp9/common/arm/neon/vp9_loopfilter_neon.asm
+  vp9/common/arm/neon/vp9_mb_lpf_neon.asm
+  vp9/common/arm/neon/vp9_save_reg_neon.asm
+  vp9/common/arm/neon/vp9_short_idct16x16_1_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct16x16_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct32x32_1_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct32x32_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct4x4_1_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct4x4_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct8x8_1_add_neon.asm
+  vp9/common/arm/neon/vp9_short_idct8x8_add_neon.asm
+  vp9/common/arm/neon/vp9_short_iht4x4_add_neon.asm
+  vp9/common/arm/neon/vp9_short_iht8x8_add_neon.asm
+  vp9/common/generic/vp9_systemdependent.c
+  vp9/common/vp9_alloccommon.c
+  vp9/common/vp9_alloccommon.h
+  vp9/common/vp9_blockd.h
+  vp9/common/vp9_common.h
+  vp9/common/vp9_common_data.c
+  vp9/common/vp9_common_data.h
+  vp9/common/vp9_convolve.c
+  vp9/common/vp9_convolve.h
+  vp9/common/vp9_debugmodes.c
+  vp9/common/vp9_default_coef_probs.h
+  vp9/common/vp9_entropy.c
+  vp9/common/vp9_entropy.h
+  vp9/common/vp9_entropymode.c
+  vp9/common/vp9_entropymode.h
+  vp9/common/vp9_entropymv.c
+  vp9/common/vp9_entropymv.h
+  vp9/common/vp9_enums.h
+  vp9/common/vp9_extend.c
+  vp9/common/vp9_extend.h
+  vp9/common/vp9_filter.c
+  vp9/common/vp9_filter.h
+  vp9/common/vp9_findnearmv.c
+  vp9/common/vp9_findnearmv.h
+  vp9/common/vp9_idct.c
+  vp9/common/vp9_idct.h
+  vp9/common/vp9_loopfilter.c
+  vp9/common/vp9_loopfilter.h
+  vp9/common/vp9_loopfilter_filters.c
+  vp9/common/vp9_mv.h
+  vp9/common/vp9_mvref_common.c
+  vp9/common/vp9_mvref_common.h
+  vp9/common/vp9_onyx.h
+  vp9/common/vp9_onyxc_int.h
+  vp9/common/vp9_postproc.c
+  vp9/common/vp9_postproc.h
+  vp9/common/vp9_ppflags.h
+  vp9/common/vp9_pragmas.h
+  vp9/common/vp9_pred_common.c
+  vp9/common/vp9_pred_common.h
+  vp9/common/vp9_quant_common.c
+  vp9/common/vp9_quant_common.h
+  vp9/common/vp9_reconinter.c
+  vp9/common/vp9_reconinter.h
+  vp9/common/vp9_reconintra.c
+  vp9/common/vp9_reconintra.h
+  vp9/common/vp9_rtcd.c
+  vp9/common/vp9_sadmxn.h
+  vp9/common/vp9_scale.c
+  vp9/common/vp9_scale.h
+  vp9/common/vp9_scan.c
+  vp9/common/vp9_scan.h
+  vp9/common/vp9_seg_common.c
+  vp9/common/vp9_seg_common.h
+  vp9/common/vp9_systemdependent.h
+  vp9/common/vp9_textblit.c
+  vp9/common/vp9_textblit.h
+  vp9/common/vp9_tile_common.c
+  vp9/common/vp9_tile_common.h
+  vp9/common/vp9_treecoder.c
+  vp9/common/vp9_treecoder.h
+  vp9/common/x86/vp9_asm_stubs.c
+  vp9/common/x86/vp9_copy_sse2.asm
+  vp9/common/x86/vp9_idct_intrin_sse2.c
+  vp9/common/x86/vp9_intrapred_sse2.asm
+  vp9/common/x86/vp9_intrapred_ssse3.asm
+  vp9/common/x86/vp9_loopfilter_intrin_avx2.c
+  vp9/common/x86/vp9_loopfilter_intrin_sse2.c
+  vp9/common/x86/vp9_loopfilter_mmx.asm
+  vp9/common/x86/vp9_postproc_mmx.asm
+  vp9/common/x86/vp9_postproc_sse2.asm
+  vp9/common/x86/vp9_postproc_x86.h
+  vp9/common/x86/vp9_subpixel_8t_sse2.asm
+  vp9/common/x86/vp9_subpixel_8t_ssse3.asm
+  vp9/decoder/vp9_dboolhuff.c
+  vp9/decoder/vp9_dboolhuff.h
+  vp9/decoder/vp9_decodemv.c
+  vp9/decoder/vp9_decodemv.h
+  vp9/decoder/vp9_decodframe.c
+  vp9/decoder/vp9_decodframe.h
+  vp9/decoder/vp9_detokenize.c
+  vp9/decoder/vp9_detokenize.h
+  vp9/decoder/vp9_dsubexp.c
+  vp9/decoder/vp9_dsubexp.h
+  vp9/decoder/vp9_onyxd.h
+  vp9/decoder/vp9_onyxd_if.c
+  vp9/decoder/vp9_onyxd_int.h
+  vp9/decoder/vp9_read_bit_buffer.h
+  vp9/decoder/vp9_thread.c
+  vp9/decoder/vp9_thread.h
+  vp9/decoder/vp9_treereader.h
+  vp9/encoder/vp9_bitstream.c
+  vp9/encoder/vp9_bitstream.h
+  vp9/encoder/vp9_block.h
+  vp9/encoder/vp9_boolhuff.c
+  vp9/encoder/vp9_boolhuff.h
+  vp9/encoder/vp9_dct.c
+  vp9/encoder/vp9_dct.h
+  vp9/encoder/vp9_encodeframe.c
+  vp9/encoder/vp9_encodeframe.h
+  vp9/encoder/vp9_encodeintra.c
+  vp9/encoder/vp9_encodeintra.h
+  vp9/encoder/vp9_encodemb.c
+  vp9/encoder/vp9_encodemb.h
+  vp9/encoder/vp9_encodemv.c
+  vp9/encoder/vp9_encodemv.h
+  vp9/encoder/vp9_firstpass.c
+  vp9/encoder/vp9_firstpass.h
+  vp9/encoder/vp9_lookahead.c
+  vp9/encoder/vp9_lookahead.h
+  vp9/encoder/vp9_mbgraph.c
+  vp9/encoder/vp9_mbgraph.h
+  vp9/encoder/vp9_mcomp.c
+  vp9/encoder/vp9_mcomp.h
+  vp9/encoder/vp9_modecosts.c
+  vp9/encoder/vp9_modecosts.h
+  vp9/encoder/vp9_onyx_if.c
+  vp9/encoder/vp9_onyx_int.h
+  vp9/encoder/vp9_picklpf.c
+  vp9/encoder/vp9_picklpf.h
+  vp9/encoder/vp9_psnr.c
+  vp9/encoder/vp9_psnr.h
+  vp9/encoder/vp9_quantize.c
+  vp9/encoder/vp9_quantize.h
+  vp9/encoder/vp9_ratectrl.c
+  vp9/encoder/vp9_ratectrl.h
+  vp9/encoder/vp9_rdopt.c
+  vp9/encoder/vp9_rdopt.h
+  vp9/encoder/vp9_sad_c.c
+  vp9/encoder/vp9_segmentation.c
+  vp9/encoder/vp9_segmentation.h
+  vp9/encoder/vp9_ssim.c
+  vp9/encoder/vp9_subexp.c
+  vp9/encoder/vp9_subexp.h
+  vp9/encoder/vp9_temporal_filter.c
+  vp9/encoder/vp9_temporal_filter.h
+  vp9/encoder/vp9_tokenize.c
+  vp9/encoder/vp9_tokenize.h
+  vp9/encoder/vp9_treewriter.c
+  vp9/encoder/vp9_treewriter.h
+  vp9/encoder/vp9_vaq.c
+  vp9/encoder/vp9_vaq.h
+  vp9/encoder/vp9_variance.h
+  vp9/encoder/vp9_variance_c.c
+  vp9/encoder/vp9_write_bit_buffer.h
+  vp9/encoder/x86/vp9_dct32x32_sse2.c
+  vp9/encoder/x86/vp9_dct_sse2.c
+  vp9/encoder/x86/vp9_error_sse2.asm
+  vp9/encoder/x86/vp9_mcomp_x86.h
+  vp9/encoder/x86/vp9_quantize_ssse3.asm
+  vp9/encoder/x86/vp9_sad4d_sse2.asm
+  vp9/encoder/x86/vp9_sad_mmx.asm
+  vp9/encoder/x86/vp9_sad_sse2.asm
+  vp9/encoder/x86/vp9_sad_sse3.asm
+  vp9/encoder/x86/vp9_sad_sse4.asm
+  vp9/encoder/x86/vp9_sad_ssse3.asm
+  vp9/encoder/x86/vp9_ssim_opt.asm
+  vp9/encoder/x86/vp9_subpel_variance.asm
+  vp9/encoder/x86/vp9_subpel_variance_impl_sse2.asm
+  vp9/encoder/x86/vp9_subtract_sse2.asm
+  vp9/encoder/x86/vp9_temporal_filter_apply_sse2.asm
+  vp9/encoder/x86/vp9_variance_impl_mmx.asm
+  vp9/encoder/x86/vp9_variance_impl_sse2.asm
+  vp9/encoder/x86/vp9_variance_mmx.c
+  vp9/encoder/x86/vp9_variance_sse2.c
+  vp9/vp9_cx_iface.c
+  vp9/vp9_dx_iface.c
+  vp9/vp9_iface_common.h
   vpx/internal/vpx_codec_internal.h
+  vpx/src/svc_encodeframe.c
   vpx/src/vpx_codec.c
   vpx/src/vpx_decoder.c
   vpx/src/vpx_encoder.c
   vpx/src/vpx_image.c
+  vpx/svc_context.h
   vpx/vp8.h
   vpx/vp8cx.h
   vpx/vp8dx.h
   vpx/vpx_codec.h
-  vpx/vpx_codec_impl_bottom.h
-  vpx/vpx_codec_impl_top.h
   vpx/vpx_decoder.h
   vpx/vpx_encoder.h
   vpx/vpx_image.h
@@ -315,12 +502,14 @@ commonFiles=(
   vpx_ports/arm.h
   vpx_ports/arm_cpudetect.c
   vpx_ports/asm_offsets.h
+  vpx_ports/config.h
+  vpx_ports/emmintrin_compat.h
   vpx_ports/emms.asm
   vpx_ports/mem.h
   vpx_ports/mem_ops.h
   vpx_ports/mem_ops_aligned.h
+  vpx_ports/vpx_once.h
   vpx_ports/vpx_timer.h
-  vpx_ports/vpxtypes.h
   vpx_ports/x86.h
   vpx_ports/x86_abi_support.asm
   vpx_ports/x86_cpuid.c
@@ -330,14 +519,12 @@ commonFiles=(
   vpx_scale/arm/neon/vp8_vpxyv12_extendframeborders_neon.asm
   vpx_scale/arm/neon/yv12extend_arm.c
   vpx_scale/generic/gen_scalers.c
-  vpx_scale/generic/vpxscale.c
+  vpx_scale/generic/vpx_scale.c
   vpx_scale/generic/yv12config.c
   vpx_scale/generic/yv12extend.c
-  vpx_scale/generic/yv12extend_generic.h
-  vpx_scale/include/generic/vpxscale_arbitrary.h
-  vpx_scale/include/generic/vpxscale_depricated.h
-  vpx_scale/scale_mode.h
-  vpx_scale/vpxscale.h
+  vpx_scale/vpx_scale.h
+  vpx_scale/vpx_scale_asm_offsets.c
+  vpx_scale/vpx_scale_rtcd.c
   vpx_scale/yv12config.h
 )
 
