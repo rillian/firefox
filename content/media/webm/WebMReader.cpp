@@ -182,9 +182,6 @@ WebMReader::~WebMReader()
 
 nsresult WebMReader::Init(MediaDecoderReader* aCloneDonor)
 {
-  if (vpx_codec_dec_init(&mVP8, vpx_codec_vp8_dx(), nullptr, 0)) {
-    return NS_ERROR_FAILURE;
-  }
 
   vorbis_info_init(&mVorbisInfo);
   vorbis_comment_init(&mVorbisComment);
@@ -269,6 +266,21 @@ nsresult WebMReader::ReadMetadata(MediaInfo* aInfo,
       nestegg_video_params params;
       r = nestegg_track_video_params(mContext, track, &params);
       if (r == -1) {
+        Cleanup();
+        return NS_ERROR_FAILURE;
+      }
+      mVideoCodec = nestegg_track_codec_id(mContext, track);
+      if (mVideoCodec == NESTEGG_CODEC_VP8) {
+        if (vpx_codec_dec_init(&mVP8, vpx_codec_vp8_dx(), nullptr, 0)) {
+          Cleanup();
+          return NS_ERROR_FAILURE;
+        }
+      } else if (mVideoCodec == NESTEGG_CODEC_VP9) {
+        if (vpx_codec_dec_init(&mVP8, vpx_codec_vp9_dx(), nullptr, 0)) {
+          Cleanup();
+          return NS_ERROR_FAILURE;
+        }
+      } else {
         Cleanup();
         return NS_ERROR_FAILURE;
       }
@@ -673,7 +685,11 @@ bool WebMReader::DecodeVideoFrame(bool &aKeyframeSkip,
     vpx_codec_stream_info_t si;
     memset(&si, 0, sizeof(si));
     si.sz = sizeof(si);
-    vpx_codec_peek_stream_info(vpx_codec_vp8_dx(), data, length, &si);
+    if (mVideoCodec == NESTEGG_CODEC_VP8) {
+      vpx_codec_peek_stream_info(vpx_codec_vp8_dx(), data, length, &si);
+    } else if (mVideoCodec == NESTEGG_CODEC_VP9) {
+      vpx_codec_peek_stream_info(vpx_codec_vp9_dx(), data, length, &si);
+    }
     if (aKeyframeSkip && (!si.is_kf || tstamp_usecs < aTimeThreshold)) {
       // Skipping to next keyframe...
       parsed++; // Assume 1 frame per chunk.

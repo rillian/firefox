@@ -211,6 +211,10 @@ private:
   // Booleans to indicate if we have audio and/or video data
   bool mHasVideo;
   bool mHasAudio;
+
+  // Codec ID of video track
+  int mVideoCodec;
+
 };
 
 } // namespace mozilla
