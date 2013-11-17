@@ -69,7 +69,7 @@ with open('update.sh') as f:
 update_sh_new = re.sub(re.compile('commonFiles=\(.*?\)\n', re.DOTALL), common_files_s, update_sh)
 if update_sh != update_sh_new:
     with open('update.sh', 'w') as f:
-        f.write(update_sh)
+        f.write(update_sh_new)
     print 'update.sh updated'
 else:
     print 'update.sh is up to date'
