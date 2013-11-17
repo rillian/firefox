@@ -47,6 +47,18 @@ VPATH += \
   $(srcdir)/vp8/decoder/arm/neon \
   $(srcdir)/vp8/decoder/generic \
   $(srcdir)/vp8/decoder/x86 \
+  $(srcdir)/vp9 \
+  $(srcdir)/vp9/common \
+  $(srcdir)/vp9/common/arm \
+  $(srcdir)/vp9/common/arm/neon \
+  $(srcdir)/vp9/common/generic \
+  $(srcdir)/vp9/common/x86 \
+  $(srcdir)/vp9/decoder \
+  $(srcdir)/vp9/decoder/arm \
+  $(srcdir)/vp9/decoder/arm/neon \
+  $(srcdir)/vp9/decoder/generic \
+  $(srcdir)/vp9/decoder/x86 \
+  $(srcdir)/third_party/x86inc \
   $(NULL)
 
 #Setup the libvpx assembler config.
@@ -70,6 +82,11 @@ VPATH += \
   $(srcdir)/vp8/encoder/arm/neon \
   $(srcdir)/vp8/encoder/generic \
   $(srcdir)/vp8/encoder/x86 \
+  $(srcdir)/vp9/encoder \
+  $(srcdir)/vp9/encoder/arm \
+  $(srcdir)/vp9/encoder/arm/neon \
+  $(srcdir)/vp9/encoder/generic \
+  $(srcdir)/vp9/encoder/x86 \
   $(srcdir)/vpx_scale/arm \
   $(srcdir)/vpx_scale/arm/neon \
   $(NULL)
@@ -106,6 +123,15 @@ ASFILES += \
   variance_impl_sse2.asm \
   variance_impl_ssse3.asm \
   emms.asm \
+  x86inc.asm \
+  vp9_copy_sse2.asm \
+  vp9_intrapred_sse2.asm \
+  vp9_intrapred_ssse3.asm \
+  vp9_loopfilter_mmx.asm \
+  vp9_postproc_mmx.asm \
+  vp9_postproc_sse2.asm \
+  vp9_subpixel_8t_sse2.asm \
+  vp9_subpixel_8t_ssse3.asm \
   $(NULL)
 
 # Files included from other .asm files
@@ -134,6 +160,21 @@ ASFILES += \
   subtract_mmx.asm \
   subtract_sse2.asm \
   temporal_filter_apply_sse2.asm \
+  vp9_error_sse2.asm \
+  vp9_quantize_ssse3.asm \
+  vp9_sad4d_sse2.asm \
+  vp9_sad_mmx.asm \
+  vp9_sad_sse2.asm \
+  vp9_sad_sse3.asm \
+  vp9_sad_sse4.asm \
+  vp9_sad_ssse3.asm \
+  vp9_ssim_opt.asm \
+  vp9_subpel_variance.asm \
+  vp9_subpel_variance_impl_sse2.asm \
+  vp9_subtract_sse2.asm \
+  vp9_temporal_filter_apply_sse2.asm \
+  vp9_variance_impl_mmx.asm \
+  vp9_variance_impl_sse2.asm \
   $(VPX_ASM_ENC_OFFSETS_SRCS) \
   $(NULL)
 
@@ -225,6 +266,24 @@ VPX_ASFILES = \
   vp8_subpixelvariance8x8_neon.asm \
   vp8_subpixelvariance16x16_neon.asm \
   vp8_subpixelvariance16x16s_neon.asm \
+  vp9_avg_neon.asm \
+  vp9_convolve8_avg_neon.asm \
+  vp9_convolve8_neon.asm \
+  vp9_copy_neon.asm \
+  vp9_dc_only_idct_add_neon.asm \
+  vp9_loopfilter_neon.asm \
+  vp9_mb_lpf_neon.asm \
+  vp9_save_reg_neon.asm \
+  vp9_short_idct16x16_1_add_neon.asm \
+  vp9_short_idct16x16_add_neon.asm \
+  vp9_short_idct32x32_1_add_neon.asm \
+  vp9_short_idct32x32_add_neon.asm \
+  vp9_short_idct4x4_1_add_neon.asm \
+  vp9_short_idct4x4_add_neon.asm \
+  vp9_short_idct8x8_1_add_neon.asm \
+  vp9_short_idct8x8_add_neon.asm \
+  vp9_short_iht4x4_add_neon.asm \
+  vp9_short_iht8x8_add_neon.asm \
   $(VPX_ASM_COM_OFFSETS_SRCS) \
   $(NULL)
 
@@ -307,6 +366,8 @@ else
 # asm. This is the preferred method.
 
 asm_com_offsets.s: CFLAGS += -DINLINE_ASM
+
+vp9_loopfilter_intrin_avx2.o: CFLAGS += -mavx2
 
 OFFSET_PATTERN := '^[a-zA-Z0-9_]* EQU'
 

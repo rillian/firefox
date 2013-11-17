@@ -88,5 +88,6 @@ for f in sorted(common_files):
 
 if missing:
     print 'WARNING! .c/.asm files missing from moz.build and Makefile.in'
-    print '  ' + '\n  '.join(missing)
+    print '  ' + '\n  '.join(filter(lambda f: f.endswith('.c'), missing))
+    print '  ' + '\n  '.join(filter(lambda f: f.endswith('.asm'), missing))
     print ''
