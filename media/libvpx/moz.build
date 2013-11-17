@@ -163,7 +163,6 @@ if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp9/encoder/vp9_rdopt.c',
     'vp9/encoder/vp9_sad_c.c',
     'vp9/encoder/vp9_segmentation.c',
-    'vp9/encoder/vp9_ssim.c',
     'vp9/encoder/vp9_subexp.c',
     'vp9/encoder/vp9_temporal_filter.c',
     'vp9/encoder/vp9_tokenize.c',

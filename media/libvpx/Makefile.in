@@ -128,8 +128,6 @@ ASFILES += \
   vp9_intrapred_sse2.asm \
   vp9_intrapred_ssse3.asm \
   vp9_loopfilter_mmx.asm \
-  vp9_postproc_mmx.asm \
-  vp9_postproc_sse2.asm \
   vp9_subpixel_8t_sse2.asm \
   vp9_subpixel_8t_ssse3.asm \
   $(NULL)
@@ -168,7 +166,6 @@ ASFILES += \
   vp9_sad_sse3.asm \
   vp9_sad_sse4.asm \
   vp9_sad_ssse3.asm \
-  vp9_ssim_opt.asm \
   vp9_subpel_variance.asm \
   vp9_subpel_variance_impl_sse2.asm \
   vp9_subtract_sse2.asm \
