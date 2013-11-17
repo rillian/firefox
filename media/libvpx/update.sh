@@ -388,10 +388,10 @@ commonFiles=(
   vp9/common/x86/vp9_subpixel_8t_ssse3.asm
   vp9/decoder/vp9_dboolhuff.c
   vp9/decoder/vp9_dboolhuff.h
+  vp9/decoder/vp9_decodeframe.c
+  vp9/decoder/vp9_decodeframe.h
   vp9/decoder/vp9_decodemv.c
   vp9/decoder/vp9_decodemv.h
-  vp9/decoder/vp9_decodframe.c
-  vp9/decoder/vp9_decodframe.h
   vp9/decoder/vp9_detokenize.c
   vp9/decoder/vp9_detokenize.h
   vp9/decoder/vp9_dsubexp.c
@@ -412,8 +412,6 @@ commonFiles=(
   vp9/encoder/vp9_dct.h
   vp9/encoder/vp9_encodeframe.c
   vp9/encoder/vp9_encodeframe.h
-  vp9/encoder/vp9_encodeintra.c
-  vp9/encoder/vp9_encodeintra.h
   vp9/encoder/vp9_encodemb.c
   vp9/encoder/vp9_encodemb.h
   vp9/encoder/vp9_encodemv.c
@@ -534,6 +532,9 @@ for target in ${PLATFORMS}; do
   cp ${1}/objdir/${target}/vpx_config.c vpx_config_${target}.c
   cp ${1}/objdir/${target}/vp8_rtcd.h vp8_rtcd_${target}.h
   cp ${1}/objdir/${target}/vp9_rtcd.h vp9_rtcd_${target}.h
+  cp ${1}/objdir/${target}/vpx_scale_rtcd.h vpx_scale_rtcd_${target}.h
+  cp ${1}/objdir/${target}/vpx_config.asm vpx_config_${target}.asm
+  test -e ${1}/objdir/${target}/vp8_asm_enc_offsets.asm && cp ${1}/objdir/${target}/vp8_asm_enc_offsets.asm vp8_asm_enc_offsets_${target}.asm
 done
 
 # Copy vpx_version.h from one of the build targets
