@@ -58,6 +58,16 @@ for root, folders, files in os.walk(prefix):
           and not filter(lambda folder: folder in f, ignore_folders):
             common_files.append(f)
 
+current_files = []
+for root, folders, files in os.walk('./'):
+    for f in files:
+        f = os.path.join(root, f)[len('./'):]
+        if f.split('.')[-1] in extensions \
+          and '/' in f \
+          and f not in ignore_files \
+          and not filter(lambda folder: folder in f, ignore_folders):
+            current_files.append(f)
+
 common_files_s = "commonFiles=("
 for f in sorted(common_files):
     common_files_s += "\n  " + f
@@ -90,3 +100,8 @@ if missing:
     print 'WARNING! .c/.asm files missing from moz.build and Makefile.in'
     print '  ' + '\n  '.join(missing)
     print ''
+
+removed_files = [f for f in current_files if f not in common_files]
+if removed_files:
+    print 'The following files are no longer in libvpx and should be removed:'
+    print '  ' + '  '.join(removed_files)
