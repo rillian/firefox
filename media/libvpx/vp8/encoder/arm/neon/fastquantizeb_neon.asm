@@ -12,7 +12,7 @@
     EXPORT  |vp8_fast_quantize_b_neon|
     EXPORT  |vp8_fast_quantize_b_pair_neon|
 
-    INCLUDE vp8_asm_enc_offsets.asm
+    INCLUDE vp8_asm_enc_offsets_armv7-android-gcc.asm
 
     ARM
     REQUIRE8

@@ -535,6 +535,7 @@ for target in ${PLATFORMS}; do
   cp ${1}/objdir/${target}/vpx_scale_rtcd.h vpx_scale_rtcd_${target}.h
   cp ${1}/objdir/${target}/vpx_config.asm vpx_config_${target}.asm
   test -e ${1}/objdir/${target}/vp8_asm_enc_offsets.asm && cp ${1}/objdir/${target}/vp8_asm_enc_offsets.asm vp8_asm_enc_offsets_${target}.asm
+  test -e ${1}/objdir/${target}/vpx_scale_asm_offsets.asm && cp ${1}/objdir/${target}/vpx_scale_asm_offsets.asm vpx_scale_asm_offsets_${target}.asm
 done
 
 # Copy vpx_version.h from one of the build targets
@@ -546,6 +547,8 @@ do
   mkdir -p -v `dirname $f`
   cp -v $1/$f $f
 done
+
+sed -i s/vp8_asm_enc_offsets.asm/vp8_asm_enc_offsets_armv7-android-gcc.asm/g vp8/encoder/arm/*/*.asm
 
 # This has to be renamed because there's already a scalesystemdependent.c in
 # vpx_scale/generic/

@@ -23,6 +23,7 @@ extensions = [
 
 common_files = [
     'build/make/ads2gas.pl',
+    'build/make/thumb.pm',
     'LICENSE',
     'PATENTS',
 ]
