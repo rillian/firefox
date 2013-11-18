@@ -351,10 +351,19 @@ CSRCS += asm_com_offsets.c
 
 GARBAGE += asm_com_offsets.$(OBJ_SUFFIX) asm_com_offsets.asm
 
+CSRCS += vpx_scale_asm_offsets.c
+
+GARBAGE += vpx_scale_asm_offsets.$(OBJ_SUFFIX) vpx_scale_asm_offsets.asm
+
+
 ifdef MOZ_VP8_ENCODER
 CSRCS += asm_enc_offsets.c
 
 GARBAGE += asm_enc_offsets.$(OBJ_SUFFIX) asm_enc_offsets.asm
+
+CSRCS += vp8_asm_enc_offsets.c
+
+GARBAGE += vp8_asm_enc_offsets.$(OBJ_SUFFIX) vp8_asm_enc_offsets.asm
 endif
 
 else
@@ -363,6 +372,7 @@ else
 # asm. This is the preferred method.
 
 asm_com_offsets.s: CFLAGS += -DINLINE_ASM
+vpx_scale_asm_offsets.s: CFLAGS += -DINLINE_ASM
 
 vp9_loopfilter_intrin_avx2.o: CFLAGS += -mavx2
 
@@ -381,6 +391,17 @@ asm_com_offsets.asm: asm_com_offsets.s
 
 GARBAGE += asm_com_offsets.s asm_com_offsets.asm
 
+vpx_scale_asm_offsets.s: vpx_scale_asm_offsets.c
+	$(REPORT_BUILD)
+	$(CC) -S $(COMPILE_CFLAGS) $(TARGET_LOCAL_INCLUDES) $(_VPATH_SRCS)
+
+vpx_scale_asm_offsets.asm: vpx_scale_asm_offsets.s
+	grep $(OFFSET_PATTERN) $< | sed -e 's/[$$\#]//g' \
+	    $(if $(VPX_AS_CONVERSION),| $(VPX_AS_CONVERSION)) > $@
+
+GARBAGE += vpx_scale_asm_offsets.s vpx_scale_asm_offsets.asm
+
+
 ifdef MOZ_VP8_ENCODER
 
 asm_enc_offsets.s: CFLAGS += -DINLINE_ASM
@@ -395,11 +416,25 @@ asm_enc_offsets.asm: asm_enc_offsets.s
 
 GARBAGE += asm_enc_offsets.s asm_enc_offsets.asm
 
-endif
+
+vp8_asm_enc_offsets.s: CFLAGS += -DINLINE_ASM
+
+vp8_asm_enc_offsets.s: vp8_asm_enc_offsets.c
+	$(REPORT_BUILD)
+	$(CC) -S $(COMPILE_CFLAGS) $(TARGET_LOCAL_INCLUDES) $(_VPATH_SRCS)
+
+vp8_asm_enc_offsets.asm: vp8_asm_enc_offsets.s
+	grep $(OFFSET_PATTERN) $< | sed -e 's/[$$\#]//g' \
+	    $(if $(VPX_AS_CONVERSION),| $(VPX_AS_CONVERSION)) > $@
+
+GARBAGE += vp8_asm_enc_offsets.s vp8_asm_enc_offsets.asm
 
 endif
 
-EXTRA_MDDEPEND_FILES = asm_enc_offsets.s.pp asm_enc_offsets.$(OBJ_SUFFIX).pp asm_com_offsets.s.pp asm_com_offsets.$(OBJ_SUFFIX).pp
+endif
+
+EXTRA_MDDEPEND_FILES = asm_enc_offsets.s.pp asm_enc_offsets.$(OBJ_SUFFIX).pp asm_com_offsets.s.pp asm_com_offsets.$(OBJ_SUFFIX).pp vp8_asm_enc_offsets.s.pp vp8_asm_enc_offsets.$(OBJ_SUFFIX).pp asm_com_offsets.s.pp asm_com_offsets.$(OBJ_SUFFIX).pp vpx_scale_asm_offsets.s.pp vpx_scale_asm_offsets.$(OBJ_SUFFIX).pp asm_com_offsets.s.pp asm_com_offsets.$(OBJ_SUFFIX).pp
+
 
 include $(topsrcdir)/config/rules.mk
 
@@ -439,14 +474,14 @@ endif
 
 # These dependencies are not generated automatically, so do it manually.
 ifdef VPX_AS_CONVERSION
-$(addsuffix .$(OBJ_SUFFIX), $(VPX_ASM_COM_OFFSETS_SRCS)): asm_com_offsets.asm
+$(addsuffix .$(OBJ_SUFFIX), $(VPX_ASM_COM_OFFSETS_SRCS)): asm_com_offsets.asm vpx_scale_asm_offsets.asm
 ifdef MOZ_VP8_ENCODER
-$(addsuffix .$(OBJ_SUFFIX), $(VPX_ASM_ENC_OFFSETS_SRCS)): asm_enc_offsets.asm
+$(addsuffix .$(OBJ_SUFFIX), $(VPX_ASM_ENC_OFFSETS_SRCS)): asm_enc_offsets.asm vp8_asm_enc_offsets.asm
 endif
 else
-$(patsubst %.$(ASM_SUFFIX),%.$(OBJ_SUFFIX), $(VPX_ASM_COM_OFFSETS_SRCS)): asm_com_offsets.asm
+$(patsubst %.$(ASM_SUFFIX),%.$(OBJ_SUFFIX), $(VPX_ASM_COM_OFFSETS_SRCS)): asm_com_offsets.asm vpx_scale_asm_offsets.asm
 ifdef MOZ_VP8_ENCODER
-$(patsubst %.$(ASM_SUFFIX),%.$(OBJ_SUFFIX), $(VPX_ASM_ENC_OFFSETS_SRCS)): asm_enc_offsets.asm
+$(patsubst %.$(ASM_SUFFIX),%.$(OBJ_SUFFIX), $(VPX_ASM_ENC_OFFSETS_SRCS)): asm_enc_offsets.asm vp8_asm_enc_offsets.asm
 endif
 endif
 

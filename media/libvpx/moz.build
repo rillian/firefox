@@ -115,7 +115,6 @@ SOURCES += [
     'vpx_scale/generic/vpx_scale.c',
     'vpx_scale/generic/yv12config.c',
     'vpx_scale/generic/yv12extend.c',
-    'vpx_scale/vpx_scale_asm_offsets.c',
     'vpx_scale/vpx_scale_rtcd.c',
 ]
 
@@ -142,7 +141,6 @@ if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
     'vp8/encoder/segmentation.c',
     'vp8/encoder/tokenize.c',
     'vp8/encoder/treewriter.c',
-    'vp8/encoder/vp8_asm_enc_offsets.c',
     'vp8/vp8_cx_iface.c',
     'vp9/encoder/vp9_bitstream.c',
     'vp9/encoder/vp9_boolhuff.c',
