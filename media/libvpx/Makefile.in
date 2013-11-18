@@ -304,6 +304,10 @@ endif
 
 else
 
+idct_blk_sse2.o: CFLAGS += -msse2
+recon_wrapper_sse2.o: CFLAGS += -msse2
+variance_sse2.o: CFLAGS += -msse2
+
 # We can extract the asm offsets directly from generated assembly using inline
 # asm. This is the preferred method.
 
@@ -325,6 +329,9 @@ asm_com_offsets.asm: asm_com_offsets.s
 GARBAGE += asm_com_offsets.s asm_com_offsets.asm
 
 ifdef MOZ_VP8_ENCODER
+
+denoising_sse2.o: CFLAGS += -msse2
+vp8_enc_stubs_sse2.o: CFLAGS += -msse2
 
 asm_enc_offsets.s: CFLAGS += -DINLINE_ASM
 
