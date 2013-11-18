@@ -39,7 +39,6 @@ LIBRARY_NAME = 'vpx'
 
 SOURCES += [
     'vp8/common/alloccommon.c',
-    'vp8/common/asm_com_offsets.c',
     'vp8/common/blockd.c',
     'vp8/common/debugmodes.c',
     'vp8/common/dequantize.c',
@@ -86,7 +85,6 @@ SOURCES += [
 ]
 
 if CONFIG['MOZ_VP8_ENCODER']: SOURCES += [
-    'vp8/encoder/asm_enc_offsets.c',
     'vp8/encoder/bitstream.c',
     'vp8/encoder/dct.c',
     'vp8/encoder/encodeframe.c',
