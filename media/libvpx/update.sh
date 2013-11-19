@@ -358,8 +358,5 @@ do
   cp -v $1/$f $f
 done
 
-# Patch to use VARIANCE_INVOKE in multiframe_quality_enhance_block().
-#patch -p3 < variance-invoke.patch
-
 # Patch to permit vpx users to specify their own <stdint.h> types.
 patch -p3 < stdint.patch
