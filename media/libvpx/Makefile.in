@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/config/config.mk
-
 DEFINES += -DHAVE_CONFIG_H=vpx_config.h
 
 
@@ -292,10 +290,6 @@ endif
 
 else
 
-idct_blk_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
-recon_wrapper_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
-variance_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
-
 # We can extract the asm offsets directly from generated assembly using inline
 # asm. This is the preferred method.
 
@@ -318,8 +312,6 @@ GARBAGE += asm_com_offsets.s asm_com_offsets.asm
 
 ifdef MOZ_VP8_ENCODER
 
-denoising_sse2.o: CFLAGS += -msse2
-vp8_enc_stubs_sse2.o: CFLAGS += -msse2
 
 asm_enc_offsets.s: CFLAGS += -DINLINE_ASM
 
@@ -343,6 +335,13 @@ include $(topsrcdir)/config/rules.mk
 
 # This must be after rules.mk in order to use $(OBJ_SUFFIX) outside a
 # recursively-expanded variable.
+
+denoising_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+idct_blk_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+recon_wrapper_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+variance_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+vp8_enc_stubs_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+
 ifdef VPX_NEED_OBJ_INT_EXTRACT
 
 # only for MSVC
