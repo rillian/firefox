@@ -358,11 +358,6 @@ do
   cp -v $1/$f $f
 done
 
-# This has to be renamed because there's already a scalesystemdependent.c in
-# vpx_scale/generic/
-#cp -v $1/vpx_scale/arm/scalesystemdependent.c \
-#         vpx_scale/arm/arm_scalesystemdependent.c
-
 # Patch to use VARIANCE_INVOKE in multiframe_quality_enhance_block().
 #patch -p3 < variance-invoke.patch
 
