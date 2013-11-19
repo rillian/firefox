@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+include $(topsrcdir)/config/config.mk
 
 DEFINES += -DHAVE_CONFIG_H=vpx_config.h
 
@@ -54,12 +55,6 @@ AS=$(VPX_AS)
 ASFLAGS=$(VPX_ASFLAGS) -I. -I$(topsrcdir)/media/libvpx/ -I$(topsrcdir)/media/libvpx/vpx_ports/
 AS_DASH_C_FLAG=$(VPX_DASH_C_FLAG)
 ASM_SUFFIX=$(VPX_ASM_SUFFIX)
-
-ifdef MOZ_VP8_ERROR_CONCEALMENT
-CSRCS += \
-  error_concealment.c \
-  $(NULL)
-endif
 
 ifdef MOZ_VP8_ENCODER
 VPATH += \
@@ -161,10 +156,6 @@ CSRCS += cpu-features.c
 endif
 endif
 
-CSRCS += \
-  yv12extend_arm.c \
-  $(NULL)
-
 # Files which depend on asm_com_offsets.asm
 VPX_ASM_COM_OFFSETS_SRCS = \
   vp8_vpxyv12_copy_y_neon.asm \
@@ -230,9 +221,6 @@ VPX_ASFILES = \
   $(NULL)
 
 ifdef MOZ_VP8_ENCODER
-CSRCS += \
-  boolhuff_arm.c \
-  $(NULL)
 
 # Files which depend on asm_enc_offsets.asm
 VPX_ASM_ENC_OFFSETS_SRCS = \
@@ -304,9 +292,9 @@ endif
 
 else
 
-idct_blk_sse2.o: CFLAGS += -msse2
-recon_wrapper_sse2.o: CFLAGS += -msse2
-variance_sse2.o: CFLAGS += -msse2
+idct_blk_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+recon_wrapper_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
+variance_sse2.$(OBJ_SUFFIX): CFLAGS += -msse2
 
 # We can extract the asm offsets directly from generated assembly using inline
 # asm. This is the preferred method.
