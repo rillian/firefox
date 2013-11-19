@@ -159,7 +159,6 @@ if CONFIG['VPX_X86_ASM']:
         'vp8/common/x86/idctllm_sse2.asm',
         'vp8/common/x86/iwalsh_mmx.asm',
         'vp8/common/x86/iwalsh_sse2.asm',
-        'vp8/common/x86/loopfilter_block_sse2.asm',
         'vp8/common/x86/loopfilter_mmx.asm',
         'vp8/common/x86/loopfilter_sse2.asm',
         'vp8/common/x86/mfqe_sse2.asm',
@@ -180,6 +179,11 @@ if CONFIG['VPX_X86_ASM']:
         'vp8/common/x86/variance_impl_ssse3.asm',
         'vpx_ports/emms.asm',
     ]
+
+    if '64' in CONFIG['OS_TEST']:
+        SOURCES += [
+            'vp8/common/x86/loopfilter_block_sse2.asm',
+        ]
 
 if CONFIG['VPX_X86_ASM'] and CONFIG['MOZ_VP8_ENCODER']:
     SOURCES += [
