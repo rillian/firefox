@@ -35,6 +35,7 @@ ignore_files = [
     'vpx_scale/generic/bicubic_scaler.c',
     'vpx_scale/win32/scaleopt.c',
     'vpx_scale/win32/scalesystemdependent.c',
+    'vp8/encoder/x86/ssim_opt.asm',
 ]
 ignore_folders = [
     'examples/',
