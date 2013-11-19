@@ -121,13 +121,23 @@ if CONFIG['VPX_X86_ASM']:
     ]
 
 if CONFIG['VPX_X86_ASM']:
-    GENERATED_SOURCES += [
-        'asm_com_offsets.asm'
-    ]
-    if CONFIG['MOZ_VP8_ENCODER']:
-        GENERATED_SOURCES += [
-            'asm_enc_offsets.asm'
+    if CONFIG['OS_TARGET'] == 'WINNT':
+        SOURCES += [
+            'vp8/common/asm_com_offsets.c',
         ]
+        if CONFIG['MOZ_VP8_ENCODER']:
+            SOURCES += [
+                'vp8/encoder/asm_enc_offsets.c',
+            ]
+    else:
+        GENERATED_SOURCES += [
+            'asm_com_offsets.asm'
+        ]
+        if CONFIG['MOZ_VP8_ENCODER']:
+
+            GENERATED_SOURCES += [
+                'asm_enc_offsets.asm'
+            ]
 
 if CONFIG['VPX_X86_ASM']:
     SOURCES += [
