@@ -124,20 +124,10 @@ if CONFIG['VPX_X86_ASM']:
     GENERATED_SOURCES += [
         'asm_com_offsets.asm'
     ]
-    '''
-    SOURCES += [
-        'vp8/common/asm_com_offsets.c',
-    ]
-    '''
     if CONFIG['MOZ_VP8_ENCODER']:
         GENERATED_SOURCES += [
             'asm_enc_offsets.asm'
         ]
-        '''
-        SOURCES += [
-            'vp8/encoder/asm_enc_offsets.c',
-        ]
-        '''
 
 if CONFIG['VPX_X86_ASM']:
     SOURCES += [
