@@ -67,6 +67,15 @@ if CONFIG['MOZ_WMF']:
       'wmf/WMFVideoOutputSource.cpp',
   ]
 
+if CONFIG['MOZ_APPLEMEDIA']:
+  EXPORTS += [
+      'osx/OSXDecoderModule.h',
+  ]
+  UNIFIED_SOURCES += [
+      'osx/OSXDecoderModule.cpp',
+      'osx/VTDecoder.cpp',
+  ]
+
 FINAL_LIBRARY = 'gklayout'
 
 FAIL_ON_WARNINGS = True

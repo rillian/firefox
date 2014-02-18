@@ -73,6 +73,9 @@ HavePlatformMPEGDecoders()
     // We have H.264/AAC platform decoders on Windows Vista and up.
     IsVistaOrLater() ||
 #endif
+#ifdef MOZ_APPLEMEDIA
+    true ||
+#endif
     // TODO: Other platforms...
     false;
 }
