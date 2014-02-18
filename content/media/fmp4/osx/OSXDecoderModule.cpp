@@ -4,10 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "OSXDecoderModule.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/DebugOnly.h"
 #include "mp4_demuxer/audio_decoder_config.h"
+#include "OSXDecoderModule.h"
+#include "OSXVTDecoder.h"
 
 namespace mozilla {
 
@@ -63,15 +64,8 @@ OSXDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConf
                                     MediaTaskQueue* aVideoTaskQueue,
                                     MediaDataDecoderCallback* aCallback)
 {
-  NS_WARNING("Creating h264 decoder NYI on OS X");
-  return nullptr;
-#if 0
-  return new OSXVTDecoder(new OSXVideoOutputSource(aLayersBackend,
-                                                   aImageContainer,
-                                                   sDXVAEnabled),
-                          aVideoTaskQueue,
-                          aCallback);
-#endif
+  NS_WARNING("Creating h264 decoder on OS X");
+  return new OSXVTDecoder(aVideoTaskQueue, aCallback);
 }
 
 MediaDataDecoder*
