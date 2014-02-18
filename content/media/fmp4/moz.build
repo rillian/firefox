@@ -93,7 +93,7 @@ if CONFIG['MOZ_APPLEMEDIA']:
   ]
   UNIFIED_SOURCES += [
       'osx/OSXDecoderModule.cpp',
-      'osx/VTDecoder.cpp',
+      'osx/OSXVTDecoder.cpp',
   ]
 
 FINAL_LIBRARY = 'gklayout'
