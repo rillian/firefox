@@ -58,8 +58,8 @@ public:
     }
   private:
     nsAutoPtr<mp4_demuxer::MP4Sample> mSample;
-    BlankMediaDataCreator* mCreator;
     MediaDataDecoderCallback* mCallback;
+    BlankMediaDataCreator* mCreator;
   };
 
   virtual nsresult Input(mp4_demuxer::MP4Sample* aSample) MOZ_OVERRIDE
@@ -181,6 +181,8 @@ public:
       return nullptr;
     }
     AudioDataValue* samples = new AudioDataValue[frames.value() * mChannelCount];
+    // We don't adjust our output for this parameter; avoid -Wunused.
+    (void)mBitsPerSample;
     // Fill the sound buffer with an A4 tone.
     static const float pi = 3.14159265f;
     static const float noteHz = 440.0f;

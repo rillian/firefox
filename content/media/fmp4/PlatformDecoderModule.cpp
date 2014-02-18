@@ -11,6 +11,9 @@
 #ifdef MOZ_FFMPEG
 #include "FFmpegDecoderModule.h"
 #endif
+#ifdef MOZ_APPLEMEDIA
+#include "OSXDecoderModule.h"
+#endif
 #include "mozilla/Preferences.h"
 
 namespace mozilla {
@@ -39,6 +42,9 @@ PlatformDecoderModule::Init()
 #ifdef XP_WIN
   WMFDecoderModule::Init();
 #endif
+#ifdef MOZ_APPLEMEDIA
+  OSXDecoderModule::Init();
+#endif
 }
 
 /* static */
@@ -57,6 +63,11 @@ PlatformDecoderModule::Create()
 #ifdef MOZ_FFMPEG
   if (sFFmpegDecoderEnabled) {
     return new FFmpegDecoderModule();
+#endif
+#ifdef MOZ_APPLEMEDIA
+  nsAutoPtr<OSXDecoderModule> m(new OSXDecoderModule());
+  if (NS_SUCCEEDED(m->Startup())) {
+    return m.forget();
   }
 #endif
   return nullptr;
