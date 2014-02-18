@@ -26,7 +26,7 @@ void
 OSXDecoderModule::Init()
 {
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
-  sIsEnabled = Preferences::GetBool("media.mac-platform-codecs.enabled", false);
+  sIsEnabled = Preferences::GetBool("media.apple.mp4.enabled", false);
   if (!sIsEnabled) {
     return;
   }
