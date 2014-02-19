@@ -16,11 +16,16 @@ namespace mozilla {
 class MediaTaskQueue;
 class MediaDataDecoderCallback;
 
-class OSXVTDecoder : public AtomicRefCounted<OSXVTDecoder> {
+class OSXVTDecoder : public MediaDataDecoder {
 public:
   OSXVTDecoder(MediaTaskQueue* aVideoTaskQueue,
                MediaDataDecoderCallback* aCallback);
   ~OSXVTDecoder();
+  virtual nsresult Init() MOZ_OVERRIDE;
+  virtual nsresult Input(mp4_demuxer::MP4Sample* aSample) MOZ_OVERRIDE;
+  virtual nsresult Flush() MOZ_OVERRIDE;
+  virtual nsresult Drain() MOZ_OVERRIDE;
+  virtual nsresult Shutdown() MOZ_OVERRIDE;
 private:
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
