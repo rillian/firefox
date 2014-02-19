@@ -33,4 +33,39 @@ OSXVTDecoder::~OSXVTDecoder()
   MOZ_COUNT_DTOR(OSXVTDecoder);
 }
 
+nsresult
+OSXVTDecoder::Init()
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::Shutdown()
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::Flush()
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::Drain()
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
 } // namespace mozilla
