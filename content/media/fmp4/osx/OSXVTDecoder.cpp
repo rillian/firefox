@@ -4,6 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <VideoToolbox/Videotoolbox.h>
+
 #include "MP4Reader.h"
 #include "MP4Decoder.h"
 #include "nsThreadUtils.h"
@@ -24,6 +26,7 @@ OSXVTDecoder::OSXVTDecoder(MediaTaskQueue* aVideoTaskQueue,
                            MediaDataDecoderCallback* aCallback)
   : mTaskQueue(aVideoTaskQueue)
   , mCallback(aCallback)
+  , mSession(nullptr)
 {
   MOZ_COUNT_CTOR(OSXVTDecoder);
 }
@@ -44,6 +47,11 @@ nsresult
 OSXVTDecoder::Shutdown()
 {
   NS_WARNING(__func__);
+  if (mSession) {
+    VTDecompressionSessionInvalidate(mSession);
+    CFRelease(mSession);
+    mSession = nullptr;
+  }
   return NS_OK;
 }
 
