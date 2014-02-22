@@ -7,6 +7,7 @@
 #if !defined(OSXVTDecoder_h_)
 #define OSXVTDecoder_h_
 
+#include <VideoToolbox/VideoToolbox.h>
 #include "mozilla/RefPtr.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "nsIThread.h"
@@ -29,6 +30,7 @@ public:
 private:
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
+  VTDecompressionSessionRef mSession;
 };
 
 } // namespace mozilla
