@@ -5,6 +5,3 @@
 ifeq ($(OS_ARCH),WINNT)
 OS_CXXFLAGS += -DNOMINMAX
 endif
-LDFLAGS += \
-    -framework VideoToolbox
-    $(NULL)

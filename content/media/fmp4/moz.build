@@ -95,6 +95,9 @@ if CONFIG['MOZ_APPLEMEDIA']:
       'osx/OSXDecoderModule.cpp',
       'osx/OSXVTDecoder.cpp',
   ]
+  LDFLAGS += [
+      '-framework VideoToolbox',
+  ]
 
 FINAL_LIBRARY = 'gklayout'
 
