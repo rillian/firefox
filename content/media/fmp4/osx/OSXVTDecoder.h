@@ -19,7 +19,8 @@ class MediaDataDecoderCallback;
 
 class OSXVTDecoder : public MediaDataDecoder {
 public:
-  OSXVTDecoder(MediaTaskQueue* aVideoTaskQueue,
+  OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
+               MediaTaskQueue* aVideoTaskQueue,
                MediaDataDecoderCallback* aCallback);
   ~OSXVTDecoder();
   virtual nsresult Init() MOZ_OVERRIDE;
@@ -28,6 +29,7 @@ public:
   virtual nsresult Drain() MOZ_OVERRIDE;
   virtual nsresult Shutdown() MOZ_OVERRIDE;
 private:
+  const mp4_demuxer::VideoDecoderConfig& mConfig;
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
   VTDecompressionSessionRef mSession;
