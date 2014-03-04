@@ -5340,7 +5340,7 @@ MOZ_ARG_DISABLE_BOOL(apple-media,
 if test -n "$MOZ_APPLEMEDIA"; then
   AC_DEFINE(MOZ_APPLEMEDIA)
   # hack in VideoToolbox for fmp4 - see bug 973649
-  LDFLAGS="$LDFLAGS -framework VideoToolbox"
+  LDFLAGS="$LDFLAGS -framework VideoToolbox -framework CoreMedia"
 fi
 
 dnl ========================================================

@@ -65,7 +65,7 @@ OSXDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConf
                                     MediaDataDecoderCallback* aCallback)
 {
   NS_WARNING("Creating h264 decoder on OS X");
-  return new OSXVTDecoder(aVideoTaskQueue, aCallback);
+  return new OSXVTDecoder(aConfig, aVideoTaskQueue, aCallback);
 }
 
 MediaDataDecoder*
