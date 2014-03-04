@@ -48,6 +48,7 @@ OSXVTDecoder::Shutdown()
 {
   NS_WARNING(__func__);
   if (mSession) {
+    LOG("%s: cleaning up session %p", __func__, mSession);
     VTDecompressionSessionInvalidate(mSession);
     CFRelease(mSession);
     mSession = nullptr;
@@ -58,7 +59,20 @@ OSXVTDecoder::Shutdown()
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  NS_WARNING(__func__);
+  mp4_demuxer::TrackType type = aSample->type;
+  const char* types[] = { "invalid", "video", "audio", "hint" };
+  //static_assert(type < ArrayLength(types), "Invalid TrackType");
+  // Limit out of bound type values.
+  if (type >= ArrayLength(types)) {
+    type = mp4_demuxer::TrackType::kInvalid;
+  }
+  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s", aSample, 
+      types[type],
+      aSample->duration,
+      aSample->composition_timestamp,
+      aSample->decode_timestamp,
+      aSample->is_sync_point ? " keyframe" : "");
+
   return NS_OK;
 }
 
