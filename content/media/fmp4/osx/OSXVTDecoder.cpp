@@ -101,18 +101,38 @@ OSXVTDecoder::Shutdown()
   return NS_OK;
 }
 
+static const char* track_type_name(mp4_demuxer::TrackType type)
+{
+  switch (type) {
+    case mp4_demuxer::kVideo:
+      return "video";
+    case mp4_demuxer::kAudio:
+      return "audio";
+    case mp4_demuxer::kHint:
+      return "hint";
+    case mp4_demuxer::kInvalid:
+      // Fall through.
+      ;;
+  }
+  return "invalid";
+}
+
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
+#if 0
   mp4_demuxer::TrackType type = aSample->type;
+  int x = 7;
+  type = static_cast<mp4_demuxer::TrackType>(x);
   const char* types[] = { "invalid", "video", "audio", "hint" };
   //static_assert(type < ArrayLength(types), "Invalid TrackType");
   // Limit out of bound type values.
   if (type >= ArrayLength(types)) {
     type = mp4_demuxer::TrackType::kInvalid;
   }
+#endif
   LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s", aSample, 
-      types[type],
+      track_type_name(aSample->type),
       aSample->duration,
       aSample->composition_timestamp,
       aSample->decode_timestamp,
