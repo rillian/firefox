@@ -28,6 +28,7 @@ OSXVTDecoder::OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
   : mConfig(aConfig) 
   , mTaskQueue(aVideoTaskQueue)
   , mCallback(aCallback)
+  , mFormat(nullptr)
   , mSession(nullptr)
 {
   MOZ_COUNT_CTOR(OSXVTDecoder);
@@ -66,24 +67,22 @@ OSXVTDecoder::Init()
 {
   NS_WARNING(__func__);
   OSStatus rv;
-  CMVideoFormatDescriptionRef format;
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
                                       mConfig.coded_size().width(),
                                       mConfig.coded_size().height(),
                                       NULL, // Extensions CF property list.
-                                      &format);
+                                      &mFormat);
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };
   rv = VTDecompressionSessionCreate(NULL, // Allocator.
-                                    format,
+                                    mFormat,
                                     NULL, // Video decoder selection.
                                     NULL, // Output video format.
                                     &cb,
                                     &mSession);
   NS_ASSERTION(rv == noErr, "Couldn't create decompression session!");
-  CFRelease(format);
 
   return NS_OK;
 }
@@ -97,6 +96,11 @@ OSXVTDecoder::Shutdown()
     VTDecompressionSessionInvalidate(mSession);
     CFRelease(mSession);
     mSession = nullptr;
+  }
+  if (mFormat) {
+    LOG("%s: releasing format %p", __func__, mFormat);
+    CFRelease(mFormat);
+    mFormat = nullptr;
   }
   return NS_OK;
 }
@@ -138,6 +142,27 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
       aSample->decode_timestamp,
       aSample->is_sync_point ? " keyframe" : "");
 
+  CMBlockBufferRef block;
+  CMSampleBufferRef sample;
+  VTDecodeInfoFlags flags;
+  OSStatus rv;
+  std::vector<uint8_t>* buffer = aSample->data;
+  // FIXME: This copies the sample data. I think we can provide
+  // a custom block source which reuses the aSample buffer.
+  rv = CMBlockBufferCreateWithMemoryBlock(NULL // Struct allocator.
+                                         ,buffer->data()
+                                         ,buffer->size()
+                                         ,NULL // Block allocator.
+                                         ,NULL // Block source.
+                                         ,0    // Data offset.
+                                         ,buffer->size()
+                                         ,false
+                                         ,&block);
+  NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
+  rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, NULL, 0, NULL, &sample);
+  NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
+  rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
+  NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
   return NS_OK;
 }
 
