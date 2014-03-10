@@ -32,6 +32,7 @@ private:
   const mp4_demuxer::VideoDecoderConfig& mConfig;
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
+  CMVideoFormatDescriptionRef mFormat;
   VTDecompressionSessionRef mSession;
 };
 
