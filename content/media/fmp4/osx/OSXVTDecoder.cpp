@@ -55,6 +55,7 @@ PlatformCallback(void* decompressionOutputRefCon,
                  CMTime presentationTimeStamp,
                  CMTime presentationDuration)
 {
+  LOG("OSXVideoDecoder::%s status %d flags %d", __func__, status, info);
   if (status != noErr || !image) {
     NS_WARNING("VideoToolbox decoder returned no data");
     return;
@@ -67,11 +68,19 @@ OSXVTDecoder::Init()
 {
   NS_WARNING(__func__);
   OSStatus rv;
+  CFMutableDictionaryRef extensions =
+    CFDictionaryCreateMutable(NULL, 3,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              &kCFTypeDictionaryValueCallBacks);
+  if (extensions == NULL) {
+    NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
+    return NS_ERROR_FAILURE;
+  }
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
                                       mConfig.coded_size().width(),
                                       mConfig.coded_size().height(),
-                                      NULL, // Extensions CF property list.
+                                      extensions,
                                       &mFormat);
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
