@@ -159,7 +159,14 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
                                          ,false
                                          ,&block);
   NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
-  rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, NULL, 0, NULL, &sample);
+  CMSampleTimingInfo timestamp;
+  // FIXME: check units here.
+  const int32_t msec_per_sec = 1000000;
+  timestamp.duration = CMTimeMake(aSample->duration, msec_per_sec);
+  timestamp.presentationTimeStamp = CMTimeMake(aSample->composition_timestamp, msec_per_sec);
+  timestamp.decodeTimeStamp = CMTimeMake(aSample->decode_timestamp, msec_per_sec);
+
+  rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, &sample);
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
   rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
