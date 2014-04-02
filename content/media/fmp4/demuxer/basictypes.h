@@ -17,7 +17,7 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mp4_demuxer {
 
 // Define to enable logging.
-//#define LOG_DEMUXER
+#define LOG_DEMUXER
 
 #define kint32max std::numeric_limits<int32_t>::max()
 #define kuint64max std::numeric_limits<uint64_t>::max()
