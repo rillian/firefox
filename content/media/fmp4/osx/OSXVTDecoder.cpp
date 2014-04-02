@@ -133,17 +133,6 @@ static const char* track_type_name(mp4_demuxer::TrackType type)
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-#if 0
-  mp4_demuxer::TrackType type = aSample->type;
-  int x = 7;
-  type = static_cast<mp4_demuxer::TrackType>(x);
-  const char* types[] = { "invalid", "video", "audio", "hint" };
-  //static_assert(type < ArrayLength(types), "Invalid TrackType");
-  // Limit out of bound type values.
-  if (type >= ArrayLength(types)) {
-    type = mp4_demuxer::TrackType::kInvalid;
-  }
-#endif
   LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s", aSample, 
       track_type_name(aSample->type),
       aSample->duration,
