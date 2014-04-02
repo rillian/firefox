@@ -74,7 +74,7 @@ OSXDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfi
                                    MediaDataDecoderCallback* aCallback)
 {
   // TODO: hook CoreAudio for AAC decoding?
-  NS_WARNING("AAC decoder not implemented for OS X.");
+  NS_WARNING("AAC decoder not implemented for OS X");
   return nullptr;
 }
 
