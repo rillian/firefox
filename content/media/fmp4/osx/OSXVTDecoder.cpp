@@ -179,6 +179,11 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
   rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
+  // Clean up allocations.
+  CFRelease(sample);
+  CFRelease(block);
+  // We took ownership of aSample so we need to release it.
+  delete aSample;
   return NS_OK;
 }
 
