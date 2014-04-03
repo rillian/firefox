@@ -45,8 +45,8 @@ public:
                 MediaDataDecoderCallback* aCallback,
                 BlankMediaDataCreator* aCreator)
       : mSample(aSample)
-      , mCreator(aCreator)
       , mCallback(aCallback)
+      , mCreator(aCreator)
     {
     }
     NS_IMETHOD Run() MOZ_OVERRIDE
