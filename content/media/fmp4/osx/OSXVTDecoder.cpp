@@ -76,12 +76,32 @@ OSXVTDecoder::Init()
     NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
     return NS_ERROR_FAILURE;
   }
+  CFDictionarySetValue(extensions,
+      CFSTR("CVImageBufferChromaLocationBottomField"), "left");
+  CFDictionarySetValue(extensions,
+      CFSTR("CVImageBufferChromaLocationTopField"), "left");
+  CFDictionarySetValue(extensions, CFSTR("FullRangeVideo"), kCFBooleanTrue);
+
+  CFMutableDictionaryRef atoms =
+    CFDictionaryCreateMutable(NULL, 2,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              &kCFTypeDictionaryValueCallBacks);
+  if (atoms == NULL) {
+      NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
+      return NS_ERROR_FAILURE;
+  }
+  //CFDictionarySetValue(atoms, CFSTR("avcC");
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
                                       mConfig.coded_size().width(),
                                       mConfig.coded_size().height(),
                                       extensions,
                                       &mFormat);
+#if 0
+  CFDictionarySetValue(extensions,
+      kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
+      kCFBooleanTrue);
+#endif
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };

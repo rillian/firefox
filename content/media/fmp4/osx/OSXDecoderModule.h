@@ -41,6 +41,7 @@ public:
   static void Init();
 private:
   static bool sIsEnabled;
+  nsAutoPtr<PlatformDecoderModule> mBlankDecoder;
 };
 
 } // namespace mozilla
