@@ -12,6 +12,8 @@
 
 namespace mozilla {
 
+extern PlatformDecoderModule* CreateBlankDecoderModule();
+
 bool OSXDecoderModule::sIsEnabled = false;
 
 OSXDecoderModule::OSXDecoderModule()
@@ -75,7 +77,12 @@ OSXDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfi
 {
   // TODO: hook CoreAudio for AAC decoding?
   NS_WARNING("AAC decoder not implemented for OS X");
-  return nullptr;
+
+  NS_WARNING("using blank decoder as a fallback");
+  if (!mBlankDecoder) {
+    mBlankDecoder = CreateBlankDecoderModule();
+  }
+  return mBlankDecoder->CreateAACDecoder(aConfig, aAudioTaskQueue, aCallback);
 }
 
 } // namespace mozilla
