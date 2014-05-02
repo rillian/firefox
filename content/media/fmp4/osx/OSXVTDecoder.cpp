@@ -76,11 +76,13 @@ OSXVTDecoder::Init()
     NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
     return NS_ERROR_FAILURE;
   }
+#if 0
   CFDictionarySetValue(extensions,
       CFSTR("CVImageBufferChromaLocationBottomField"), "left");
   CFDictionarySetValue(extensions,
       CFSTR("CVImageBufferChromaLocationTopField"), "left");
   CFDictionarySetValue(extensions, CFSTR("FullRangeVideo"), kCFBooleanTrue);
+#endif
 
   CFMutableDictionaryRef atoms =
     CFDictionaryCreateMutable(NULL, 2,
