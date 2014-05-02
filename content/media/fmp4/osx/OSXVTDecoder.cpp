@@ -92,18 +92,43 @@ OSXVTDecoder::Init()
       NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
       return NS_ERROR_FAILURE;
   }
-  //CFDictionarySetValue(atoms, CFSTR("avcC");
+  NS_WARNING("HACK: loading AVC Configuration from external file");
+  const char* avc_filename = "avcC.dat";
+  FILE *avc_file = fopen(avc_filename, "rb");
+  if (!avc_file) {
+    NS_WARNING("Couldn't open AVC Configuration box");
+    return NS_ERROR_FAILURE;
+  }
+  fseek(avc_file, 0, SEEK_END);
+  long avc_size = ftell(avc_file);
+  MOZ_ASSERT(avc_size > 0, "Error reading avcC size");
+  fseek(avc_file, 0, SEEK_SET);
+  nsTArray<uint8_t> avc_buffer;
+  avc_buffer.SetLength(avc_size);
+  size_t bytes_read = fread(avc_buffer.Elements(), 1, avc_size, avc_file);
+  if (bytes_read != static_cast<size_t>(avc_size)) {
+    NS_WARNING("Couldn't read AVC Configuration box");
+  }
+  fclose(avc_file);
+  CFDataRef avc_data = CFDataCreate(NULL, avc_buffer.Elements(), avc_size);
+  CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
+  CFRelease(avc_data);
+
+  CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensions"), atoms);
+  CFRelease(atoms);
+#if 0
+  CFDictionarySetValue(extensions,
+      kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
+      kCFBooleanTrue);
+#endif
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
                                       mConfig.coded_size().width(),
                                       mConfig.coded_size().height(),
                                       extensions,
                                       &mFormat);
-#if 0
-  CFDictionarySetValue(extensions,
-      kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
-      kCFBooleanTrue);
-#endif
+  CFRelease(extensions);
+
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };
