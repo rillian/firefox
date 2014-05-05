@@ -116,11 +116,6 @@ OSXVTDecoder::Init()
 
   CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensions"), atoms);
   CFRelease(atoms);
-#if 0
-  CFDictionarySetValue(extensions,
-      kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
-      kCFBooleanTrue);
-#endif
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
                                       mConfig.coded_size().width(),
@@ -131,6 +126,22 @@ OSXVTDecoder::Init()
 
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
+
+#if 0
+  // Contruction video decoder selection spec.
+  CFMutableDictionaryRef spec =
+    CFDictionaryCreateMutable(NULL, 3,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              &kCFTypeDictionaryValueCallBacks);
+  if (spec == NULL) {
+    NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
+    return NS_ERROR_FAILURE;
+  }
+
+  CFDictionarySetValue(spec,
+      kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
+      kCFBooleanTrue);
+#endif
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };
   rv = VTDecompressionSessionCreate(NULL, // Allocator.
                                     mFormat,
