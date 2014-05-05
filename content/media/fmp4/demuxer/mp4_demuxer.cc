@@ -403,7 +403,8 @@ bool MP4Demuxer::PrepareAVCBuffer(
   // update the clear byte count for each subsample if encryption is used to
   // account for the difference in size between the length prefix and Annex B
   // start code.
-  RCHECK(AVC::ConvertFrameToAnnexB(avc_config.length_size, frame_buf));
+  NS_WARNING("Skipping AVC::ConvertFrameToAnnexB");
+//  RCHECK(AVC::ConvertFrameToAnnexB(avc_config.length_size, frame_buf));
   if (!subsamples->empty()) {
     const int nalu_size_diff = 4 - avc_config.length_size;
     size_t expected_size = runs_->sample_size() +
@@ -413,7 +414,8 @@ bool MP4Demuxer::PrepareAVCBuffer(
       (*subsamples)[i].clear_bytes += nalu_size_diff;
   }
 
-  if (runs_->is_keyframe()) {
+  NS_WARNING("Skipping AVC::ConvertFrameToAnnexB keyframe");
+  if (0 && runs_->is_keyframe()) {
     // If this is a keyframe, we (re-)inject SPS and PPS headers at the start of
     // a frame. If subsample info is present, we also update the clear byte
     // count for that first subsample.
