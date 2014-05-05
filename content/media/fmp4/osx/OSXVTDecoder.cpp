@@ -63,6 +63,17 @@ PlatformCallback(void* decompressionOutputRefCon,
   LOG("  got decoded frame data...");
 }
 
+/** Helper to set a string, int32_t pair on a CFMutableidctionaryRef */
+void
+SetCFDict_int32(CFMutableDictionaryRef dict, const char* key, int32_t value)
+{
+  CFNumberRef valueRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &value);
+  CFStringRef keyRef = CFCreateFromCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, key, number);
+  CFRelease(keyRef);
+  CFRelease(valueRef);
+}
+
 nsresult
 OSXVTDecoder::Init()
 {
