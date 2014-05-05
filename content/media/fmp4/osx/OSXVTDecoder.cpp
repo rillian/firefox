@@ -107,6 +107,7 @@ OSXVTDecoder::Init()
   CFDataRef avc_data = CFDataCreate(NULL, avc_buffer.Elements(), avc_size);
   CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
   CFRelease(avc_data);
+  LOG("Read %ld bytes of avcC data from '%s'", avc_size, avc_filename);
 
   CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensions"), atoms);
   CFRelease(atoms);
@@ -185,12 +186,13 @@ static const char* track_type_name(mp4_demuxer::TrackType type)
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s", aSample, 
+  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s %d bytes", aSample,
       track_type_name(aSample->type),
       aSample->duration,
       aSample->composition_timestamp,
       aSample->decode_timestamp,
-      aSample->is_sync_point ? " keyframe" : "");
+      aSample->is_sync_point ? " keyframe" : "",
+      aSample->data->size());
 
   CMBlockBufferRef block;
   CMSampleBufferRef sample;
