@@ -25,7 +25,7 @@ namespace mozilla {
 OSXVTDecoder::OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
                            MediaTaskQueue* aVideoTaskQueue,
                            MediaDataDecoderCallback* aCallback)
-  : mConfig(aConfig) 
+  : mConfig(aConfig)
   , mTaskQueue(aVideoTaskQueue)
   , mCallback(aCallback)
   , mFormat(nullptr)
