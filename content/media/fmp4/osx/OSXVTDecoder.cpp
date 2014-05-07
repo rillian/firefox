@@ -7,6 +7,7 @@
 #include <CoreFoundation/CFString.h>
 #include <VideoToolbox/Videotoolbox.h>
 
+#include "mozilla/SHA1.h"
 #include "MP4Reader.h"
 #include "MP4Decoder.h"
 #include "nsThreadUtils.h"
@@ -84,10 +85,12 @@ OSXVTDecoder::Init()
     CFDictionaryCreateMutable(NULL, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
+#if 0
   CFDictionarySetValue(extensions,
       CFSTR("CVImageBufferChromaLocationBottomField"), "left");
   CFDictionarySetValue(extensions,
       CFSTR("CVImageBufferChromaLocationTopField"), "left");
+#endif
   CFDictionarySetValue(extensions, CFSTR("FullRangeVideo"), kCFBooleanTrue);
 
   CFMutableDictionaryRef atoms =
@@ -119,7 +122,16 @@ OSXVTDecoder::Init()
   CFDataRef avc_data = CFDataCreate(NULL, avc_buffer.Elements(), avc_size);
   CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
   CFRelease(avc_data);
-  LOG("Read %ld bytes of avcC data from '%s'", avc_size, avc_filename);
+  SHA1Sum avc_hash;
+  avc_hash.update(avc_buffer.Elements(), avc_size);
+  uint8_t digest_buf[SHA1Sum::HashSize];
+  avc_hash.finish(digest_buf);
+  nsAutoCString avc_digest;
+  for (size_t i = 0; i < sizeof(digest_buf); i++) {
+    avc_digest.AppendPrintf("%02x", digest_buf[i]);
+  }
+  LOG("Read %ld bytes of avcC data from '%s' sha1 %s",
+      avc_size, avc_filename, avc_digest.get());
 
   CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensions"), atoms);
   CFRelease(atoms);
@@ -211,6 +223,17 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   VTDecodeInfoFlags flags;
   OSStatus rv;
   std::vector<uint8_t>* buffer = aSample->data;
+
+  SHA1Sum hash;
+  hash.update(buffer->data(), buffer->size());
+  uint8_t digest_buf[SHA1Sum::HashSize];
+  hash.finish(digest_buf);
+  nsAutoCString digest;
+  for (size_t i = 0; i < sizeof(digest_buf); i++) {
+    digest.AppendPrintf("%02x", digest_buf[i]);
+  }
+  LOG("    sha1 %s", digest.get());
+
   // FIXME: This copies the sample data. I think we can provide
   // a custom block source which reuses the aSample buffer.
   rv = CMBlockBufferCreateWithMemoryBlock(NULL // Struct allocator.
