@@ -87,6 +87,18 @@ if CONFIG['MOZ_FFMPEG']:
       'ffmpeg/include',
   ]
 
+if CONFIG['MOZ_APPLEMEDIA']:
+  EXPORTS += [
+      'osx/OSXDecoderModule.h',
+  ]
+  UNIFIED_SOURCES += [
+      'osx/OSXDecoderModule.cpp',
+      'osx/OSXVTDecoder.cpp',
+  ]
+  LDFLAGS += [
+      '-framework VideoToolbox',
+  ]
+
 FINAL_LIBRARY = 'gklayout'
 
 FAIL_ON_WARNINGS = True

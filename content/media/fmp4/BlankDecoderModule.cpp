@@ -45,8 +45,8 @@ public:
                 MediaDataDecoderCallback* aCallback,
                 BlankMediaDataCreator* aCreator)
       : mSample(aSample)
-      , mCreator(aCreator)
       , mCallback(aCallback)
+      , mCreator(aCreator)
     {
     }
     NS_IMETHOD Run() MOZ_OVERRIDE
@@ -58,8 +58,8 @@ public:
     }
   private:
     nsAutoPtr<mp4_demuxer::MP4Sample> mSample;
-    BlankMediaDataCreator* mCreator;
     MediaDataDecoderCallback* mCallback;
+    BlankMediaDataCreator* mCreator;
   };
 
   virtual nsresult Input(mp4_demuxer::MP4Sample* aSample) MOZ_OVERRIDE
