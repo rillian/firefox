@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <CoreFoundation/CFString.h>
 #include <VideoToolbox/Videotoolbox.h>
 
 #include "MP4Reader.h"
@@ -68,8 +69,8 @@ void
 SetCFDict_int32(CFMutableDictionaryRef dict, const char* key, int32_t value)
 {
   CFNumberRef valueRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &value);
-  CFStringRef keyRef = CFCreateFromCString(NULL, key, kCFStringEncodingUTF8);
-  CFDictionarySetValue(dict, key, number);
+  CFStringRef keyRef = CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, valueRef);
   CFRelease(keyRef);
   CFRelease(valueRef);
 }
