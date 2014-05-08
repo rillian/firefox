@@ -65,15 +65,34 @@ PlatformCallback(void* decompressionOutputRefCon,
   LOG("  got decoded frame data...");
 }
 
-/** Helper to set a string, int32_t pair on a CFMutableidctionaryRef */
+// Helper to set a string, int32_t pair on a CFMutableDictionaryRef.
+// We avoid using the CFSTR macros because there's no way to release those.
 void
-SetCFDict_int32(CFMutableDictionaryRef dict, const char* key, int32_t value)
+SetCFDict(CFMutableDictionaryRef dict, const char* key, int32_t value)
 {
   CFNumberRef valueRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &value);
   CFStringRef keyRef = CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
   CFDictionarySetValue(dict, keyRef, valueRef);
   CFRelease(keyRef);
   CFRelease(valueRef);
+}
+
+// Helper to set a string, string pair on a CFMutableDictionaryRef.
+static void
+SetCFDict(CFMutableDictionaryRef dict, const char* key, const char* value)
+{
+  CFStringRef keyRef = CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, value);
+  CFRelease(keyRef);
+}
+
+// Helper to set a string, bool pair on a CFMutableDictionaryRef.
+static void
+SetCFDict(CFMutableDictionaryRef dict, const char* key, bool value)
+{
+  CFStringRef keyRef = CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, value ? kCFBooleanTrue : kCFBooleanFalse);
+  CFRelease(keyRef);
 }
 
 nsresult
@@ -86,12 +105,10 @@ OSXVTDecoder::Init()
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
 #if 0
-  CFDictionarySetValue(extensions,
-      CFSTR("CVImageBufferChromaLocationBottomField"), "left");
-  CFDictionarySetValue(extensions,
-      CFSTR("CVImageBufferChromaLocationTopField"), "left");
+  SetCFDict(extensions, "CVImageBufferChromaLocationBottomField", "left");
+  SetCFDict(extensions, "CVImageBufferChromaLocationTopField", "left");
 #endif
-  CFDictionarySetValue(extensions, CFSTR("FullRangeVideo"), kCFBooleanTrue);
+  SetCFDict(extensions, "FullRangeVideo", true);
 
   CFMutableDictionaryRef atoms =
     CFDictionaryCreateMutable(NULL, 0,
