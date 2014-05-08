@@ -114,10 +114,6 @@ OSXVTDecoder::Init()
     CFDictionaryCreateMutable(NULL, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
-  if (atoms == NULL) {
-      NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
-      return NS_ERROR_FAILURE;
-  }
   NS_WARNING("HACK: loading AVC Configuration from external file");
   const char* avc_filename = "avcC.dat";
   FILE *avc_file = fopen(avc_filename, "rb");
@@ -163,29 +159,34 @@ OSXVTDecoder::Init()
   // FIXME: propagate errors to caller.
   NS_ASSERTION(rv == noErr, "Couldn't create format description!");
 
-#if 0
-  // Contruction video decoder selection spec.
+  // Contruct video decoder selection spec.
   CFMutableDictionaryRef spec =
-    CFDictionaryCreateMutable(NULL, 3,
+    CFDictionaryCreateMutable(NULL, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
-  if (spec == NULL) {
-    NS_WARNING("Couldn't create OSX VideoToolbox format extensions dict");
-    return NS_ERROR_FAILURE;
-  }
-
+  // This key is supported (or ignored) but not declared prior to OSX 10.9.
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
+  CFStringRef
+        kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder =
+        CFStringCreateWithCString(NULL, "EnableHardwareAcceleratedVideoDecoder",
+            kCFStringEncodingUTF8);
+#endif
   CFDictionarySetValue(spec,
       kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
       kCFBooleanTrue);
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
+  CFRelease(kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder);
 #endif
+
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };
   rv = VTDecompressionSessionCreate(NULL, // Allocator.
                                     mFormat,
-                                    NULL, // Video decoder selection.
+                                    spec, // Video decoder selection.
                                     NULL, // Output video format.
                                     &cb,
                                     &mSession);
   NS_ASSERTION(rv == noErr, "Couldn't create decompression session!");
+  CFRelease(spec);
 
   return NS_OK;
 }
