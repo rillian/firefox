@@ -133,7 +133,7 @@ OSXVTDecoder::Init()
   LOG("Read %ld bytes of avcC data from '%s' sha1 %s",
       avc_size, avc_filename, avc_digest.get());
 
-  CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensions"), atoms);
+  CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensionAtoms"), atoms);
   CFRelease(atoms);
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
