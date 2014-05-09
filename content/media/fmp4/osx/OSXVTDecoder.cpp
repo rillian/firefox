@@ -89,7 +89,17 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   LOG("  got decoded frame data... %ux%u %s", width, height,
       CVPixelBufferIsPlanar(aImage) ? "planar" : "chunked");
   size_t planes = CVPixelBufferGetPlaneCount(aImage);
-  //MOZ_ASSERT(planes == 3);
+  LOG("    %u planes", (unsigned)planes);
+  for (size_t i = 0; i < planes; ++i) {
+    size_t stride = CVPixelBufferGetBytesPerRowOfPlane(aImage, i);
+    LOG("     plane %u %ux%u rowbytes %u",
+        (unsigned)i,
+        CVPixelBufferGetWidthOfPlane(aImage, i),
+        CVPixelBufferGetHeightOfPlane(aImage, i),
+        (unsigned)stride);
+  }
+
+  MOZ_ASSERT(planes == 2);
   uint8_t* frame = new uint8_t[width * height * 3 / 2];
   PodZero(frame);
   VideoData::YCbCrBuffer buffer;
@@ -107,31 +117,19 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   buffer.mPlanes[1].mWidth = width / 2;
   buffer.mPlanes[1].mHeight = height / 2;
   buffer.mPlanes[1].mOffset = 0;
-  buffer.mPlanes[1].mSkip = 0;
-  memset(buffer.mPlanes[1].mData, 0x80,
-      buffer.mPlanes[1].mStride*buffer.mPlanes[1].mHeight);
+  buffer.mPlanes[1].mSkip = 1;
   // Cr plane.
-  buffer.mPlanes[2].mData = frame + width*height + width*height/4;
+  buffer.mPlanes[2].mData = frame + width*height;
   buffer.mPlanes[2].mStride = width / 2;
   buffer.mPlanes[2].mWidth = width / 2;
   buffer.mPlanes[2].mHeight = height / 2;
-  buffer.mPlanes[2].mOffset = 0;
-  buffer.mPlanes[2].mSkip = 0;
-  memset(buffer.mPlanes[2].mData, 0x80,
-      buffer.mPlanes[2].mStride*buffer.mPlanes[2].mHeight);
+  buffer.mPlanes[2].mOffset = 1;
+  buffer.mPlanes[2].mSkip = 1;
 
-  LOG("    %u planes", (unsigned)planes);
-  for (size_t i = 0; i < planes; ++i) {
-    size_t stride = CVPixelBufferGetBytesPerRowOfPlane(aImage, i);
-    LOG("     plane %u %ux%u rowbytes %u",
-        (unsigned)i,
-        CVPixelBufferGetWidthOfPlane(aImage, i),
-        CVPixelBufferGetHeightOfPlane(aImage, i),
-        (unsigned)stride);
-  }
   CVReturn rv = CVPixelBufferLockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
   MOZ_ASSERT(rv == kCVReturnSuccess, "error locking pixel data");
   memcpy(frame, CVPixelBufferGetBaseAddressOfPlane(aImage, 0), width*height);
+  memcpy(frame + width*height, CVPixelBufferGetBaseAddressOfPlane(aImage, 1), width*height/2);
   CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
 
   VideoInfo info;
