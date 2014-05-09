@@ -16,22 +16,30 @@ namespace mozilla {
 
 class MediaTaskQueue;
 class MediaDataDecoderCallback;
+namespace layers {
+  class ImageContainer;
+}
 
 class OSXVTDecoder : public MediaDataDecoder {
 public:
   OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
                MediaTaskQueue* aVideoTaskQueue,
-               MediaDataDecoderCallback* aCallback);
+               MediaDataDecoderCallback* aCallback,
+               layers::ImageContainer* aImageContainer);
   ~OSXVTDecoder();
   virtual nsresult Init() MOZ_OVERRIDE;
   virtual nsresult Input(mp4_demuxer::MP4Sample* aSample) MOZ_OVERRIDE;
   virtual nsresult Flush() MOZ_OVERRIDE;
   virtual nsresult Drain() MOZ_OVERRIDE;
   virtual nsresult Shutdown() MOZ_OVERRIDE;
+  // Return hook for VideoToolbox callback.
+  nsresult OutputFrame(CVPixelBufferRef aImage,
+                       mp4_demuxer::MP4Sample* aSample);
 private:
   const mp4_demuxer::VideoDecoderConfig& mConfig;
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
+  layers::ImageContainer* mImageContainer;
   CMVideoFormatDescriptionRef mFormat;
   VTDecompressionSessionRef mSession;
 };

@@ -10,9 +10,11 @@
 #include "mozilla/SHA1.h"
 #include "MP4Reader.h"
 #include "MP4Decoder.h"
+#include "nsAutoPtr.h"
 #include "nsThreadUtils.h"
 #include "OSXVTDecoder.h"
 #include "prlog.h"
+#include "MediaData.h"
 
 #ifdef PR_LOGGING
 PRLogModuleInfo* GetDemuxerLog();
@@ -26,10 +28,12 @@ namespace mozilla {
 
 OSXVTDecoder::OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
                            MediaTaskQueue* aVideoTaskQueue,
-                           MediaDataDecoderCallback* aCallback)
+                           MediaDataDecoderCallback* aCallback,
+                           layers::ImageContainer* aImageContainer)
   : mConfig(aConfig)
   , mTaskQueue(aVideoTaskQueue)
   , mCallback(aCallback)
+  , mImageContainer(aImageContainer)
   , mFormat(nullptr)
   , mSession(nullptr)
 {
@@ -52,17 +56,106 @@ static void
 PlatformCallback(void* decompressionOutputRefCon,
                  void* sourceFrameRefCon,
                  OSStatus status,
-                 VTDecodeInfoFlags info,
+                 VTDecodeInfoFlags flags,
                  CVImageBufferRef image,
                  CMTime presentationTimeStamp,
                  CMTime presentationDuration)
 {
-  LOG("OSXVideoDecoder::%s status %d flags %d", __func__, status, info);
+  OSXVTDecoder* decoder = static_cast<OSXVTDecoder*>(decompressionOutputRefCon);
+  mp4_demuxer::MP4Sample* sample = static_cast<mp4_demuxer::MP4Sample*>(sourceFrameRefCon);
+
+  LOG("OSXVideoDecoder::%s status %d flags %d", __func__, status, flags);
   if (status != noErr || !image) {
     NS_WARNING("VideoToolbox decoder returned no data");
     return;
   }
-  LOG("  got decoded frame data...");
+  if (flags & kVTDecodeInfo_FrameDropped) {
+    NS_WARNING("  ...frame dropped...");
+  }
+  MOZ_ASSERT(CFGetTypeID(image) == CVPixelBufferGetTypeID(),
+    "VideoToolbox returned an unexpected image type");
+  decoder->OutputFrame(image, sample);
+}
+
+// Copy and return a decoded frame.
+// FIXME: probably better to queue this as a new task
+// to avoid this thread-unsafe public member function.
+nsresult
+OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
+                          mp4_demuxer::MP4Sample* aSample)
+{
+  size_t width = CVPixelBufferGetWidth(aImage);
+  size_t height = CVPixelBufferGetHeight(aImage);
+  LOG("  got decoded frame data... %ux%u %s", width, height,
+      CVPixelBufferIsPlanar(aImage) ? "planar" : "chunked");
+  size_t planes = CVPixelBufferGetPlaneCount(aImage);
+  //MOZ_ASSERT(planes == 3);
+  uint8_t* frame = new uint8_t[width * height * 3 / 2];
+  PodZero(frame);
+  VideoData::YCbCrBuffer buffer;
+
+  // Y plane.
+  buffer.mPlanes[0].mData = frame;
+  buffer.mPlanes[0].mStride = width;
+  buffer.mPlanes[0].mWidth = width;
+  buffer.mPlanes[0].mHeight = height;
+  buffer.mPlanes[0].mOffset = 0;
+  buffer.mPlanes[0].mSkip = 0;
+  // Cb plane.
+  buffer.mPlanes[1].mData = frame + width*height;
+  buffer.mPlanes[1].mStride = width / 2;
+  buffer.mPlanes[1].mWidth = width / 2;
+  buffer.mPlanes[1].mHeight = height / 2;
+  buffer.mPlanes[1].mOffset = 0;
+  buffer.mPlanes[1].mSkip = 0;
+  memset(buffer.mPlanes[1].mData, 0x80,
+      buffer.mPlanes[1].mStride*buffer.mPlanes[1].mHeight);
+  // Cr plane.
+  buffer.mPlanes[2].mData = frame + width*height + width*height/4;
+  buffer.mPlanes[2].mStride = width / 2;
+  buffer.mPlanes[2].mWidth = width / 2;
+  buffer.mPlanes[2].mHeight = height / 2;
+  buffer.mPlanes[2].mOffset = 0;
+  buffer.mPlanes[2].mSkip = 0;
+  memset(buffer.mPlanes[2].mData, 0x80,
+      buffer.mPlanes[2].mStride*buffer.mPlanes[2].mHeight);
+
+  LOG("    %u planes", (unsigned)planes);
+  for (size_t i = 0; i < planes; ++i) {
+    size_t stride = CVPixelBufferGetBytesPerRowOfPlane(aImage, i);
+    LOG("     plane %u %ux%u rowbytes %u",
+        (unsigned)i,
+        CVPixelBufferGetWidthOfPlane(aImage, i),
+        CVPixelBufferGetHeightOfPlane(aImage, i),
+        (unsigned)stride);
+  }
+  CVReturn rv = CVPixelBufferLockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
+  MOZ_ASSERT(rv == kCVReturnSuccess, "error locking pixel data");
+  memcpy(frame, CVPixelBufferGetBaseAddressOfPlane(aImage, 0), width*height);
+  CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
+
+  VideoInfo info;
+  info.mDisplay = nsIntSize(width, height);
+  info.mHasVideo = true;
+  mp4_demuxer::IntRect visible = mConfig.visible_rect();
+  gfx::IntRect picture = gfx::IntRect(visible.x(),
+                                      visible.y(),
+                                      visible.width(),
+                                      visible.height());
+  nsAutoPtr<VideoData> data;
+  data =
+    VideoData::Create(info,
+                      mImageContainer,
+                      nullptr,
+                      aSample->byte_offset,
+                      aSample->composition_timestamp,
+                      aSample->duration,
+                      buffer,
+                      aSample->is_sync_point,
+                      aSample->composition_timestamp,
+                      picture);
+  mCallback->Output(data.forget());
+  return NS_OK;
 }
 
 // Helper to set a string, int32_t pair on a CFMutableDictionaryRef.
@@ -278,8 +371,10 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   // Clean up allocations.
   CFRelease(sample);
   CFRelease(block);
+#if 0
   // We took ownership of aSample so we need to release it.
   delete aSample;
+#endif
   return NS_OK;
 }
 
