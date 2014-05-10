@@ -113,14 +113,14 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   buffer.mPlanes[0].mSkip = 0;
   // Cb plane.
   buffer.mPlanes[1].mData = frame + width*height;
-  buffer.mPlanes[1].mStride = width / 2;
+  buffer.mPlanes[1].mStride = width;
   buffer.mPlanes[1].mWidth = width / 2;
   buffer.mPlanes[1].mHeight = height / 2;
   buffer.mPlanes[1].mOffset = 0;
   buffer.mPlanes[1].mSkip = 1;
   // Cr plane.
   buffer.mPlanes[2].mData = frame + width*height;
-  buffer.mPlanes[2].mStride = width / 2;
+  buffer.mPlanes[2].mStride = width;
   buffer.mPlanes[2].mWidth = width / 2;
   buffer.mPlanes[2].mHeight = height / 2;
   buffer.mPlanes[2].mOffset = 1;
