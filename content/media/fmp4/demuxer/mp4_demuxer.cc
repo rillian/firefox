@@ -68,6 +68,7 @@ MP4Demuxer::MP4Demuxer(Stream* stream)
     is_audio_track_encrypted_(false),
     has_video_(false),
     is_video_track_encrypted_(false),
+    should_video_prepare_annex_B(true),
     can_seek_(false)
 {
 }
@@ -403,8 +404,9 @@ bool MP4Demuxer::PrepareAVCBuffer(
   // update the clear byte count for each subsample if encryption is used to
   // account for the difference in size between the length prefix and Annex B
   // start code.
-  NS_WARNING("Skipping AVC::ConvertFrameToAnnexB");
-//  RCHECK(AVC::ConvertFrameToAnnexB(avc_config.length_size, frame_buf));
+  if (should_video_prepare_annex_B) {
+    RCHECK(AVC::ConvertFrameToAnnexB(avc_config.length_size, frame_buf));
+  }
   if (!subsamples->empty()) {
     const int nalu_size_diff = 4 - avc_config.length_size;
     size_t expected_size = runs_->sample_size() +
@@ -414,8 +416,7 @@ bool MP4Demuxer::PrepareAVCBuffer(
       (*subsamples)[i].clear_bytes += nalu_size_diff;
   }
 
-  NS_WARNING("Skipping AVC::ConvertFrameToAnnexB keyframe");
-  if (0 && runs_->is_keyframe()) {
+  if (should_video_prepare_annex_B && runs_->is_keyframe()) {
     // If this is a keyframe, we (re-)inject SPS and PPS headers at the start of
     // a frame. If subsample info is present, we also update the clear byte
     // count for that first subsample.
@@ -516,6 +517,13 @@ bool
 MP4Demuxer::HasVideo() const
 {
   return has_video_;
+}
+
+void
+MP4Demuxer::PrepareVideoAnnexB(bool enable)
+{
+  DMX_LOG("AVC Annex B preparation %s", enable ? "enabled" : "disabled");
+  should_video_prepare_annex_B = enable;
 }
 
 bool

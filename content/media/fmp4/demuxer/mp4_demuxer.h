@@ -75,6 +75,7 @@ public:
 
   bool HasVideo() const;
   const VideoDecoderConfig& VideoConfig() const;
+  void PrepareVideoAnnexB(bool enable);
 
   Microseconds Duration() const;
 
@@ -150,6 +151,7 @@ private:
 
   bool has_video_;
   bool is_video_track_encrypted_;
+  bool should_video_prepare_annex_B;
 
   bool can_seek_;
 };

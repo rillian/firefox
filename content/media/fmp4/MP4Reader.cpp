@@ -155,6 +155,10 @@ MP4Reader::Init(MediaDecoderReader* aCloneDonor)
   PlatformDecoderModule::Init();
   mMP4Stream = new MP4Stream(mDecoder->GetResource());
   mDemuxer = new MP4Demuxer(mMP4Stream);
+#ifdef MOZ_APPLEMEDIA
+  // Apple's VideoToolbox can't accept AnnexB samples.
+  mDemuxer->PrepareVideoAnnexB(false);
+#endif
 
   InitLayersBackendType();
 
