@@ -205,38 +205,21 @@ OSXVTDecoder::Init()
     CFDictionaryCreateMutable(NULL, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
-  NS_WARNING("HACK: loading AVC Configuration from external file");
-  const char* avc_filename = "avcC.dat";
-  FILE *avc_file = fopen(avc_filename, "rb");
-  if (!avc_file) {
-    NS_WARNING("Couldn't open AVC Configuration box");
-    return NS_ERROR_FAILURE;
-  }
-  fseek(avc_file, 0, SEEK_END);
-  long avc_size = ftell(avc_file);
-  MOZ_ASSERT(avc_size > 0, "Error reading avcC size");
-  fseek(avc_file, 0, SEEK_SET);
-  nsTArray<uint8_t> avc_buffer;
-  avc_buffer.SetLength(avc_size);
-  size_t bytes_read = fread(avc_buffer.Elements(), 1, avc_size, avc_file);
-  if (bytes_read != static_cast<size_t>(avc_size)) {
-    NS_WARNING("Couldn't read AVC Configuration box");
-  }
-  fclose(avc_file);
-  CFDataRef avc_data = CFDataCreate(NULL, avc_buffer.Elements(), avc_size);
-  CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
-  CFRelease(avc_data);
+  CFDataRef avc_data = CFDataCreate(NULL,
+      mConfig.extra_data(), mConfig.extra_data_size());
   SHA1Sum avc_hash;
-  avc_hash.update(avc_buffer.Elements(), avc_size);
+  avc_hash.update(mConfig.extra_data(), mConfig.extra_data_size());
   uint8_t digest_buf[SHA1Sum::HashSize];
   avc_hash.finish(digest_buf);
   nsAutoCString avc_digest;
   for (size_t i = 0; i < sizeof(digest_buf); i++) {
     avc_digest.AppendPrintf("%02x", digest_buf[i]);
   }
-  LOG("Read %ld bytes of avcC data from '%s' sha1 %s",
-      avc_size, avc_filename, avc_digest.get());
+  LOG("AVCDecoderConfig %ld bytes sha1 %s",
+      mConfig.extra_data_size(), avc_digest.get());
 
+ CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
+  CFRelease(avc_data);
   CFDictionarySetValue(extensions, CFSTR("SampleDescriptionExtensionAtoms"), atoms);
   CFRelease(atoms);
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
