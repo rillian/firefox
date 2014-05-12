@@ -89,7 +89,6 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   LOG("  got decoded frame data... %ux%u %s", width, height,
       CVPixelBufferIsPlanar(aImage) ? "planar" : "chunked");
   size_t planes = CVPixelBufferGetPlaneCount(aImage);
-  LOG("    %u planes", (unsigned)planes);
   for (size_t i = 0; i < planes; ++i) {
     size_t stride = CVPixelBufferGetBytesPerRowOfPlane(aImage, i);
     LOG("     plane %u %ux%u rowbytes %u",
