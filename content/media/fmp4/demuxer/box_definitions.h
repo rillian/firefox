@@ -160,6 +160,7 @@ struct AVCDecoderConfigurationRecord : Box {
 
   std::vector<SPS> sps_list;
   std::vector<PPS> pps_list;
+  std::vector<uint8_t> raw;
 };
 
 struct PixelAspectRatioBox : Box {

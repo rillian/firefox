@@ -391,6 +391,9 @@ bool MP4Demuxer::EmitSample(nsAutoPtr<MP4Sample>* sample) {
                           audio ? kAudio : kVideo,
                           decrypt_config.forget(),
                           runs_->is_keyframe());
+  if (video && !should_video_prepare_annex_B) {
+    (*sample)->avcc_raw = runs_->video_description().avcc.raw;
+  }
   runs_->AdvanceSample();
   return true;
 }
