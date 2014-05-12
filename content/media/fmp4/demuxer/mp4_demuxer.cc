@@ -221,9 +221,11 @@ bool MP4Demuxer::ParseMoov(BoxReader* reader) {
       DMX_LOG("is_video_track_encrypted_: %d\n", is_video_track_encrypted_);
       video_config_.Initialize(kCodecH264, H264PROFILE_MAIN,  VideoFrameFormat::YV12,
                               coded_size, visible_rect, natural_size,
-                              // No decoder-specific buffer needed for AVC;
-                              // SPS/PPS are embedded in the video stream
-                              NULL, 0, is_video_track_encrypted_, true);
+                              // Copy the AVCDecoderConfig box into extra_data
+                              // For decoders that need it.
+                              entry.avcc.raw.data(),
+                              entry.avcc.raw.size(),
+                              is_video_track_encrypted_, true);
       has_video_ = true;
       video_track_id_ = track->header.track_id;
     }
@@ -391,9 +393,6 @@ bool MP4Demuxer::EmitSample(nsAutoPtr<MP4Sample>* sample) {
                           audio ? kAudio : kVideo,
                           decrypt_config.forget(),
                           runs_->is_keyframe());
-  if (video && !should_video_prepare_annex_B) {
-    (*sample)->avcc_raw = runs_->video_description().avcc.raw;
-  }
   runs_->AdvanceSample();
   return true;
 }

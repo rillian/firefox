@@ -57,9 +57,6 @@ struct MP4Sample {
   const bool is_sync_point;
 
   bool is_encrypted() const;
-
-  // Raw AVCDecoderConfiguration box data.
-  std::vector<uint8_t> avcc_raw;
 };
 
 class MP4Demuxer {
