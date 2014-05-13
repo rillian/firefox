@@ -105,23 +105,23 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
 
   // Y plane.
   buffer.mPlanes[0].mData = frame;
-  buffer.mPlanes[0].mStride = width;
+  buffer.mPlanes[0].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 0);
   buffer.mPlanes[0].mWidth = width;
   buffer.mPlanes[0].mHeight = height;
   buffer.mPlanes[0].mOffset = 0;
   buffer.mPlanes[0].mSkip = 0;
   // Cb plane.
   buffer.mPlanes[1].mData = frame + width*height;
-  buffer.mPlanes[1].mStride = width;
-  buffer.mPlanes[1].mWidth = width / 2;
-  buffer.mPlanes[1].mHeight = height / 2;
+  buffer.mPlanes[1].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 1);
+  buffer.mPlanes[1].mWidth = (width+1) / 2;
+  buffer.mPlanes[1].mHeight = (height+1) / 2;
   buffer.mPlanes[1].mOffset = 0;
   buffer.mPlanes[1].mSkip = 1;
   // Cr plane.
   buffer.mPlanes[2].mData = frame + width*height;
-  buffer.mPlanes[2].mStride = width;
-  buffer.mPlanes[2].mWidth = width / 2;
-  buffer.mPlanes[2].mHeight = height / 2;
+  buffer.mPlanes[2].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 1);
+  buffer.mPlanes[2].mWidth = (width+1) / 2;
+  buffer.mPlanes[2].mHeight = (height+1) / 2;
   buffer.mPlanes[2].mOffset = 1;
   buffer.mPlanes[2].mSkip = 1;
 
