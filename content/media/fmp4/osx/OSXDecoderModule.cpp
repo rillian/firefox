@@ -8,6 +8,7 @@
 #include "mozilla/DebugOnly.h"
 #include "mp4_demuxer/audio_decoder_config.h"
 #include "OSXDecoderModule.h"
+#include "OSXATDecoder.h"
 #include "OSXVTDecoder.h"
 
 namespace mozilla {
@@ -75,14 +76,8 @@ OSXDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfi
                                    MediaTaskQueue* aAudioTaskQueue,
                                    MediaDataDecoderCallback* aCallback)
 {
-  // TODO: hook CoreAudio for AAC decoding?
-  NS_WARNING("AAC decoder not implemented for OS X");
-
-  NS_WARNING("using blank decoder as a fallback");
-  if (!mBlankDecoder) {
-    mBlankDecoder = CreateBlankDecoderModule();
-  }
-  return mBlankDecoder->CreateAACDecoder(aConfig, aAudioTaskQueue, aCallback);
+  NS_WARNING("Creating AAC decoder on OS X");
+  return new OSXATDecoder(aConfig, aAudioTaskQueue, aCallback);
 }
 
 } // namespace mozilla

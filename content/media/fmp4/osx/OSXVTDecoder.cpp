@@ -23,7 +23,6 @@ PRLogModuleInfo* GetDemuxerLog();
 #define LOG(...)
 #endif
 
-
 namespace mozilla {
 
 OSXVTDecoder::OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
