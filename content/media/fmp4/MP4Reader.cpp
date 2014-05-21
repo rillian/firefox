@@ -375,18 +375,20 @@ MP4Reader::Decode(TrackType aTrack)
   return true;
 }
 
-#ifdef LOG_SAMPLE_DECODE
-static const char*
-TrackTypeToStr(TrackType aTrack)
+// Static method so other modules can call us. This should be in
+// mp4_demuxer, but we didn't want to modify upstream.
+const char*
+MP4Reader::TrackTypeToStr(TrackType aTrack)
 {
   MOZ_ASSERT(aTrack == kAudio || aTrack == kVideo);
   switch (aTrack) {
     case kAudio: return "Audio";
     case kVideo: return "Video";
+    case kHint: return "Hint";
+    case kInvalid: return "Invalid";
     default: return "Unknown";
   }
 }
-#endif
 
 void
 MP4Reader::Output(TrackType aTrack, MediaData* aSample)
