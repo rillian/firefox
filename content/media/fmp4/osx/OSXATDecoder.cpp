@@ -30,7 +30,8 @@ OSXATDecoder::OSXATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   , mCallback(aCallback)
 {
   MOZ_COUNT_CTOR(OSXATDecoder);
-  MOZ_ASSERT(mConfig.codec() == mp4_demuxer::kCodecAAC);
+  MOZ_ASSERT(mConfig.codec() == mp4_demuxer::kCodecAAC ||
+             mConfig.codec() == mp4_demuxer::kCodecMP3);
 }
 
 OSXATDecoder::~OSXATDecoder()
