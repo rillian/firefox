@@ -35,6 +35,7 @@ private:
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
   AudioConverterRef mConverter;
+  AudioFileStreamID mStream;
 };
 
 } // namespace mozilla

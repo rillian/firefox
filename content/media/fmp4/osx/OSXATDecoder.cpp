@@ -30,6 +30,14 @@ OSXATDecoder::OSXATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   , mCallback(aCallback)
 {
   MOZ_COUNT_CTOR(OSXATDecoder);
+  LOG("Creating Apple AudioToolbox AAC decoder");
+#if 0
+  LOG("Audio Decoder configuration: %s %d Hz %d channels %d bits per channel",
+      mConfig.mime_type,
+      mConfig.samples_per_second,
+      mConfig.channel_count,
+      mConfig.bits_per_sample);
+#endif
   MOZ_ASSERT(mConfig.codec() == mp4_demuxer::kCodecAAC ||
              mConfig.codec() == mp4_demuxer::kCodecMP3);
 }
@@ -39,39 +47,72 @@ OSXATDecoder::~OSXATDecoder()
   MOZ_COUNT_DTOR(OSXATDecoer);
 }
 
+static void
+_MetadataCallback(void *aDecoder,
+                  AudioFileStreamID aStream,
+                  AudioFileStreamPropertyID aProperty,
+                  UInt32 *aFlags)
+{
+  LOG("Metadata callback");
+}
+
+static void
+_SampleCallback(void *aDecoder,
+                UInt32 aNumBytes, UInt32 aNumPackets,
+                const void *aData,
+                AudioStreamPacketDescription *aPackets)
+{
+  LOG("Sample callback");
+}
+
 nsresult
 OSXATDecoder::Init()
 {
-  NS_WARNING(__func__);
-  return NS_ERROR_FAILURE;
+  LOG("Initializing Apple AudioToolbox AAC decoder");
+  AudioFileTypeID fileType = kAudioFileAAC_ADTSType; // or kAudioFileMPEG4Type, kAudioFileM4AType
+  OSStatus rv = AudioFileStreamOpen(this,
+                                    _MetadataCallback,
+                                    _SampleCallback,
+                                    fileType,
+                                    &mStream);
+  if (rv) {
+    return NS_ERROR_FAILURE;
+  }
+  return NS_OK;
 }
 
 nsresult
 OSXATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  NS_WARNING(__func__);
-  return NS_ERROR_FAILURE;
+  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s %d bytes", aSample,
+      MP4Reader::TrackTypeToStr(aSample->type),
+      aSample->duration,
+      aSample->composition_timestamp,
+      aSample->decode_timestamp,
+      aSample->is_sync_point ? " keyframe" : "",
+      aSample->data->size());
+  return NS_OK;
 }
 
 nsresult
 OSXATDecoder::Flush()
 {
   NS_WARNING(__func__);
-  return NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 nsresult
 OSXATDecoder::Drain()
 {
   NS_WARNING(__func__);
-  return NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 nsresult
 OSXATDecoder::Shutdown()
 {
   NS_WARNING(__func__);
-  return NS_ERROR_FAILURE;
+  return NS_OK;
 }
 
 } // namespace mozilla
