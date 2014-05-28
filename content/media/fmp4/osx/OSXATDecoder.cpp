@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <AudioToolbox/AudioToolbox.h>
+#include "AppleUtils.h"
 #include "MP4Reader.h"
 #include "MP4Decoder.h"
 #include "mozilla/RefPtr.h"
@@ -69,7 +70,8 @@ nsresult
 OSXATDecoder::Init()
 {
   LOG("Initializing Apple AudioToolbox AAC decoder");
-  AudioFileTypeID fileType = kAudioFileAAC_ADTSType; // or kAudioFileMPEG4Type, kAudioFileM4AType
+  AudioFileTypeID fileType = kAudioFileAAC_ADTSType;
+  // or kAudioFileMPEG4Type, kAudioFileM4AType
   OSStatus rv = AudioFileStreamOpen(this,
                                     _MetadataCallback,
                                     _SampleCallback,
@@ -78,6 +80,35 @@ OSXATDecoder::Init()
   if (rv) {
     return NS_ERROR_FAILURE;
   }
+
+  AudioStreamBasicDescription inputFormat, outputFormat;
+  // Fill in the input format description from the stream.
+  AppleUtils::GetProperty(mStream,
+      kAudioFileStreamProperty_DataFormat, &inputFormat);
+
+  // Fill in the output format manually.
+  PodZero(&outputFormat);
+  outputFormat.mFormatID = kAudioFormatLinearPCM;
+#if defined(MOZ_SAMPLE_TYPE_FLOAT32)
+  outputFormat.mBitsPerChannel = 32;
+  outputFormat.mFormatFlags =
+    kLinearPCMFormatFlagIsFloat |
+    0;
+#else
+# error Unknown audio sample type
+#endif
+  // Set up the decoder so it gives us one sample per frame
+  outputFormat.mFramesPerPacket = 1;
+  outputFormat.mBytesPerPacket = outputFormat.mBytesPerFrame
+        = outputFormat.mChannelsPerFrame * outputFormat.mBitsPerChannel / 8;
+
+  rv = AudioConverterNew(&inputFormat, &outputFormat, &mConverter);
+  if (rv) {
+    LOG("Error %d constructing AudioConverter", rv);
+    mConverter = nullptr;
+    return NS_ERROR_FAILURE;
+  }
+
   return NS_OK;
 }
 
@@ -112,6 +143,11 @@ nsresult
 OSXATDecoder::Shutdown()
 {
   NS_WARNING(__func__);
+  OSStatus rv = AudioConverterDispose(mConverter);
+  if (rv) {
+    LOG("error %d disposing of AudioConverter", rv);
+    return NS_ERROR_FAILURE;
+  }
   return NS_OK;
 }
 

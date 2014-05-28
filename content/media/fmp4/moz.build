@@ -92,6 +92,7 @@ if CONFIG['MOZ_APPLEMEDIA']:
       'osx/OSXDecoderModule.h',
   ]
   UNIFIED_SOURCES += [
+      'osx/AppleUtils.cpp',
       'osx/OSXATDecoder.cpp',
       'osx/OSXDecoderModule.cpp',
       'osx/OSXVTDecoder.cpp',
