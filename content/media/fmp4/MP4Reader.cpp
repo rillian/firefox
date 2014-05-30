@@ -172,8 +172,7 @@ MP4Reader::Init(MediaDecoderReader* aCloneDonor)
 {
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
   PlatformDecoderModule::Init();
-  mMP4Stream = new MP4Stream(mDecoder->GetResource());
-  mDemuxer = new MP4Demuxer(mMP4Stream);
+  mDemuxer = new MP4Demuxer(new MP4Stream(mDecoder->GetResource()));
 #ifdef MOZ_APPLEMEDIA
   // Apple's VideoToolbox can't accept AnnexB samples.
   mDemuxer->PrepareVideoAnnexB(false);
