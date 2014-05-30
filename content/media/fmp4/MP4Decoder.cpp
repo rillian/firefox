@@ -92,6 +92,9 @@ HavePlatformMPEGDecoders()
          IsVistaOrLater() ||
 #endif
          IsFFmpegAvailable() ||
+#ifdef MOZ_APPLEMEDIA
+         true ||
+#endif
          // TODO: Other platforms...
          false;
 }
