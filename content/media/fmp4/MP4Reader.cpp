@@ -155,6 +155,10 @@ MP4Reader::Init(MediaDecoderReader* aCloneDonor)
   PlatformDecoderModule::Init();
   mMP4Stream = new MP4Stream(mDecoder->GetResource());
   mDemuxer = new MP4Demuxer(mMP4Stream);
+#ifdef MOZ_APPLEMEDIA
+  // Apple's VideoToolbox can't accept AnnexB samples.
+  mDemuxer->PrepareVideoAnnexB(false);
+#endif
 
   InitLayersBackendType();
 
@@ -371,18 +375,20 @@ MP4Reader::Decode(TrackType aTrack)
   return true;
 }
 
-#ifdef LOG_SAMPLE_DECODE
-static const char*
-TrackTypeToStr(TrackType aTrack)
+// Static method so other modules can call us. This should be in
+// mp4_demuxer, but we didn't want to modify upstream.
+const char*
+MP4Reader::TrackTypeToStr(TrackType aTrack)
 {
   MOZ_ASSERT(aTrack == kAudio || aTrack == kVideo);
   switch (aTrack) {
     case kAudio: return "Audio";
     case kVideo: return "Video";
+    case kHint: return "Hint";
+    case kInvalid: return "Invalid";
     default: return "Unknown";
   }
 }
-#endif
 
 void
 MP4Reader::Output(TrackType aTrack, MediaData* aSample)

@@ -330,9 +330,9 @@ bool AVCDecoderConfigurationRecord::Parse(BoxReader* reader) {
          (length_size_minus_one & 0xfc) == 0xfc);
   length_size = (length_size_minus_one & 0x3) + 1;
 
-  uint8_t num_sps;
-  RCHECK(reader->Read1(&num_sps) && (num_sps & 0xe0) == 0xe0);
-  num_sps &= 0x1f;
+  uint8_t num_sps_field;
+  RCHECK(reader->Read1(&num_sps_field) && (num_sps_field & 0xe0) == 0xe0);
+  uint8_t num_sps = num_sps_field & 0x1f;
 
   sps_list.resize(num_sps);
   for (int i = 0; i < num_sps; i++) {
@@ -349,6 +349,27 @@ bool AVCDecoderConfigurationRecord::Parse(BoxReader* reader) {
     uint16_t pps_length;
     RCHECK(reader->Read2(&pps_length) &&
            reader->ReadVec(&pps_list[i], pps_length));
+  }
+
+  // re-serialize so we can return raw data to VideoToolbox.
+  raw.push_back(version);
+  raw.push_back(profile_indication);
+  raw.push_back(profile_compatibility);
+  raw.push_back(avc_level);
+  raw.push_back(length_size_minus_one);
+  raw.push_back(num_sps_field);
+  for (int i = 0; i < num_sps; i++) {
+    uint16_t sps_length = sps_list[i].size();
+    raw.push_back(sps_length >> 8);
+    raw.push_back(sps_length & 0xff);
+    raw.insert(raw.end(), sps_list[i].begin(), sps_list[i].end());
+  }
+  raw.push_back(num_pps);
+  for (int i = 0; i < num_pps; i++) {
+    uint16_t pps_length = pps_list[i].size();
+    raw.push_back(pps_length >> 8);
+    raw.push_back(pps_length & 0xff);
+    raw.insert(raw.end(), pps_list[i].begin(), pps_list[i].end());
   }
 
   return true;
