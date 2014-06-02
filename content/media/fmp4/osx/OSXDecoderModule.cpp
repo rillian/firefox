@@ -76,6 +76,12 @@ OSXDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfi
                                    MediaTaskQueue* aAudioTaskQueue,
                                    MediaDataDecoderCallback* aCallback)
 {
+  NS_WARNING("HACK: using a BlankDecoderModule for AAC");
+  if (!mBlankDecoder) {
+    mBlankDecoder = CreateBlankDecoderModule();
+  }
+  return mBlankDecoder->CreateAACDecoder(aConfig, aAudioTaskQueue, aCallback);
+
   NS_WARNING("Creating AAC decoder on OS X");
   return new OSXATDecoder(aConfig, aAudioTaskQueue, aCallback);
 }

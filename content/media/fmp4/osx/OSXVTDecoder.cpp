@@ -202,9 +202,9 @@ OSXVTDecoder::Init()
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
   CFDataRef avc_data = CFDataCreate(NULL,
-      mConfig.extra_data.data(), mConfig.extra_data.size());
+      mConfig.extra_data.begin(), mConfig.extra_data.length());
   SHA1Sum avc_hash;
-  avc_hash.update(mConfig.extra_data.data(), mConfig.extra_data.size());
+  avc_hash.update(mConfig.extra_data.begin(), mConfig.extra_data.length());
   uint8_t digest_buf[SHA1Sum::HashSize];
   avc_hash.finish(digest_buf);
   nsAutoCString avc_digest;
@@ -212,7 +212,7 @@ OSXVTDecoder::Init()
     avc_digest.AppendPrintf("%02x", digest_buf[i]);
   }
   LOG("AVCDecoderConfig %ld bytes sha1 %s",
-      mConfig.extra_data.size(), avc_digest.get());
+      mConfig.extra_data.length(), avc_digest.get());
 
  CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
   CFRelease(avc_data);
@@ -220,8 +220,8 @@ OSXVTDecoder::Init()
   CFRelease(atoms);
   rv = CMVideoFormatDescriptionCreate(NULL, // Use default allocator.
                                       kCMVideoCodecType_H264,
-                                      mConfig.coded_size().width(),
-                                      mConfig.coded_size().height(),
+                                      mConfig.display_width,
+                                      mConfig.display_height,
                                       extensions,
                                       &mFormat);
   CFRelease(extensions);
@@ -282,22 +282,19 @@ OSXVTDecoder::Shutdown()
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s %d bytes", aSample,
-      MP4Reader::TrackTypeToStr(aSample->type),
+  LOG("mp4 input sample %p %lld us %lld pts%s %d bytes", aSample,
       aSample->duration,
       aSample->composition_timestamp,
-      aSample->decode_timestamp,
       aSample->is_sync_point ? " keyframe" : "",
-      aSample->data->size());
+      aSample->size);
 
   CMBlockBufferRef block;
   CMSampleBufferRef sample;
   VTDecodeInfoFlags flags;
   OSStatus rv;
-  std::vector<uint8_t>* buffer = aSample->data;
 
   SHA1Sum hash;
-  hash.update(buffer->data(), buffer->size());
+  hash.update(aSample->data, aSample->size);
   uint8_t digest_buf[SHA1Sum::HashSize];
   hash.finish(digest_buf);
   nsAutoCString digest;
@@ -309,12 +306,12 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   // FIXME: This copies the sample data. I think we can provide
   // a custom block source which reuses the aSample buffer.
   rv = CMBlockBufferCreateWithMemoryBlock(NULL // Struct allocator.
-                                         ,buffer->data()
-                                         ,buffer->size()
+                                         ,aSample->data
+                                         ,aSample->size
                                          ,NULL // Block allocator.
                                          ,NULL // Block source.
                                          ,0    // Data offset.
-                                         ,buffer->size()
+                                         ,aSample->size
                                          ,false
                                          ,&block);
   NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
@@ -323,7 +320,9 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   const int32_t msec_per_sec = 1000000;
   timestamp.duration = CMTimeMake(aSample->duration, msec_per_sec);
   timestamp.presentationTimeStamp = CMTimeMake(aSample->composition_timestamp, msec_per_sec);
-  timestamp.decodeTimeStamp = CMTimeMake(aSample->decode_timestamp, msec_per_sec);
+  //timestamp.decodeTimeStamp = CMTimeMake(aSample->decode_timestamp, msec_per_sec);
+  timestamp.decodeTimeStamp = kCMTimeInvalid; // Not value from libstagefright.
+  timestamp.decodeTimeStamp = CMTimeMake(aSample->composition_timestamp, msec_per_sec);
 
   rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, &sample);
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
