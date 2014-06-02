@@ -179,11 +179,12 @@ MP4Demuxer::DemuxVideoSample()
   }
 
   sample->Update();
-
+#if 0
   if (sample->is_sync_point) {
     sample->Prepend(mVideoConfig.annex_b.begin(),
                     mVideoConfig.annex_b.length());
   }
+#endif
 
   return sample.forget();
 }
