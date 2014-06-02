@@ -32,15 +32,12 @@ OSXATDecoder::OSXATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
 {
   MOZ_COUNT_CTOR(OSXATDecoder);
   LOG("Creating Apple AudioToolbox AAC decoder");
-#if 0
   LOG("Audio Decoder configuration: %s %d Hz %d channels %d bits per channel",
       mConfig.mime_type,
       mConfig.samples_per_second,
       mConfig.channel_count,
       mConfig.bits_per_sample);
-#endif
-  MOZ_ASSERT(mConfig.codec() == mp4_demuxer::kCodecAAC ||
-             mConfig.codec() == mp4_demuxer::kCodecMP3);
+  // TODO: Verify aConfig.mime_type.
 }
 
 OSXATDecoder::~OSXATDecoder()
@@ -115,13 +112,11 @@ OSXATDecoder::Init()
 nsresult
 OSXATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  LOG("mp4 input sample %p %s %lld us %lld pts %lld dts%s %d bytes", aSample,
-      MP4Reader::TrackTypeToStr(aSample->type),
+  LOG("mp4 input sample %p %lld us %lld pts%s %llu bytes", aSample,
       aSample->duration,
       aSample->composition_timestamp,
-      aSample->decode_timestamp,
       aSample->is_sync_point ? " keyframe" : "",
-      aSample->data->size());
+      (unsigned long long)aSample->size);
   return NS_OK;
 }
 

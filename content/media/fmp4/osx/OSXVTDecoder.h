@@ -10,6 +10,7 @@
 #include <VideoToolbox/VideoToolbox.h>
 #include "mozilla/RefPtr.h"
 #include "mozilla/ReentrantMonitor.h"
+#include "mp4_demuxer/mp4_demuxer.h"
 #include "nsIThread.h"
 
 namespace mozilla {

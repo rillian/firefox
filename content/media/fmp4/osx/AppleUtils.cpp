@@ -5,6 +5,7 @@
 // Utility functions to help with Apple API calls.
 
 #include <AudioToolbox/AudioToolbox.h>
+#include "AppleUtils.h"
 #include "prlog.h"
 
 namespace mozilla {

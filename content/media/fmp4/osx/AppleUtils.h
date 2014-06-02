@@ -4,6 +4,9 @@
 
 // Utility functions to help with Apple API calls.
 
+#ifndef __AppleUtils_h__
+#define __AppleUtils_h__
+
 #include <AudioToolbox/AudioToolbox.h>
 #include "nsError.h"
 
@@ -11,9 +14,7 @@ namespace mozilla {
 
 //typedef uint32_t nsresult;
 
-class AppleUtils {
-  public:
-
+struct AppleUtils {
     // Helper to retrieve properties from AudioFileStream objects.
     static nsresult GetProperty(AudioFileStreamID aAudioFileStream,
                                 AudioFileStreamPropertyID aPropertyID,
@@ -21,3 +22,5 @@ class AppleUtils {
 };
 
 } // namespace mozilla
+
+#endif // __AppleUtils_h__

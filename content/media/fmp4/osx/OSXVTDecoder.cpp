@@ -37,12 +37,11 @@ OSXVTDecoder::OSXVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
   , mSession(nullptr)
 {
   MOZ_COUNT_CTOR(OSXVTDecoder);
-  MOZ_ASSERT(mConfig.codec() == mp4_demuxer::kCodecH264);
+  // TODO: Verify aConfig.mime_type.
   LOG("Creating OSXVTDecoder for %dx%d h.264 video",
-      mConfig.visible_rect().width(),
-      mConfig.visible_rect().height()
+      mConfig.display_width,
+      mConfig.display_height
      );
-  LOG("%s", mConfig.AsHumanReadableString().c_str());
 }
 
 OSXVTDecoder::~OSXVTDecoder()
@@ -133,11 +132,10 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   VideoInfo info;
   info.mDisplay = nsIntSize(width, height);
   info.mHasVideo = true;
-  mp4_demuxer::IntRect visible = mConfig.visible_rect();
-  gfx::IntRect picture = gfx::IntRect(visible.x(),
-                                      visible.y(),
-                                      visible.width(),
-                                      visible.height());
+  gfx::IntRect visible = gfx::IntRect(0,
+                                      0,
+                                      mConfig.display_width,
+                                      mConfig.display_height);
   nsAutoPtr<VideoData> data;
   data =
     VideoData::Create(info,
@@ -149,7 +147,7 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                       buffer,
                       aSample->is_sync_point,
                       aSample->composition_timestamp,
-                      picture);
+                      visible);
   mCallback->Output(data.forget());
   return NS_OK;
 }
@@ -204,9 +202,9 @@ OSXVTDecoder::Init()
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
   CFDataRef avc_data = CFDataCreate(NULL,
-      mConfig.extra_data(), mConfig.extra_data_size());
+      mConfig.extra_data.data(), mConfig.extra_data.size());
   SHA1Sum avc_hash;
-  avc_hash.update(mConfig.extra_data(), mConfig.extra_data_size());
+  avc_hash.update(mConfig.extra_data.data(), mConfig.extra_data.size());
   uint8_t digest_buf[SHA1Sum::HashSize];
   avc_hash.finish(digest_buf);
   nsAutoCString avc_digest;
@@ -214,7 +212,7 @@ OSXVTDecoder::Init()
     avc_digest.AppendPrintf("%02x", digest_buf[i]);
   }
   LOG("AVCDecoderConfig %ld bytes sha1 %s",
-      mConfig.extra_data_size(), avc_digest.get());
+      mConfig.extra_data.size(), avc_digest.get());
 
  CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
   CFRelease(avc_data);
