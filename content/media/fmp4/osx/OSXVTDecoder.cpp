@@ -149,6 +149,9 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                       aSample->composition_timestamp,
                       visible);
   mCallback->Output(data.forget());
+  // TODO: is this necessary? caller should notice we've consumed all input.
+  NS_WARNING("Requesting more h.264 data");
+  mCallback->InputExhausted();
   return NS_OK;
 }
 
@@ -315,6 +318,7 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
                                          ,false
                                          ,&block);
   NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
+
   CMSampleTimingInfo timestamp;
   // FIXME: check units here.
   const int32_t msec_per_sec = 1000000;
@@ -328,6 +332,7 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
   rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
+
   // Clean up allocations.
   CFRelease(sample);
   // For some reason this gives me a double-free error with stagefright.
@@ -336,6 +341,13 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   // We took ownership of aSample so we need to release it.
   delete aSample;
 #endif
+
+  // Ask for more data.
+  if (mTaskQueue->IsEmpty()) {
+    NS_WARNING("AppleVTDecoder task queue empty; requesting more data");
+    mCallback->InputExhausted();
+  }
+
   return NS_OK;
 }
 
