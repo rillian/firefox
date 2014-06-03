@@ -330,7 +330,8 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
   // Clean up allocations.
   CFRelease(sample);
-  CFRelease(block);
+  // For some reason this gives me a double-free error with stagefright.
+  //CFRelease(block);
 #if 0
   // We took ownership of aSample so we need to release it.
   delete aSample;
