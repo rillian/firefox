@@ -65,7 +65,9 @@ private:
   nsAutoPtr<Stream> mSource;
 };
 
-MP4Demuxer::MP4Demuxer(Stream* source) : mPrivate(new StageFrightPrivate())
+MP4Demuxer::MP4Demuxer(Stream* source)
+  : mPrivate(new StageFrightPrivate())
+  , mPrepareAnnexB(true)
 {
   mPrivate->mExtractor = new MPEG4Extractor(new DataSourceAdapter(source));
 }
@@ -179,13 +181,25 @@ MP4Demuxer::DemuxVideoSample()
   }
 
   sample->Update();
-#if 0
-  if (sample->is_sync_point) {
-    sample->Prepend(mVideoConfig.annex_b.begin(),
-                    mVideoConfig.annex_b.length());
+  if (mPrepareAnnexB) {
+    // Overwrite the nal length with the Annex B flag.
+    sample->data[0] = 0x00;
+    sample->data[1] = 0x00;
+    sample->data[2] = 0x00;
+    sample->data[3] = 0x01;
+    if (sample->is_sync_point) {
+      sample->Prepend(mVideoConfig.annex_b.begin(),
+                      mVideoConfig.annex_b.length());
+    }
   }
-#endif
 
   return sample.forget();
 }
+
+void
+MP4Demuxer::PrepareAnnexB(bool enabled)
+{
+  mPrepareAnnexB = enabled;
 }
+
+} // namespace mp4_demuxer
