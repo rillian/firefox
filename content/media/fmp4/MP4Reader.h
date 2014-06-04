@@ -49,9 +49,6 @@ public:
                         int64_t aStartTime,
                         int64_t aEndTime,
                         int64_t aCurrentTime) MOZ_OVERRIDE;
-
-  // Utility function for debug messages.
-  static const char* TrackTypeToStr(mp4_demuxer::TrackType aTrack);
 private:
 
   // Destroys all decoder resources.
