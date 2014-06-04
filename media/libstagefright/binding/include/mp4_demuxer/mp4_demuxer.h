@@ -49,6 +49,8 @@ public:
   MP4Sample* DemuxAudioSample();
   MP4Sample* DemuxVideoSample();
 
+  void PrepareAnnexB(bool enabled);
+
   const AudioDecoderConfig& AudioConfig() { return mAudioConfig; }
   const VideoDecoderConfig& VideoConfig() { return mVideoConfig; }
 
@@ -57,6 +59,8 @@ private:
   VideoDecoderConfig mVideoConfig;
 
   nsAutoPtr<StageFrightPrivate> mPrivate;
+
+  bool mPrepareAnnexB; // Whether the decoder wants AVC Annex B.
 };
 }
 
