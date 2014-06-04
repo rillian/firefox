@@ -67,7 +67,7 @@ private:
 
 MP4Demuxer::MP4Demuxer(Stream* source)
   : mPrivate(new StageFrightPrivate())
-  , mPrepareAnnexB(true)
+  , mPrepareAnnexB(false)
 {
   mPrivate->mExtractor = new MPEG4Extractor(new DataSourceAdapter(source));
 }
