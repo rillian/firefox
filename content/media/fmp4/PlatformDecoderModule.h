@@ -89,6 +89,19 @@ public:
                                               MediaTaskQueue* aVideoTaskQueue,
                                               MediaDataDecoderCallback* aCallback) = 0;
 
+  // Some platforms require H264 video samples in AVC Annex B format.
+  // Others require the AVCC box separately, and expect the NAL length
+  // at the start of each sample. This method will be called each time
+  // a sample is prepared to decide which format to produce.
+  // The payload data from the AVCC box is available in the extra_data
+  // field of the VideoDecoderConfig object.
+  enum H264Format {
+    kAnnexB,
+    kAVCC,
+    kInvalid
+  };
+  virtual H264Format RequiredH264Format() = 0;
+
   // Creates an AAC decoder with the specified properties.
   // Asynchronous decoding of audio should be done in runnables dispatched to
   // aAudioTaskQueue. If the task queue isn't needed, the decoder should

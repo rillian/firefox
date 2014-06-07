@@ -77,6 +77,12 @@ WMFDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConf
                                  aCallback);
 }
 
+H264Format
+WMFDecoderModule::RequiredH264Format()
+{
+  return kAnnexB;
+}
+
 MediaDataDecoder*
 WMFDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
                                    MediaTaskQueue* aAudioTaskQueue,
