@@ -173,11 +173,6 @@ MP4Reader::Init(MediaDecoderReader* aCloneDonor)
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
   PlatformDecoderModule::Init();
   mDemuxer = new MP4Demuxer(new MP4Stream(mDecoder->GetResource()));
-#ifdef XP_WIN
-  // Windows Media Foundation requires AnnexB samples.
-  mDemuxer->PrepareAnnexB(true);
-  // Apple requires plain samples, and ffmpeg doesn't care.
-#endif
 
   InitLayersBackendType();
 
@@ -295,8 +290,15 @@ MP4Reader::PopSample(TrackType aTrack)
     case kVideo:
       if (mQueuedVideoSample)
         return mQueuedVideoSample.forget();
-
-      return mDemuxer->DemuxVideoSample();
+      {
+        PlatformDecoderModule::H264Format format =
+          mPlatform->RequiredH264Format();
+        MOZ_ASSERT(format == PlatformDecoderModule::kAnnexB ||
+            format == PlatformDecoderModule::kAVCC);
+        bool prepareAnnexB = (format == PlatformDecoderModule::kAnnexB) ?
+          true : false;
+        return mDemuxer->DemuxVideoSample(prepareAnnexB);
+      }
 
     default:
       return nullptr;

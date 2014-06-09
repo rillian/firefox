@@ -47,9 +47,7 @@ public:
   // DemuxAudioSample and DemuxVideoSample functions return nullptr on end of
   // stream or error.
   MP4Sample* DemuxAudioSample();
-  MP4Sample* DemuxVideoSample();
-
-  void PrepareAnnexB(bool enabled);
+  MP4Sample* DemuxVideoSample(bool aPrepareAnnexB);
 
   const AudioDecoderConfig& AudioConfig() { return mAudioConfig; }
   const VideoDecoderConfig& VideoConfig() { return mVideoConfig; }
@@ -59,8 +57,6 @@ private:
   VideoDecoderConfig mVideoConfig;
 
   nsAutoPtr<StageFrightPrivate> mPrivate;
-
-  bool mPrepareAnnexB; // Whether the decoder wants AVC Annex B.
 };
 }
 
