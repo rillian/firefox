@@ -4,8 +4,8 @@
 
 // Utility functions to help with Apple API calls.
 
-#ifndef __AppleUtils_h__
-#define __AppleUtils_h__
+#ifndef __mozilla_AppleUtils_h__
+#define __mozilla_AppleUtils_h__
 
 #include <AudioToolbox/AudioToolbox.h>
 #include "nsError.h"
@@ -19,8 +19,41 @@ struct AppleUtils {
     static nsresult GetProperty(AudioFileStreamID aAudioFileStream,
                                 AudioFileStreamPropertyID aPropertyID,
                                 void *aData);
+
+    // Helper to set a string, string pair on a CFMutableDictionaryRef.
+    static void SetCFDict(CFMutableDictionaryRef dict,
+                          const char* key,
+                          const char* value);
+    // Helper to set a string, int32_t pair on a CFMutableDictionaryRef.
+    static void SetCFDict(CFMutableDictionaryRef dict,
+                          const char* key,
+                          int32_t value);
+    // Helper to set a string, bool pair on a CFMutableDictionaryRef.
+    static void SetCFDict(CFMutableDictionaryRef dict,
+                          const char* key,
+                          bool value);
+};
+
+// Wrapper class to call CFRelease on reference types
+// when they go out of scope.
+template <class T>
+class AutoCFRelease {
+public:
+  explicit AutoCFRelease(T aRef) MOZ_FINAL
+    : mRef(aRef)
+  {
+    MOZ_COUNT_CTOR(AutoCFRelease<T>);
+  }
+  ~AutoCFRelease()
+  {
+    CFRelease(mRef);
+    MOZ_COUNT_DTOR(AutoCFRelease<T>);
+  }
+
+private:
+  T mRef;
 };
 
 } // namespace mozilla
 
-#endif // __AppleUtils_h__
+#endif // __mozilla_AppleUtils_h__

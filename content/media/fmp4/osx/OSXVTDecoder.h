@@ -46,6 +46,8 @@ private:
 
   // Method to pass a frame to VideoToolbox for decoding.
   nsresult SubmitFrame(mp4_demuxer::MP4Sample* aSample);
+  // Method to set up the decompression session.
+  nsresult InitializeSession();
 };
 
 } // namespace mozilla

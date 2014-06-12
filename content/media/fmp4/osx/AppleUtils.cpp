@@ -49,4 +49,41 @@ AppleUtils::GetProperty(AudioFileStreamID aAudioFileStream,
   return NS_OK;
 }
 
+void
+AppleUtils::SetCFDict(CFMutableDictionaryRef dict,
+                      const char* key,
+                      const char* value)
+{
+  // We avoid using the CFSTR macros because there's no way to release those.
+  CFStringRef keyRef =
+    CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, value);
+  CFRelease(keyRef);
+}
+
+void
+AppleUtils::SetCFDict(CFMutableDictionaryRef dict,
+                      const char* key,
+                      int32_t value)
+{
+  CFNumberRef valueRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &value);
+  CFStringRef keyRef =
+    CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, valueRef);
+  CFRelease(keyRef);
+  CFRelease(valueRef);
+}
+
+void
+AppleUtils::SetCFDict(CFMutableDictionaryRef dict,
+                      const char* key,
+                      bool value)
+{
+  CFStringRef keyRef =
+    CFStringCreateWithCString(NULL, key, kCFStringEncodingUTF8);
+  CFDictionarySetValue(dict, keyRef, value ? kCFBooleanTrue : kCFBooleanFalse);
+  CFRelease(keyRef);
+}
+
+
 } // namespace mozilla
