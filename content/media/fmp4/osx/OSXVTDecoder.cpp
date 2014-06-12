@@ -305,13 +305,26 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
   mTaskQueue->Dispatch(
       NS_NewRunnableMethodWithArg<nsAutoPtr<mp4_demuxer::MP4Sample>>(
           this,
-          &OSXVTDecoder::ProcessDecode,
+          &OSXVTDecoder::SubmitFrame,
           nsAutoPtr<mp4_demuxer::MP4Sample>(aSample)));
+  return NS_OK;
+}
+nsresult
+OSXVTDecoder::Flush()
+{
+  NS_WARNING(__func__);
   return NS_OK;
 }
 
 nsresult
-OSXVTDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample) {
+OSXVTDecoder::Drain()
+{
+  NS_WARNING(__func__);
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample) {
   CMBlockBufferRef block;
   CMSampleBufferRef sample;
   VTDecodeInfoFlags flags;
@@ -319,6 +332,8 @@ OSXVTDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample) {
 
   // FIXME: This copies the sample data. I think we can provide
   // a custom block source which reuses the aSample buffer.
+  // But note that there may be a problem keeping the samples
+  // alive over multiple frames.
   rv = CMBlockBufferCreateWithMemoryBlock(NULL // Struct allocator.
                                          ,aSample->data
                                          ,aSample->size
@@ -335,8 +350,7 @@ OSXVTDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample) {
   const int32_t msec_per_sec = 1000000;
   timestamp.duration = CMTimeMake(aSample->duration, msec_per_sec);
   timestamp.presentationTimeStamp = CMTimeMake(aSample->composition_timestamp, msec_per_sec);
-  //timestamp.decodeTimeStamp = CMTimeMake(aSample->decode_timestamp, msec_per_sec);
-  timestamp.decodeTimeStamp = kCMTimeInvalid; // Not value from libstagefright.
+  // No DTS value from libstagefright.
   timestamp.decodeTimeStamp = CMTimeMake(aSample->composition_timestamp, msec_per_sec);
 
   rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, &sample);
@@ -348,33 +362,13 @@ OSXVTDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample) {
   CFRelease(sample);
   // For some reason this gives me a double-free error with stagefright.
   //CFRelease(block);
-#if 0
-  // We took ownership of aSample so we need to release it.
-  delete aSample;
-#endif
 
   // Ask for more data.
-  // Dead code: mTaskQueue is always empty here because we haven't
-  // added any tasks yet, so this is always called.
   if (mTaskQueue->IsEmpty()) {
     NS_WARNING("AppleVTDecoder task queue empty; requesting more data");
     mCallback->InputExhausted();
   }
 
-  return NS_OK;
-}
-
-nsresult
-OSXVTDecoder::Flush()
-{
-  NS_WARNING(__func__);
-  return NS_OK;
-}
-
-nsresult
-OSXVTDecoder::Drain()
-{
-  NS_WARNING(__func__);
   return NS_OK;
 }
 

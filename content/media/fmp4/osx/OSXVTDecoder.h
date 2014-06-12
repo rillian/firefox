@@ -44,7 +44,8 @@ private:
   CMVideoFormatDescriptionRef mFormat;
   VTDecompressionSessionRef mSession;
 
-  nsresult ProcessDecode(mp4_demuxer::MP4Sample* aSample);
+  // Method to pass a frame to VideoToolbox for decoding.
+  nsresult SubmitFrame(mp4_demuxer::MP4Sample* aSample);
 };
 
 } // namespace mozilla
