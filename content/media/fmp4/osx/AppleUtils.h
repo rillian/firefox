@@ -39,17 +39,18 @@ struct AppleUtils {
 template <class T>
 class AutoCFRelease {
 public:
-  explicit AutoCFRelease(T aRef) MOZ_FINAL
+  AutoCFRelease(T aRef)
     : mRef(aRef)
   {
-    MOZ_COUNT_CTOR(AutoCFRelease<T>);
   }
   ~AutoCFRelease()
   {
     CFRelease(mRef);
-    MOZ_COUNT_DTOR(AutoCFRelease<T>);
   }
-
+  operator T()
+  {
+    return mRef;
+  }
 private:
   T mRef;
 };

@@ -338,7 +338,7 @@ OSXVTDecoder::InitializeSession()
                               &kCFTypeDictionaryValueCallBacks);
   // This key is supported (or ignored) but not declared prior to OSX 10.9.
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
-  CFStringRef
+  AutoCFRelease<CFStringRef>
         kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder =
         CFStringCreateWithCString(NULL, "EnableHardwareAcceleratedVideoDecoder",
             kCFStringEncodingUTF8);
@@ -346,9 +346,6 @@ OSXVTDecoder::InitializeSession()
   CFDictionarySetValue(spec,
       kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder,
       kCFBooleanTrue);
-#if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
-  CFRelease(kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder);
-#endif
 
   VTDecompressionOutputCallbackRecord cb = { PlatformCallback, this };
   rv = VTDecompressionSessionCreate(NULL, // Allocator.
