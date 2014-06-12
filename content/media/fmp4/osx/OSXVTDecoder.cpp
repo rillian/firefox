@@ -285,16 +285,12 @@ OSXVTDecoder::Shutdown()
 nsresult
 OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 {
-  LOG("mp4 input sample %p %lld us %lld pts%s %d bytes", aSample,
+  LOG("mp4 input sample %p %lld us %lld pts%s %d bytes dispatched",
+      aSample,
       aSample->duration,
       aSample->composition_timestamp,
       aSample->is_sync_point ? " keyframe" : "",
       aSample->size);
-
-  CMBlockBufferRef block;
-  CMSampleBufferRef sample;
-  VTDecodeInfoFlags flags;
-  OSStatus rv;
 
   SHA1Sum hash;
   hash.update(aSample->data, aSample->size);
@@ -305,6 +301,21 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
     digest.AppendPrintf("%02x", digest_buf[i]);
   }
   LOG("    sha1 %s", digest.get());
+
+  mTaskQueue->Dispatch(
+      NS_NewRunnableMethodWithArg<nsAutoPtr<mp4_demuxer::MP4Sample>>(
+          this,
+          &OSXVTDecoder::ProcessDecode,
+          nsAutoPtr<mp4_demuxer::MP4Sample>(aSample)));
+  return NS_OK;
+}
+
+nsresult
+OSXVTDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample) {
+  CMBlockBufferRef block;
+  CMSampleBufferRef sample;
+  VTDecodeInfoFlags flags;
+  OSStatus rv;
 
   // FIXME: This copies the sample data. I think we can provide
   // a custom block source which reuses the aSample buffer.
@@ -343,6 +354,8 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 #endif
 
   // Ask for more data.
+  // Dead code: mTaskQueue is always empty here because we haven't
+  // added any tasks yet, so this is always called.
   if (mTaskQueue->IsEmpty()) {
     NS_WARNING("AppleVTDecoder task queue empty; requesting more data");
     mCallback->InputExhausted();
