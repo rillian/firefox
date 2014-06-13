@@ -20,6 +20,7 @@
 #ifdef PR_LOGGING
 PRLogModuleInfo* GetDemuxerLog();
 #define LOG(...) PR_LOG(GetDemuxerLog(), PR_LOG_DEBUG, (__VA_ARGS__))
+#define LOG_MEDIA_SHA1
 #else
 #define LOG(...)
 #endif
@@ -86,6 +87,7 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
       aSample->is_sync_point ? " keyframe" : "",
       aSample->size);
 
+#ifdef LOG_MEDIA_SHA1
   SHA1Sum hash;
   hash.update(aSample->data, aSample->size);
   uint8_t digest_buf[SHA1Sum::HashSize];
@@ -95,6 +97,7 @@ OSXVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
     digest.AppendPrintf("%02x", digest_buf[i]);
   }
   LOG("    sha1 %s", digest.get());
+#endif // LOG_MEDIA_SHA1
 
   mTaskQueue->Dispatch(
       NS_NewRunnableMethodWithArg<nsAutoPtr<mp4_demuxer::MP4Sample>>(
@@ -230,9 +233,6 @@ OSXVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                       aSample->composition_timestamp,
                       visible);
   mCallback->Output(data.forget());
-  // TODO: is this necessary? caller should notice we've consumed all input.
-  NS_WARNING("Requesting more h.264 data");
-  mCallback->InputExhausted();
   return NS_OK;
 }
 
@@ -278,7 +278,7 @@ OSXVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample) {
 
   // Ask for more data.
   if (mTaskQueue->IsEmpty()) {
-    NS_WARNING("AppleVTDecoder task queue empty; requesting more data");
+    LOG("AppleVTDecoder task queue empty; requesting more data");
     mCallback->InputExhausted();
   }
 
@@ -305,6 +305,8 @@ OSXVTDecoder::InitializeSession()
                               &kCFTypeDictionaryValueCallBacks);
   CFDataRef avc_data = CFDataCreate(NULL,
       mConfig.extra_data.begin(), mConfig.extra_data.length());
+
+#ifdef LOG_MEDIA_SHA1
   SHA1Sum avc_hash;
   avc_hash.update(mConfig.extra_data.begin(), mConfig.extra_data.length());
   uint8_t digest_buf[SHA1Sum::HashSize];
@@ -315,6 +317,7 @@ OSXVTDecoder::InitializeSession()
   }
   LOG("AVCDecoderConfig %ld bytes sha1 %s",
       mConfig.extra_data.length(), avc_digest.get());
+#endif // LOG_MEDIA_SHA1
 
  CFDictionarySetValue(atoms, CFSTR("avcC"), avc_data);
   CFRelease(avc_data);
