@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef ANNEX_B_H_
-#define ANNEX_B_H_
+#ifndef MP4_DEMUXER_ANNEX_B_H_
+#define MP4_DEMUXER_ANNEX_B_H_
 
 #include "mozilla/Vector.h"
 
@@ -20,6 +20,7 @@ private:
   static void ConvertSpsOrPsp(ByteReader& aReader, uint8_t aCount,
                               mozilla::Vector<uint8_t>* aAnnexB);
 };
-}
 
-#endif
+} // namespace mp4_demuxer
+
+#endif // MP4_DEMUXER_ANNEX_B_H_
