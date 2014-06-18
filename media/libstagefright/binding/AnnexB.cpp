@@ -14,6 +14,19 @@ namespace mp4_demuxer
 
 static const uint8_t kAnnexBDelimiter[] = { 0, 0, 0, 1 };
 
+void
+AnnexB::ConvertSampleToAnnexB(MP4Sample* aSample,
+                              const mozilla::Vector<uint8_t>& annexB)
+{
+  MOZ_ASSERT(aSample);
+  MOZ_ASSERT(aSample->data);
+  MOZ_ASSERT(aSample->size < ArrayLength(kAnnexBDelimiter));
+  // Overwrite the NAL length with the Annex B separator.
+  memcpy(aSample->data, kAnnexBDelimiter, ArrayLength(kAnnexBDelimiter));
+  // Prepend the Annex B header with SPS and PSP tables.
+  aSample->Prepend(annexB.begin(), annexB.length());
+}
+
 Vector<uint8_t>
 AnnexB::ConvertExtraDataToAnnexB(mozilla::Vector<uint8_t>& aExtraData)
 {

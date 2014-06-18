@@ -222,10 +222,6 @@ public:
                                                             aCallback);
   }
 
-  virtual H264Format RequiredH264Format() MOZ_OVERRIDE {
-    return kAVCC; // We don't care; this is less work for the demuxer.
-  }
-
   // Decode thread.
   virtual MediaDataDecoder* CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
                                              MediaTaskQueue* aAudioTaskQueue,

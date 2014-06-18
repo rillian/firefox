@@ -36,8 +36,6 @@ public:
     MediaTaskQueue* aVideoTaskQueue,
     MediaDataDecoderCallback* aCallback) MOZ_OVERRIDE;
 
-  virtual H264Format RequiredH264Format() MOZ_OVERRIDE;
-
   virtual MediaDataDecoder* CreateAACDecoder(
     const mp4_demuxer::AudioDecoderConfig& aConfig,
     MediaTaskQueue* aAudioTaskQueue,

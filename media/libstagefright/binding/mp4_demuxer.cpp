@@ -168,7 +168,7 @@ MP4Demuxer::DemuxAudioSample()
 }
 
 MP4Sample*
-MP4Demuxer::DemuxVideoSample(bool aPrepareAnnexB)
+MP4Demuxer::DemuxVideoSample()
 {
   nsAutoPtr<MP4Sample> sample(new MP4Sample());
   status_t status =
@@ -180,17 +180,7 @@ MP4Demuxer::DemuxVideoSample(bool aPrepareAnnexB)
   }
 
   sample->Update();
-  if (aPrepareAnnexB) {
-    // Overwrite the nal length with the Annex B flag.
-    sample->data[0] = 0x00;
-    sample->data[1] = 0x00;
-    sample->data[2] = 0x00;
-    sample->data[3] = 0x01;
-    if (sample->is_sync_point) {
-      sample->Prepend(mVideoConfig.annex_b.begin(),
-                      mVideoConfig.annex_b.length());
-    }
-  }
+  AnnexB::ConvertSampleToAnnexB(sample, mVideoConfig.annex_b);
 
   return sample.forget();
 }

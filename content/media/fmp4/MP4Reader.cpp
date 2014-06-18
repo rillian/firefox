@@ -290,15 +290,7 @@ MP4Reader::PopSample(TrackType aTrack)
     case kVideo:
       if (mQueuedVideoSample)
         return mQueuedVideoSample.forget();
-      {
-        PlatformDecoderModule::H264Format format =
-          mPlatform->RequiredH264Format();
-        MOZ_ASSERT(format == PlatformDecoderModule::kAnnexB ||
-            format == PlatformDecoderModule::kAVCC);
-        bool prepareAnnexB = (format == PlatformDecoderModule::kAnnexB) ?
-          true : false;
-        return mDemuxer->DemuxVideoSample(prepareAnnexB);
-      }
+      return mDemuxer->DemuxVideoSample();
 
     default:
       return nullptr;

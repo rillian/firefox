@@ -69,11 +69,6 @@ FFmpegDecoderModule::CreateH264Decoder(
                                aImageContainer);
 }
 
-PlatformDecoderModule::H264Format
-FFmpegDecoderModule::RequiredH264Format() {
-  return kAVCC;
-}
-
 MediaDataDecoder*
 FFmpegDecoderModule::CreateAACDecoder(
   const mp4_demuxer::AudioDecoderConfig& aConfig,

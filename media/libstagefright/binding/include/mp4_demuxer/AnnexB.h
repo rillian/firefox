@@ -10,13 +10,21 @@
 namespace mp4_demuxer
 {
 class ByteReader;
+class MP4Sample;
+
 class AnnexB
 {
 public:
+  // Convert a sample from NAL-length-prefix to AnnexB.
+  static void ConvertSampleToAnnexB(MP4Sample* aSample,
+                                    const mozilla::Vector<uint8_t>& annexB);
+
+  // Parse an AVCC box and construct the Annex B sample header.
   static mozilla::Vector<uint8_t> ConvertExtraDataToAnnexB(
     mozilla::Vector<uint8_t>& aExtraData);
 
 private:
+  // AVCC box parser helper.
   static void ConvertSpsOrPsp(ByteReader& aReader, uint8_t aCount,
                               mozilla::Vector<uint8_t>* aAnnexB);
 };
