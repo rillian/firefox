@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/ArrayUtils.h"
 #include "mp4_demuxer/AnnexB.h"
 #include "mp4_demuxer/ByteReader.h"
 #include "mp4_demuxer/DecoderData.h"
@@ -62,4 +63,5 @@ AnnexB::ConvertSpsOrPsp(ByteReader& aReader, uint8_t aCount,
     aAnnexB->append(ptr, length);
   }
 }
-}
+
+} // namespace mp4_demuxer
