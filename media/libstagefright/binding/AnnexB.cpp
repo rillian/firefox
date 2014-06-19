@@ -15,8 +15,8 @@ namespace mp4_demuxer
 static const uint8_t kAnnexBDelimiter[] = { 0, 0, 0, 1 };
 
 void
-AnnexB::ConvertSampleToAnnexB(MP4Sample* aSample,
-                              const mozilla::Vector<uint8_t>& annexB)
+AnnexB::ConvertSample(MP4Sample* aSample,
+                      const mozilla::Vector<uint8_t>& annexB)
 {
   MOZ_ASSERT(aSample);
   MOZ_ASSERT(aSample->data);

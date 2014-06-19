@@ -15,9 +15,9 @@ class MP4Sample;
 class AnnexB
 {
 public:
-  // Convert a sample from NAL-length-prefix to AnnexB.
-  static void ConvertSampleToAnnexB(MP4Sample* aSample,
-                                    const mozilla::Vector<uint8_t>& annexB);
+  // Convert a sample from NAL-length-prefix to Annex B.
+  static void ConvertSample(MP4Sample* aSample,
+                            const mozilla::Vector<uint8_t>& annexB);
 
   // Parse an AVCC box and construct the Annex B sample header.
   static mozilla::Vector<uint8_t> ConvertExtraDataToAnnexB(
