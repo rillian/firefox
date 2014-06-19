@@ -7,6 +7,7 @@
 #include "WMFMediaDataDecoder.h"
 #include "VideoUtils.h"
 #include "WMFUtils.h"
+#include "mp4_demuxer/AnnexB.h"
 #include "nsTArray.h"
 
 #include "prlog.h"
