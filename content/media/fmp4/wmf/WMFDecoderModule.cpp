@@ -75,7 +75,7 @@ WMFDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConf
                                                           sDXVAEnabled),
                                  aVideoTaskQueue,
                                  aCallback,
-                                 aConfig);
+                                 &aConfig);
 }
 
 MediaDataDecoder*
@@ -85,7 +85,8 @@ WMFDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfi
 {
   return new WMFMediaDataDecoder(new WMFAudioOutputSource(aConfig),
                                  aAudioTaskQueue,
-                                 aCallback);
+                                 aCallback,
+                                 nullptr);
 }
 
 } // namespace mozilla
