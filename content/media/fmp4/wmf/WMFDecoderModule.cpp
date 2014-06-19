@@ -74,7 +74,8 @@ WMFDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConf
                                                           aImageContainer,
                                                           sDXVAEnabled),
                                  aVideoTaskQueue,
-                                 aCallback);
+                                 aCallback,
+                                 aConfig);
 }
 
 MediaDataDecoder*

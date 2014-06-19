@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/ArrayUtils.h"
 #include "mp4_demuxer/AnnexB.h"
 #include "mp4_demuxer/ByteReader.h"
 #include "mp4_demuxer/DecoderData.h"
@@ -12,6 +13,19 @@ namespace mp4_demuxer
 {
 
 static const uint8_t kAnnexBDelimiter[] = { 0, 0, 0, 1 };
+
+void
+AnnexB::ConvertSample(MP4Sample* aSample,
+                      const mozilla::Vector<uint8_t>& annexB)
+{
+  MOZ_ASSERT(aSample);
+  MOZ_ASSERT(aSample->data);
+  MOZ_ASSERT(aSample->size < ArrayLength(kAnnexBDelimiter));
+  // Overwrite the NAL length with the Annex B separator.
+  memcpy(aSample->data, kAnnexBDelimiter, ArrayLength(kAnnexBDelimiter));
+  // Prepend the Annex B header with SPS and PSP tables.
+  aSample->Prepend(annexB.begin(), annexB.length());
+}
 
 Vector<uint8_t>
 AnnexB::ConvertExtraDataToAnnexB(mozilla::Vector<uint8_t>& aExtraData)
@@ -62,4 +76,5 @@ AnnexB::ConvertSpsOrPsp(ByteReader& aReader, uint8_t aCount,
     aAnnexB->append(ptr, length);
   }
 }
-}
+
+} // namespace mp4_demuxer

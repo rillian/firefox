@@ -7,6 +7,7 @@
 #include "WMFMediaDataDecoder.h"
 #include "VideoUtils.h"
 #include "WMFUtils.h"
+#include "mp4_demuxer/AnnexB.h"
 #include "nsTArray.h"
 
 #include "prlog.h"
@@ -22,11 +23,13 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mozilla {
 
 WMFMediaDataDecoder::WMFMediaDataDecoder(WMFOutputSource* aSource,
-                                         MediaTaskQueue* aTaskQueue,
-                                         MediaDataDecoderCallback* aCallback)
+                        MediaTaskQueue* aTaskQueue,
+                        MediaDataDecoderCallback* aCallback,
+                        const mp4_demuxer::VideoDecoderConfig& aConfig)
   : mTaskQueue(aTaskQueue)
   , mCallback(aCallback)
   , mSource(aSource)
+  , mConfig(aConfig)
 {
   MOZ_COUNT_CTOR(WMFMediaDataDecoder);
 }
@@ -67,6 +70,7 @@ WMFMediaDataDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 void
 WMFMediaDataDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample)
 {
+  mp4_demuxer::AnnexB::ConvertSample(aSample, mConfig.annex_b);
   const uint8_t* data = reinterpret_cast<const uint8_t*>(aSample->data);
   uint32_t length = aSample->size;
   HRESULT hr = mDecoder->Input(data, length, aSample->composition_timestamp);
