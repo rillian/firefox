@@ -180,7 +180,6 @@ MP4Demuxer::DemuxVideoSample()
   }
 
   sample->Update();
-  AnnexB::ConvertSampleToAnnexB(sample, mVideoConfig.annex_b);
 
   return sample.forget();
 }
