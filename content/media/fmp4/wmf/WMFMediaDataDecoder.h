@@ -45,7 +45,8 @@ class WMFMediaDataDecoder : public MediaDataDecoder {
 public:
   WMFMediaDataDecoder(WMFOutputSource* aOutputSource,
                       MediaTaskQueue* aAudioTaskQueue,
-                      MediaDataDecoderCallback* aCallback);
+                      MediaDataDecoderCallback* aCallback,
+                      const mp4_demuxer::VideoDecoderConfig* aConfig);
   ~WMFMediaDataDecoder();
 
   virtual nsresult Init() MOZ_OVERRIDE;
@@ -77,6 +78,8 @@ private:
 
   RefPtr<MFTDecoder> mDecoder;
   nsAutoPtr<WMFOutputSource> mSource;
+
+  mozilla::Vector<uint8_t> mAnnexB;
 
   // The last offset into the media resource that was passed into Input().
   // This is used to approximate the decoder's position in the media resource.

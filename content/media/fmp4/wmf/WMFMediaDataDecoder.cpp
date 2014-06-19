@@ -7,6 +7,7 @@
 #include "WMFMediaDataDecoder.h"
 #include "VideoUtils.h"
 #include "WMFUtils.h"
+#include "mp4_demuxer/AnnexB.h"
 #include "nsTArray.h"
 
 #include "prlog.h"
@@ -22,13 +23,18 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mozilla {
 
 WMFMediaDataDecoder::WMFMediaDataDecoder(WMFOutputSource* aSource,
-                                         MediaTaskQueue* aTaskQueue,
-                                         MediaDataDecoderCallback* aCallback)
+                        MediaTaskQueue* aTaskQueue,
+                        MediaDataDecoderCallback* aCallback,
+                        const mp4_demuxer::VideoDecoderConfig* aConfig)
   : mTaskQueue(aTaskQueue)
   , mCallback(aCallback)
   , mSource(aSource)
 {
   MOZ_COUNT_CTOR(WMFMediaDataDecoder);
+  // We can only pass a config pointer if we're the H.264 decoder.
+  if (aConfig) {
+    mAnnexB.appendAll(aConfig->annex_b);
+  }
 }
 
 WMFMediaDataDecoder::~WMFMediaDataDecoder()
@@ -67,6 +73,11 @@ WMFMediaDataDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 void
 WMFMediaDataDecoder::ProcessDecode(mp4_demuxer::MP4Sample* aSample)
 {
+  // If we have an AVC Annex B header, we're the h.264 decoder
+  // and need to prepend it to the sample data.
+  if (!mAnnexB.empty()) {
+    mp4_demuxer::AnnexB::ConvertSample(aSample, mAnnexB);
+  }
   const uint8_t* data = reinterpret_cast<const uint8_t*>(aSample->data);
   uint32_t length = aSample->size;
   HRESULT hr = mDecoder->Input(data, length, aSample->composition_timestamp);
