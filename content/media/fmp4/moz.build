@@ -53,6 +53,20 @@ if CONFIG['MOZ_FFMPEG']:
       'ffmpeg',
   ]
 
+if CONFIG['MOZ_APPLEMEDIA']:
+  EXPORTS += [
+      'apple/AppleDecoderModule.h',
+  ]
+  UNIFIED_SOURCES += [
+      'apple/AppleDecoderModule.cpp',
+      'apple/AppleUtils.cpp',
+      'apple/AppleVTDecoder.cpp',
+      'apple/AppleVTLinker.cpp',
+  ]
+  LDFLAGS += [
+      '-framework CoreMedia',
+  ]
+
 FINAL_LIBRARY = 'gklayout'
 
 FAIL_ON_WARNINGS = True
