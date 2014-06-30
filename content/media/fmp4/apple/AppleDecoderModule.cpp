@@ -6,7 +6,6 @@
 
 #include "mozilla/Preferences.h"
 #include "mozilla/DebugOnly.h"
-#include "mp4_demuxer/mp4_demuxer.h"
 #include "AppleDecoderModule.h"
 #include "AppleATDecoder.h"
 #include "AppleVTDecoder.h"

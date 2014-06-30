@@ -10,6 +10,7 @@
 #include "MP4Decoder.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/ReentrantMonitor.h"
+#include "mp4_demuxer/DecoderData.h"
 #include "nsIThread.h"
 #include "AppleATDecoder.h"
 #include "prlog.h"

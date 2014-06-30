@@ -9,6 +9,7 @@
 
 #include "AppleUtils.h"
 #include "mozilla/SHA1.h"
+#include "mp4_demuxer/DecoderData.h"
 #include "MP4Reader.h"
 #include "MP4Decoder.h"
 #include "nsAutoPtr.h"
