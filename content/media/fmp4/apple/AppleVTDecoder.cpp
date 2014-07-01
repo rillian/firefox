@@ -260,7 +260,7 @@ nsresult
 AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
 {
   CMBlockBufferRef block;
-  CMSampleBufferRef sample;
+  AutoCFRelease<CMSampleBufferRef> sample = nullptr;
   VTDecodeInfoFlags flags;
   OSStatus rv;
 
@@ -279,13 +279,12 @@ AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
                                          ,&block);
   NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
   CMSampleTimingInfo timestamp = TimingInfoFromSample(aSample);
-  rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, &sample);
+  rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, sample.receive());
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
   rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
 
   // Clean up allocations.
-  CFRelease(sample);
   // For some reason this gives me a double-free error with stagefright.
   //CFRelease(block);
 

@@ -45,11 +45,17 @@ public:
   }
   ~AutoCFRelease()
   {
-    CFRelease(mRef);
+    if (mRef) {
+      CFRelease(mRef);
+    }
   }
   operator T()
   {
     return mRef;
+  }
+  T* receive()
+  {
+    return &mRef;
   }
 private:
   T mRef;
