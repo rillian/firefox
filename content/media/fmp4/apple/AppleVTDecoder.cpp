@@ -259,7 +259,8 @@ TimingInfoFromSample(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
 {
-  CMBlockBufferRef block;
+  // For some reason this gives me a double-free error with stagefright.
+  AutoCFRelease<CMBlockBufferRef> block = nullptr;
   AutoCFRelease<CMSampleBufferRef> sample = nullptr;
   VTDecodeInfoFlags flags;
   OSStatus rv;
@@ -271,22 +272,18 @@ AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
   rv = CMBlockBufferCreateWithMemoryBlock(NULL // Struct allocator.
                                          ,aSample->data
                                          ,aSample->size
-                                         ,NULL // Block allocator.
+                                         ,kCFAllocatorNull // Block allocator.
                                          ,NULL // Block source.
                                          ,0    // Data offset.
                                          ,aSample->size
                                          ,false
-                                         ,&block);
+                                         ,block.receive());
   NS_ASSERTION(rv == noErr, "Couldn't create CMBlockBuffer");
   CMSampleTimingInfo timestamp = TimingInfoFromSample(aSample);
   rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, sample.receive());
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
   rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
-
-  // Clean up allocations.
-  // For some reason this gives me a double-free error with stagefright.
-  //CFRelease(block);
 
   // Ask for more data.
   if (mTaskQueue->IsEmpty()) {

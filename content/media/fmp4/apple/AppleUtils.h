@@ -49,10 +49,12 @@ public:
       CFRelease(mRef);
     }
   }
+  // Return the wrapped ref so it can be used as an in parameter.
   operator T()
   {
     return mRef;
   }
+  // Return a pointer to the wrapped ref for use as an out parameter.
   T* receive()
   {
     return &mRef;
