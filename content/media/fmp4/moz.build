@@ -62,10 +62,10 @@ if CONFIG['MOZ_APPLEMEDIA']:
       'apple/AppleDecoderModule.cpp',
       'apple/AppleUtils.cpp',
       'apple/AppleVTDecoder.cpp',
+      'apple/AppleVTLinker.cpp',
   ]
   LDFLAGS += [
       '-framework AudioToolbox',
-      '-framework VideoToolbox',
       '-framework CoreMedia',
   ]
 
