@@ -15,6 +15,7 @@
 #include "nsAutoPtr.h"
 #include "nsThreadUtils.h"
 #include "AppleVTDecoder.h"
+#include "AppleVTLinker.h"
 #include "prlog.h"
 #include "MediaData.h"
 

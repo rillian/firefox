@@ -19,6 +19,9 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mozilla
 {
 
+static const char const*
+dlname = "/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox";
+
 AppleVTLinker::LinkStatus
 AppleVTLinker::sLinkStatus = LinkStatus_INIT;
 
@@ -35,7 +38,7 @@ AppleVTLinker::Link()
     return sLinkStatus == LinkStatus_SUCCEEDED;
   }
 
-  if (!(sLink = dlopen("VideoToolbox", RTLD_NOW | RTLD_LOCAL))) {
+  if (!(sLink = dlopen(dlname, RTLD_NOW | RTLD_LOCAL))) {
     NS_WARNING("Couldn't link VideoToolbox framework.");
     goto fail;
   }

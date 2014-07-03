@@ -9,6 +9,7 @@
 #include "AppleDecoderModule.h"
 #include "AppleATDecoder.h"
 #include "AppleVTDecoder.h"
+#include "AppleVTLinker.h"
 
 namespace mozilla {
 
@@ -34,8 +35,8 @@ AppleDecoderModule::Init()
     return;
   }
 
-  // TODO: dlopen VideoToolbox.framework if it's available.
-  // If it's not, disable ourselves.
+  // dlopen VideoToolbox.framework if it's available.
+  sIsEnabled = AppleVTLinker::Link();
 }
 
 nsresult
@@ -44,7 +45,6 @@ AppleDecoderModule::Startup()
   if (!sIsEnabled) {
     return NS_ERROR_FAILURE;
   }
-  // TODO: set up shared decoder state.
   NS_WARNING("AppleDecoderModule::Startup()");
   return NS_OK;
 }
@@ -54,8 +54,12 @@ AppleDecoderModule::Shutdown()
 {
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
 
-  // TODO: shut down shared state.
+  if (!sIsEnabled) {
+    return NS_ERROR_FAILURE;
+  }
   NS_WARNING("AppleDecoderModule::Shutdown()");
+  AppleVTLinker::Unlink();
+
   return NS_OK;
 }
 
