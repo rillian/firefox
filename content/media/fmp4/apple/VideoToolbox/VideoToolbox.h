@@ -11,6 +11,14 @@
 #ifdef mozilla_VideoToolbox_VideoToolbox_h
 #define mozilla_VideoToolbox_VideoToolbox_h
 
+#include <CoreMedia/CMBase.h>
+#include <CoreFoundation/CoreFoundation.h>
+//#include <CoreVideo/CoreVideo.h>
+#include <CoreVideo/CVPixelBuffer.h>
+#include <CoreMedia/CMSampleBuffer.h>
+#include <CoreMedia/CMFormatDescription.h>
+#include <CoreMedia/CMTime.h>
+
 typedef struct OpaqueVTDecompressionSession* VTDecompressionSessionRef;
 typedef void (*VTDecompressionOutputCallback)(
     void*,
