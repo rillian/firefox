@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <CoreFoundation/CFString.h>
-#include <VideoToolbox/Videotoolbox.h>
+#include "VideoToolbox/Videotoolbox.h"
 
 #include "AppleUtils.h"
 #include "mozilla/SHA1.h"

@@ -9,7 +9,7 @@
 
 extern "C" {
 #pragma GCC visibility push(default)
-#include <VideoToolbox/VideoToolbox.h>
+#include "VideoToolbox/VideoToolbox.h"
 #pragma GCC visibility pop
 }
 

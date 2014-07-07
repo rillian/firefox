@@ -7,11 +7,11 @@
 #ifndef mozilla_AppleVTDecoder_h
 #define mozilla_AppleVTDecoder_h
 
-#include <VideoToolbox/VideoToolbox.h>
 #include "PlatformDecoderModule.h"
 #include "mozilla/RefPtr.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "nsIThread.h"
+#include "VideoToolbox/VideoToolbox.h"
 
 namespace mozilla {
 

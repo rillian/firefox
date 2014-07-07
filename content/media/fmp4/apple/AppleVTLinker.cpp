@@ -19,7 +19,7 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mozilla
 {
 
-static const char const*
+static const char *
 dlname = "/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox";
 
 AppleVTLinker::LinkStatus

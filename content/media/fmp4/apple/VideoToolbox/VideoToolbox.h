@@ -8,16 +8,22 @@
 // We include our own copy so we can build on MacOS versions
 // where it's not available.
 
-#ifdef mozilla_VideoToolbox_VideoToolbox_h
+#ifndef mozilla_VideoToolbox_VideoToolbox_h
 #define mozilla_VideoToolbox_VideoToolbox_h
 
 #include <CoreMedia/CMBase.h>
 #include <CoreFoundation/CoreFoundation.h>
-//#include <CoreVideo/CoreVideo.h>
 #include <CoreVideo/CVPixelBuffer.h>
 #include <CoreMedia/CMSampleBuffer.h>
 #include <CoreMedia/CMFormatDescription.h>
 #include <CoreMedia/CMTime.h>
+
+typedef uint32_t VTDecodeFrameFlags;
+typedef uint32_t VTDecodeInfoFlags;
+enum {
+  kVTDecodeInfo_Asynchronous = 1UL << 0,
+  kVTDecodeInfo_FrameDropped = 1UL << 1,
+};
 
 typedef struct OpaqueVTDecompressionSession* VTDecompressionSessionRef;
 typedef void (*VTDecompressionOutputCallback)(
@@ -30,17 +36,15 @@ typedef void (*VTDecompressionOutputCallback)(
     CMTime
 );
 typedef struct VTDecompressionOutputCallbackRecord {
-  VTDecompressionOutputCallback decompressionOutputCallback,
-  void*                         decompressionOutputRefCon
+  VTDecompressionOutputCallback decompressionOutputCallback;
+  void*                         decompressionOutputRefCon;
 } VTDecompressionOutputCallbackRecord;
-
-typedef uint32_t VTDecodeFrameFlags;
-typedef uint32_t VTDecodeInfoFlags;
 
 OSStatus
 VTDecompressionSessionCreate(
     CFAllocatorRef,
     CMVideoFormatDescriptionRef,
+    CFDictionaryRef,
     CFDictionaryRef,
     const VTDecompressionOutputCallbackRecord*,
     VTDecompressionSessionRef*
@@ -52,7 +56,7 @@ VTDecompressionSessionDecodeFrame(
     CMSampleBufferRef,
     VTDecodeFrameFlags,
     void*,
-    VTDecodeInfoFlags
+    VTDecodeInfoFlags*
 );
 
 void
