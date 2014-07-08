@@ -7,6 +7,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/DebugOnly.h"
 #include "AppleDecoderModule.h"
+#include "AppleATDecoder.h"
 #include "AppleVTDecoder.h"
 #include "AppleVTLinker.h"
 
@@ -83,6 +84,9 @@ AppleDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aCon
     mBlankDecoder = CreateBlankDecoderModule();
   }
   return mBlankDecoder->CreateAACDecoder(aConfig, aAudioTaskQueue, aCallback);
+
+  NS_WARNING("Creating AAC decoder on OS X");
+  return new AppleATDecoder(aConfig, aAudioTaskQueue, aCallback);
 }
 
 } // namespace mozilla
