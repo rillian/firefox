@@ -52,7 +52,6 @@ AppleDecoderModule::Startup()
   if (!sIsEnabled) {
     return NS_ERROR_FAILURE;
   }
-  NS_WARNING("AppleDecoderModule::Startup()");
   return NS_OK;
 }
 
@@ -64,7 +63,6 @@ AppleDecoderModule::Shutdown()
   if (!sIsEnabled) {
     return NS_ERROR_FAILURE;
   }
-  NS_WARNING("AppleDecoderModule::Shutdown()");
   AppleVTLinker::Unlink();
   AppleCMLinker::Unlink();
 
@@ -78,7 +76,6 @@ AppleDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aCo
                                     MediaTaskQueue* aVideoTaskQueue,
                                     MediaDataDecoderCallback* aCallback)
 {
-  NS_WARNING("Creating h264 decoder on OS X");
   return new AppleVTDecoder(aConfig, aVideoTaskQueue, aCallback, aImageContainer);
 }
 
@@ -87,7 +84,6 @@ AppleDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aCon
                                    MediaTaskQueue* aAudioTaskQueue,
                                    MediaDataDecoderCallback* aCallback)
 {
-  NS_WARNING("Creating AAC decoder on OS X");
   return new AppleATDecoder(aConfig, aAudioTaskQueue, aCallback);
 }
 

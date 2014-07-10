@@ -56,7 +56,6 @@ AppleVTDecoder::~AppleVTDecoder()
 nsresult
 AppleVTDecoder::Init()
 {
-  NS_WARNING(__func__);
   nsresult rv = InitializeSession();
   return rv;
 }
@@ -64,7 +63,6 @@ AppleVTDecoder::Init()
 nsresult
 AppleVTDecoder::Shutdown()
 {
-  NS_WARNING(__func__);
   if (mSession) {
     LOG("%s: cleaning up session %p", __func__, mSession);
     VTDecompressionSessionInvalidate(mSession);
@@ -111,14 +109,12 @@ AppleVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleVTDecoder::Flush()
 {
-  NS_WARNING(__func__);
   return NS_OK;
 }
 
 nsresult
 AppleVTDecoder::Drain()
 {
-  NS_WARNING(__func__);
   return NS_OK;
 }
 
