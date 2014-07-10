@@ -128,21 +128,21 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleATDecoder::Flush()
 {
-  NS_WARNING(__func__);
+  LOG(__func__);
   return NS_OK;
 }
 
 nsresult
 AppleATDecoder::Drain()
 {
-  NS_WARNING(__func__);
+  LOG(__func__);
   return NS_OK;
 }
 
 nsresult
 AppleATDecoder::Shutdown()
 {
-  NS_WARNING(__func__);
+  LOG(__func__);
   OSStatus rv = AudioConverterDispose(mConverter);
   if (rv) {
     LOG("error %d disposing of AudioConverter", rv);
