@@ -8,8 +8,6 @@
 #include "AppleUtils.h"
 #include "prlog.h"
 
-namespace mozilla {
-
 #ifdef PR_LOGGING
 PRLogModuleInfo* GetDemuxerLog();
 #define WARN(...) PR_LOG(GetDemuxerLog(), PR_LOG_WARNING, (__VA_ARGS__))
@@ -22,6 +20,8 @@ PRLogModuleInfo* GetDemuxerLog();
                              ((x) >> 16) & 0xff, \
                              ((x) >> 8) & 0xff, \
                               (x) & 0xff
+
+namespace mozilla {
 
 nsresult
 AppleUtils::GetProperty(AudioFileStreamID aAudioFileStream,
