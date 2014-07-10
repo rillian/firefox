@@ -11,8 +11,8 @@
 namespace mozilla {
 
 #ifdef PR_LOGGING
-  extern PRLogModuleInfo* gMediaDecoderLog;
-#define WARN(...) PR_LOG(gMediaDecoderLog, PR_LOG_WARNING, (__VA_ARGS__))
+PRLogModuleInfo* GetDemuxerLog();
+#define WARN(...) PR_LOG(GetDemuxerLog(), PR_LOG_WARNING, (__VA_ARGS__))
 #else
 #define WARN(...)
 #endif
