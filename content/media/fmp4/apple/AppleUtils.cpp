@@ -12,9 +12,9 @@ namespace mozilla {
 
 #ifdef PR_LOGGING
   extern PRLogModuleInfo* gMediaDecoderLog;
-#define LOG(...) PR_LOG(gMediaDecoderLog, PR_LOG_WARNING, (__VA_ARGS__))
+#define WARN(...) PR_LOG(gMediaDecoderLog, PR_LOG_WARNING, (__VA_ARGS__))
 #else
-#define LOG(...)
+#define WARN(...)
 #endif
 
 #define PROPERTY_ID_FORMAT "%c%c%c%c"
@@ -34,7 +34,7 @@ AppleUtils::GetProperty(AudioFileStreamID aAudioFileStream,
                                                              &size, &writeable);
 
   if (rv) {
-    LOG("Couldn't get property " PROPERTY_ID_FORMAT "\n",
+    WARN("Couldn't get property " PROPERTY_ID_FORMAT "\n",
          PROPERTY_ID_PRINT(aPropertyID));
     return NS_ERROR_FAILURE;
   }
