@@ -63,8 +63,6 @@ AppleDecoderModule::Shutdown()
   if (!sIsEnabled) {
     return NS_ERROR_FAILURE;
   }
-  AppleVTLinker::Unlink();
-  AppleCMLinker::Unlink();
 
   return NS_OK;
 }

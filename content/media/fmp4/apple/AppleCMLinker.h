@@ -20,7 +20,6 @@ class AppleCMLinker
 {
 public:
   static bool Link();
-  static void Unlink();
 
 private:
   static void* sLink;
@@ -30,6 +29,8 @@ private:
     LinkStatus_FAILED,
     LinkStatus_SUCCEEDED
   } sLinkStatus;
+
+  static void Unlink();
 };
 
 #define LINK_FUNC(func) extern typeof(func)* func;
