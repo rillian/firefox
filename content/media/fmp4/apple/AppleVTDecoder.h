@@ -24,9 +24,9 @@ namespace layers {
 class AppleVTDecoder : public MediaDataDecoder {
 public:
   AppleVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
-               MediaTaskQueue* aVideoTaskQueue,
-               MediaDataDecoderCallback* aCallback,
-               layers::ImageContainer* aImageContainer);
+                 MediaTaskQueue* aVideoTaskQueue,
+                 MediaDataDecoderCallback* aCallback,
+                 layers::ImageContainer* aImageContainer);
   ~AppleVTDecoder();
   virtual nsresult Init() MOZ_OVERRIDE;
   virtual nsresult Input(mp4_demuxer::MP4Sample* aSample) MOZ_OVERRIDE;

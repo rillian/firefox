@@ -69,18 +69,18 @@ AppleDecoderModule::Shutdown()
 
 MediaDataDecoder*
 AppleDecoderModule::CreateH264Decoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
-                                    mozilla::layers::LayersBackend aLayersBackend,
-                                    mozilla::layers::ImageContainer* aImageContainer,
-                                    MediaTaskQueue* aVideoTaskQueue,
-                                    MediaDataDecoderCallback* aCallback)
+                                      mozilla::layers::LayersBackend aLayersBackend,
+                                      mozilla::layers::ImageContainer* aImageContainer,
+                                      MediaTaskQueue* aVideoTaskQueue,
+                                      MediaDataDecoderCallback* aCallback)
 {
   return new AppleVTDecoder(aConfig, aVideoTaskQueue, aCallback, aImageContainer);
 }
 
 MediaDataDecoder*
 AppleDecoderModule::CreateAACDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
-                                   MediaTaskQueue* aAudioTaskQueue,
-                                   MediaDataDecoderCallback* aCallback)
+                                     MediaTaskQueue* aAudioTaskQueue,
+                                     MediaDataDecoderCallback* aCallback)
 {
   NS_WARNING("HACK: using BlankDecoderModule for AAC");
   if (!mBlankDecoder) {

@@ -30,9 +30,9 @@ PRLogModuleInfo* GetDemuxerLog();
 namespace mozilla {
 
 AppleVTDecoder::AppleVTDecoder(const mp4_demuxer::VideoDecoderConfig& aConfig,
-                           MediaTaskQueue* aVideoTaskQueue,
-                           MediaDataDecoderCallback* aCallback,
-                           layers::ImageContainer* aImageContainer)
+                               MediaTaskQueue* aVideoTaskQueue,
+                               MediaDataDecoderCallback* aCallback,
+                               layers::ImageContainer* aImageContainer)
   : mConfig(aConfig)
   , mTaskQueue(aVideoTaskQueue)
   , mCallback(aCallback)
@@ -162,7 +162,7 @@ PlatformCallback(void* decompressionOutputRefCon,
 // to avoid this thread-unsafe public member function.
 nsresult
 AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
-                          mp4_demuxer::MP4Sample* aSample)
+                            mp4_demuxer::MP4Sample* aSample)
 {
   size_t width = CVPixelBufferGetWidth(aImage);
   size_t height = CVPixelBufferGetHeight(aImage);
@@ -299,10 +299,8 @@ AppleVTDecoder::InitializeSession()
     CFDictionaryCreateMutable(NULL, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks);
-#if 1
   AppleUtils::SetCFDict(extensions, "CVImageBufferChromaLocationBottomField", "left");
   AppleUtils::SetCFDict(extensions, "CVImageBufferChromaLocationTopField", "left");
-#endif
   AppleUtils::SetCFDict(extensions, "FullRangeVideo", true);
 
   AutoCFRelease<CFMutableDictionaryRef> atoms =
