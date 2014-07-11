@@ -241,7 +241,6 @@ TimingInfoFromSample(mp4_demuxer::MP4Sample* aSample)
 {
   CMSampleTimingInfo timestamp;
 
-  // FIXME: check units here.
   timestamp.duration = CMTimeMake(aSample->duration, USECS_PER_S);
   timestamp.presentationTimeStamp =
     CMTimeMake(aSample->composition_timestamp, USECS_PER_S);
