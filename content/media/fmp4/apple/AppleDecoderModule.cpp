@@ -63,10 +63,6 @@ AppleDecoderModule::Shutdown()
 {
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
 
-  if (!sIsEnabled) {
-    return NS_ERROR_FAILURE;
-  }
-
   return NS_OK;
 }
 
