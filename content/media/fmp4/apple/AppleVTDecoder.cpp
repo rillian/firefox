@@ -159,8 +159,6 @@ PlatformCallback(void* decompressionOutputRefCon,
 }
 
 // Copy and return a decoded frame.
-// FIXME: probably better to queue this as a new task
-// to avoid this thread-unsafe public member function.
 nsresult
 AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                             mp4_demuxer::MP4Sample* aSample)
