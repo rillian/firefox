@@ -178,38 +178,37 @@ AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   }
 
   MOZ_ASSERT(planes == 2);
-  uint8_t* frame = new uint8_t[width * height * 3 / 2];
-  PodZero(frame);
   VideoData::YCbCrBuffer buffer;
 
+  // Lock the returned image data.
+  CVReturn rv = CVPixelBufferLockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
+  MOZ_ASSERT(rv == kCVReturnSuccess, "error locking pixel data");
   // Y plane.
-  buffer.mPlanes[0].mData = frame;
+  buffer.mPlanes[0].mData =
+    static_cast<uint8_t*>(CVPixelBufferGetBaseAddressOfPlane(aImage, 0));
   buffer.mPlanes[0].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 0);
   buffer.mPlanes[0].mWidth = width;
   buffer.mPlanes[0].mHeight = height;
   buffer.mPlanes[0].mOffset = 0;
   buffer.mPlanes[0].mSkip = 0;
   // Cb plane.
-  buffer.mPlanes[1].mData = frame + width*height;
+  buffer.mPlanes[1].mData =
+    static_cast<uint8_t*>(CVPixelBufferGetBaseAddressOfPlane(aImage, 1));
   buffer.mPlanes[1].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 1);
   buffer.mPlanes[1].mWidth = (width+1) / 2;
   buffer.mPlanes[1].mHeight = (height+1) / 2;
   buffer.mPlanes[1].mOffset = 0;
   buffer.mPlanes[1].mSkip = 1;
   // Cr plane.
-  buffer.mPlanes[2].mData = frame + width*height;
+  buffer.mPlanes[2].mData =
+    static_cast<uint8_t*>(CVPixelBufferGetBaseAddressOfPlane(aImage, 1));
   buffer.mPlanes[2].mStride = CVPixelBufferGetBytesPerRowOfPlane(aImage, 1);
   buffer.mPlanes[2].mWidth = (width+1) / 2;
   buffer.mPlanes[2].mHeight = (height+1) / 2;
   buffer.mPlanes[2].mOffset = 1;
   buffer.mPlanes[2].mSkip = 1;
 
-  CVReturn rv = CVPixelBufferLockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
-  MOZ_ASSERT(rv == kCVReturnSuccess, "error locking pixel data");
-  memcpy(frame, CVPixelBufferGetBaseAddressOfPlane(aImage, 0), width*height);
-  memcpy(frame + width*height, CVPixelBufferGetBaseAddressOfPlane(aImage, 1), width*height/2);
-  CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
-
+  // Bounds.
   VideoInfo info;
   info.mDisplay = nsIntSize(width, height);
   info.mHasVideo = true;
@@ -217,6 +216,8 @@ AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                                       0,
                                       mConfig.display_width,
                                       mConfig.display_height);
+
+  // Copy the image data into our own format.
   nsAutoPtr<VideoData> data;
   data =
     VideoData::Create(info,
@@ -229,6 +230,9 @@ AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
                       aSample->is_sync_point,
                       aSample->composition_timestamp,
                       visible);
+  // Unlock the returned image data.
+  CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
+
   mCallback->Output(data.forget());
   return NS_OK;
 }
