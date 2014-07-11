@@ -16,7 +16,7 @@ public:
   AppleDecoderModule();
   virtual ~AppleDecoderModule();
 
-  // Initializes the module, loads required dynamic libraries, etc.
+  // Perform any per-instance initialization.
   // Main thread only.
   nsresult Startup();
 

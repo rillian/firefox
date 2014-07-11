@@ -49,6 +49,9 @@ AppleDecoderModule::Init()
 nsresult
 AppleDecoderModule::Startup()
 {
+  // We don't have any per-instance initialization to do.
+  // Check whether ::Init() above succeeded to know if
+  // we're functional.
   if (!sIsEnabled) {
     return NS_ERROR_FAILURE;
   }
