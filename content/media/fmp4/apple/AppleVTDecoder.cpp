@@ -91,7 +91,7 @@ AppleVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 #ifdef LOG_MEDIA_SHA1
   SHA1Sum hash;
   hash.update(aSample->data, aSample->size);
-  uint8_t digest_buf[SHA1Sum::HashSize];
+  uint8_t digest_buf[SHA1Sum::kHashSize];
   hash.finish(digest_buf);
   nsAutoCString digest;
   for (size_t i = 0; i < sizeof(digest_buf); i++) {
@@ -313,7 +313,7 @@ AppleVTDecoder::InitializeSession()
 #ifdef LOG_MEDIA_SHA1
   SHA1Sum avc_hash;
   avc_hash.update(mConfig.extra_data.begin(), mConfig.extra_data.length());
-  uint8_t digest_buf[SHA1Sum::HashSize];
+  uint8_t digest_buf[SHA1Sum::kHashSize];
   avc_hash.finish(digest_buf);
   nsAutoCString avc_digest;
   for (size_t i = 0; i < sizeof(digest_buf); i++) {
