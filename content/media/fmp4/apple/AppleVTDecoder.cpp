@@ -330,8 +330,10 @@ AppleVTDecoder::InitializeSession()
                                       mConfig.display_height,
                                       extensions,
                                       &mFormat);
-  // FIXME: propagate errors to caller.
-  NS_ASSERTION(rv == noErr, "Couldn't create format description!");
+  if (rv != noErr) {
+    NS_ERROR("Couldn't create format description!");
+    return NS_ERROR_FAILURE;
+  }
 
   // Contruct video decoder selection spec.
   AutoCFRelease<CFMutableDictionaryRef> spec =
@@ -356,7 +358,10 @@ AppleVTDecoder::InitializeSession()
                                     NULL, // Output video format.
                                     &cb,
                                     &mSession);
-  NS_ASSERTION(rv == noErr, "Couldn't create decompression session!");
+  if (rv != noErr) {
+    NS_ERROR("Couldn't create decompression session!");
+    return NS_ERROR_FAILURE;
+  }
 
   return NS_OK;
 }
