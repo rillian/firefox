@@ -18,6 +18,7 @@
 #include "AppleVTLinker.h"
 #include "prlog.h"
 #include "MediaData.h"
+#include "VideoUtils.h"
 
 #ifdef PR_LOGGING
 PRLogModuleInfo* GetDemuxerLog();
@@ -241,14 +242,12 @@ TimingInfoFromSample(mp4_demuxer::MP4Sample* aSample)
   CMSampleTimingInfo timestamp;
 
   // FIXME: check units here.
-  const int32_t msec_per_sec = 1000000;
-
-  timestamp.duration = CMTimeMake(aSample->duration, msec_per_sec);
+  timestamp.duration = CMTimeMake(aSample->duration, USECS_PER_S);
   timestamp.presentationTimeStamp =
-    CMTimeMake(aSample->composition_timestamp, msec_per_sec);
+    CMTimeMake(aSample->composition_timestamp, USECS_PER_S);
   // No DTS value available from libstagefright.
   timestamp.decodeTimeStamp =
-    CMTimeMake(aSample->composition_timestamp, msec_per_sec);
+    CMTimeMake(aSample->composition_timestamp, USECS_PER_S);
 
   return timestamp;
 }
