@@ -45,6 +45,7 @@ if CONFIG['MOZ_APPLEMEDIA']:
       'apple/AppleDecoderModule.h',
   ]
   UNIFIED_SOURCES += [
+      'apple/AppleATDecoder.cpp',
       'apple/AppleCMLinker.cpp',
       'apple/AppleDecoderModule.cpp',
       'apple/AppleUtils.cpp',
@@ -53,6 +54,9 @@ if CONFIG['MOZ_APPLEMEDIA']:
   ]
   LOCAL_INCLUDES += [
       'apple',
+  ]
+  LDFLAGS += [
+      '-framework AudioToolbox',
   ]
 
 FINAL_LIBRARY = 'xul'
