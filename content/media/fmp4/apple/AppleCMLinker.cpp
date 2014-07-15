@@ -22,6 +22,7 @@ AppleCMLinker::LinkStatus
 AppleCMLinker::sLinkStatus = LinkStatus_INIT;
 
 void* AppleCMLinker::sLink = nullptr;
+nsrefcnt AppleCMLinker::sRefCount = 0;
 
 #define LINK_FUNC(func) typeof(func) func;
 #include "AppleCMFunctions.h"
@@ -30,6 +31,12 @@ void* AppleCMLinker::sLink = nullptr;
 /* static */ bool
 AppleCMLinker::Link()
 {
+  // Bump our reference count every time we're called.
+  // Add a lock or change the thread assertion if
+  // you need to call this off the main thread.
+  MOZ_ASSERT(NS_IsMainThread());
+  ++sRefCount;
+
   if (sLinkStatus) {
     return sLinkStatus == LinkStatus_SUCCEEDED;
   }
@@ -37,7 +44,7 @@ AppleCMLinker::Link()
   const char* dlname =
     "/System/Library/Frameworks/CoreMedia.framework/CoreMedia";
   if (!(sLink = dlopen(dlname, RTLD_NOW | RTLD_LOCAL))) {
-    NS_WARNING("Couldn't link CoreMedia framework.");
+    NS_WARNING("Couldn't load CoreMedia framework");
     goto fail;
   }
 
@@ -50,6 +57,7 @@ AppleCMLinker::Link()
 #include "AppleCMFunctions.h"
 #undef LINK_FUNC
 
+  LOG("Loaded CoreMedia framework.");
   sLinkStatus = LinkStatus_SUCCEEDED;
   return true;
 
@@ -63,8 +71,11 @@ fail:
 /* static */ void
 AppleCMLinker::Unlink()
 {
-  LOG("Unlinking CoreMedia framework.");
-  if (sLink) {
+  MOZ_ASSERT(NS_IsMainThread());
+  MOZ_ASSERT(sLink && sRefCount > 0, "Unbalanced Unlink()");
+  --sRefCount;
+  if (sLink && sRefCount < 1) {
+    LOG("Unlinking CoreMedia framework.");
     dlclose(sLink);
     sLink = nullptr;
   }

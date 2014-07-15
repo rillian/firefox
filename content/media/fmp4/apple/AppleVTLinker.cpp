@@ -22,6 +22,7 @@ AppleVTLinker::LinkStatus
 AppleVTLinker::sLinkStatus = LinkStatus_INIT;
 
 void* AppleVTLinker::sLink = nullptr;
+nsrefcnt AppleVTLinker::sRefCount = 0;
 
 #define LINK_FUNC(func) typeof(func) func;
 #include "AppleVTFunctions.h"
@@ -30,6 +31,12 @@ void* AppleVTLinker::sLink = nullptr;
 /* static */ bool
 AppleVTLinker::Link()
 {
+  // Bump our reference count every time we're called.
+  // Add a lock or change the thread assertion if
+  // you need to call this off the main thread.
+  MOZ_ASSERT(NS_IsMainThread());
+  ++sRefCount;
+
   if (sLinkStatus) {
     return sLinkStatus == LinkStatus_SUCCEEDED;
   }
@@ -37,7 +44,7 @@ AppleVTLinker::Link()
   const char* dlname =
     "/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox";
   if (!(sLink = dlopen(dlname, RTLD_NOW | RTLD_LOCAL))) {
-    NS_WARNING("Couldn't link VideoToolbox framework.");
+    NS_WARNING("Couldn't load VideoToolbox framework");
     goto fail;
   }
 
@@ -50,6 +57,7 @@ AppleVTLinker::Link()
 #include "AppleVTFunctions.h"
 #undef LINK_FUNC
 
+  LOG("Loaded VideoToolbox framework.");
   sLinkStatus = LinkStatus_SUCCEEDED;
   return true;
 
@@ -63,8 +71,15 @@ fail:
 /* static */ void
 AppleVTLinker::Unlink()
 {
-  LOG("Unlinking VideoToolbox framework.");
-  if (sLink) {
+  // We'll be called by multiple Decoders, one intantiated for
+  // each media element. Therefore we receive must maintain a
+  // reference count to avoidunloading our symbols when other
+  // instances still need them.
+  MOZ_ASSERT(NS_IsMainThread());
+  MOZ_ASSERT(sLink && sRefCount > 0, "Unbalanced Unlink()");
+  --sRefCount;
+  if (sLink && sRefCount < 1) {
+    LOG("Unlinking VideoToolbox framework.");
     dlclose(sLink);
     sLink = nullptr;
   }

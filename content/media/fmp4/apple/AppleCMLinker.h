@@ -19,17 +19,17 @@ class AppleCMLinker
 {
 public:
   static bool Link();
+  static void Unlink();
 
 private:
   static void* sLink;
+  static nsrefcnt sRefCount;
 
   static enum LinkStatus {
     LinkStatus_INIT = 0,
     LinkStatus_FAILED,
     LinkStatus_SUCCEEDED
   } sLinkStatus;
-
-  static void Unlink();
 };
 
 #define LINK_FUNC(func) extern typeof(func)* func;

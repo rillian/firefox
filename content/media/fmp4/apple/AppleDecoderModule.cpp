@@ -60,6 +60,8 @@ nsresult
 AppleDecoderModule::Shutdown()
 {
   MOZ_ASSERT(NS_IsMainThread(), "Must be on main thread.");
+  AppleVTLinker::Unlink();
+  AppleCMLinker::Unlink();
 
   return NS_OK;
 }
