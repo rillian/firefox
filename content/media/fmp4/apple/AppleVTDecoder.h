@@ -20,6 +20,7 @@ class MediaDataDecoderCallback;
 namespace layers {
   class ImageContainer;
 }
+class FrameRef;
 
 class AppleVTDecoder : public MediaDataDecoder {
 public:
@@ -35,7 +36,7 @@ public:
   virtual nsresult Shutdown() MOZ_OVERRIDE;
   // Return hook for VideoToolbox callback.
   nsresult OutputFrame(CVPixelBufferRef aImage,
-                       mp4_demuxer::MP4Sample* aSample);
+                       FrameRef* frameRef);
 private:
   const mp4_demuxer::VideoDecoderConfig& mConfig;
   RefPtr<MediaTaskQueue> mTaskQueue;

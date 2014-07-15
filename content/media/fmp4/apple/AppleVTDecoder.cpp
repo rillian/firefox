@@ -123,10 +123,27 @@ AppleVTDecoder::Drain()
 // Implementation details.
 //
 
+// Context object to hold a copy of sample metadata.
+class FrameRef {
+public:
+  Microseconds timestamp;
+  Microseconds duration;
+  int64_t byte_offset;
+  bool is_sync_point;
+
+  explicit FrameRef(mp4_demuxer::MP4Sample* aSample)
+  {
+    MOZ_ASSERT(aSample);
+    timestamp = aSample->composition_timestamp;
+    duration = aSample->duration;
+    byte_offset = aSample->byte_offset;
+    is_sync_point = aSample->is_sync_point;
+  }
+};
+
 // Callback passed to the VideoToolbox decoder for returning data.
 // This needs to be static because the API takes a C-style pair of
-// function and userdata pointers.
-// This validates parameters and
+// function and userdata pointers. This validates parameters and
 // forwards the decoded image back to an object method.
 static void
 PlatformCallback(void* decompressionOutputRefCon,
@@ -138,7 +155,6 @@ PlatformCallback(void* decompressionOutputRefCon,
                  CMTime presentationDuration)
 {
   AppleVTDecoder* decoder = static_cast<AppleVTDecoder*>(decompressionOutputRefCon);
-  mp4_demuxer::MP4Sample* sample = static_cast<mp4_demuxer::MP4Sample*>(sourceFrameRefCon);
 
   LOG("AppleVideoDecoder %s status %d flags %d", __func__, status, flags);
 
@@ -155,13 +171,14 @@ PlatformCallback(void* decompressionOutputRefCon,
 
   // Forward the data back to an object method which can access
   // the correct MP4Reader callback.
-  decoder->OutputFrame(image, sample);
+  FrameRef* frameRef = static_cast<FrameRef*>(sourceFrameRefCon);
+  decoder->OutputFrame(image, frameRef);
 }
 
 // Copy and return a decoded frame.
 nsresult
 AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
-                            mp4_demuxer::MP4Sample* aSample)
+                            FrameRef* aFrameRef)
 {
   size_t width = CVPixelBufferGetWidth(aImage);
   size_t height = CVPixelBufferGetHeight(aImage);
@@ -223,17 +240,18 @@ AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
     VideoData::Create(info,
                       mImageContainer,
                       nullptr,
-                      aSample->byte_offset,
-                      aSample->composition_timestamp,
-                      aSample->duration,
+                      aFrameRef->byte_offset,
+                      aFrameRef->timestamp,
+                      aFrameRef->duration,
                       buffer,
-                      aSample->is_sync_point,
-                      aSample->composition_timestamp,
+                      aFrameRef->is_sync_point,
+                      aFrameRef->timestamp,
                       visible);
   // Unlock the returned image data.
   CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
 
   mCallback->Output(data.forget());
+  delete aFrameRef;
   return NS_OK;
 }
 
@@ -279,7 +297,11 @@ AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
   CMSampleTimingInfo timestamp = TimingInfoFromSample(aSample);
   rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, sample.receive());
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
-  rv = VTDecompressionSessionDecodeFrame(mSession, sample, 0, aSample, &flags);
+  rv = VTDecompressionSessionDecodeFrame(mSession,
+                                         sample,
+                                         0,
+                                         new FrameRef(aSample),
+                                         &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
 
   // Ask for more data.
