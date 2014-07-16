@@ -107,15 +107,21 @@ AppleVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
           nsAutoPtr<mp4_demuxer::MP4Sample>(aSample)));
   return NS_OK;
 }
+
 nsresult
 AppleVTDecoder::Flush()
 {
-  return NS_OK;
+  return Drain();
 }
 
 nsresult
 AppleVTDecoder::Drain()
 {
+  OSStatus rv = VTDecompressionSessionWaitForAsynchronousFrames(mSession);
+  if (rv != noErr) {
+    LOG("Error %d draining frames", rv);
+    return NS_ERROR_FAILURE;
+  }
   return NS_OK;
 }
 

@@ -40,8 +40,8 @@ typedef void (*VTDecompressionOutputCallback)(
     CMTime
 );
 typedef struct VTDecompressionOutputCallbackRecord {
-  VTDecompressionOutputCallback decompressionOutputCallback;
-  void*                         decompressionOutputRefCon;
+    VTDecompressionOutputCallback decompressionOutputCallback;
+    void*                         decompressionOutputRefCon;
 } VTDecompressionOutputCallbackRecord;
 
 OSStatus
@@ -61,6 +61,11 @@ VTDecompressionSessionDecodeFrame(
     VTDecodeFrameFlags,
     void*,
     VTDecodeInfoFlags*
+);
+
+OSStatus
+VTDecompressionSessionWaitForAsynchronousFrames(
+    VTDecompressionSessionRef
 );
 
 void
