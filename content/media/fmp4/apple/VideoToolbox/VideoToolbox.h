@@ -23,10 +23,14 @@
 #include <CoreMedia/CMTime.h>
 
 typedef uint32_t VTDecodeFrameFlags;
+enum {
+  kVTDecodeFrame_EnableAsynchronousDecompression = 1 << 0,
+  kVTDecodeFrame_EnableTemporalProcessing = 1 << 3,
+};
 typedef uint32_t VTDecodeInfoFlags;
 enum {
-  kVTDecodeInfo_Asynchronous = 1UL << 0,
-  kVTDecodeInfo_FrameDropped = 1UL << 1,
+  kVTDecodeInfo_Asynchronous = 1 << 0,
+  kVTDecodeInfo_FrameDropped = 1 << 1,
 };
 
 typedef struct OpaqueVTDecompressionSession* VTDecompressionSessionRef;
