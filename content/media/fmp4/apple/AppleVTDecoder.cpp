@@ -111,6 +111,7 @@ AppleVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleVTDecoder::Flush()
 {
+  mReorderQueue.Clear();
   return Drain();
 }
 
@@ -122,7 +123,7 @@ AppleVTDecoder::Drain()
     LOG("Error %d draining frames", rv);
     return NS_ERROR_FAILURE;
   }
-  return NS_OK;
+  return DrainReorderedFrames();
 }
 
 //
@@ -188,6 +189,15 @@ PlatformCallback(void* decompressionOutputRefCon,
   // Forward the data back to an object method which can access
   // the correct MP4Reader callback.
   decoder->OutputFrame(image, frameRef);
+}
+
+nsresult
+AppleVTDecoder::DrainReorderedFrames()
+{
+  while (!mReorderQueue.IsEmpty()) {
+    mCallback->Output(mReorderQueue.Pop());
+  }
+  return NS_OK;
 }
 
 // Copy and return a decoded frame.
@@ -265,7 +275,14 @@ AppleVTDecoder::OutputFrame(CVPixelBufferRef aImage,
   // Unlock the returned image data.
   CVPixelBufferUnlockBaseAddress(aImage, kCVPixelBufferLock_ReadOnly);
 
-  mCallback->Output(data.forget());
+  // Frames come out in DTS order but we need to output them
+  // in composition order.
+  mReorderQueue.Push(data.forget());
+  if (mReorderQueue.Length() > 2) {
+    VideoData* readyData = mReorderQueue.Pop();
+    mCallback->Output(readyData);
+  }
+
   return NS_OK;
 }
 
