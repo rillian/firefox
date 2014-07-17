@@ -310,11 +310,13 @@ AppleVTDecoder::SubmitFrame(mp4_demuxer::MP4Sample* aSample)
   CMSampleTimingInfo timestamp = TimingInfoFromSample(aSample);
   rv = CMSampleBufferCreate(NULL, block, true, 0, 0, mFormat, 1, 1, &timestamp, 0, NULL, sample.receive());
   NS_ASSERTION(rv == noErr, "Couldn't create CMSampleBuffer");
-  rv = VTDecompressionSessionDecodeFrame(mSession,
-                                         sample,
-                                         0,
-                                         new FrameRef(aSample),
-                                         &flags);
+  rv = VTDecompressionSessionDecodeFrame(
+      mSession,
+      sample,
+      kVTDecodeFrame_EnableAsynchronousDecompression |
+      kVTDecodeFrame_EnableTemporalProcessing,
+      new FrameRef(aSample),
+      &flags);
   NS_ASSERTION(rv == noErr, "Couldn't pass frame to decoder");
 
   // Ask for more data.
