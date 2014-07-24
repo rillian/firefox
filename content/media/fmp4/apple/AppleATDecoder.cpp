@@ -34,7 +34,6 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   , mCurrentAudioFrame(0)
   , mSamplePosition(0)
   , mHaveOutput(false)
-  , mFailed(false)
 {
   MOZ_COUNT_CTOR(AppleATDecoder);
   LOG("Creating Apple AudioToolbox AAC decoder");
@@ -90,7 +89,6 @@ AppleATDecoder::Init()
     NS_ERROR("Couldn't open AudioFileStream");
     return NS_ERROR_FAILURE;
   }
-  mFailed = false;
 
   return NS_OK;
 }
@@ -112,7 +110,7 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
         &AppleATDecoder::SubmitSample,
         nsAutoPtr<mp4_demuxer::MP4Sample>(aSample)));
 
-  return mFailed ? NS_ERROR_FAILURE : NS_OK;
+  return NS_OK;
 }
 
 nsresult
@@ -242,6 +240,7 @@ AppleATDecoder::SampleCallback(uint32_t aNumBytes,
 
     if (rv && rv != kNeedMoreData) {
       LOG("Error decoding audio stream: %#x\n", rv);
+      mCallback->Error();
       break;
     }
     LOG("%d frames decoded", numFrames);
@@ -310,6 +309,7 @@ AppleATDecoder::SetupDecoder()
   if (rv) {
     LOG("Error %d constructing AudioConverter", rv);
     mConverter = nullptr;
+    mCallback->Error();
   }
   mHaveOutput = false;
 }
@@ -324,8 +324,7 @@ AppleATDecoder::SubmitSample(nsAutoPtr<mp4_demuxer::MP4Sample> aSample)
                                           0);
   if (rv != noErr) {
     LOG("Error %d parsing audio data", rv);
-    // Set a flag to return an error on the next Input() call.
-    mFailed = true;
+    mCallback->Error();
   }
 
   // Sometimes we need multiple input samples before AudioToolbox
