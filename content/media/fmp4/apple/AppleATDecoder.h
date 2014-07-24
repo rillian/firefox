@@ -52,8 +52,10 @@ private:
   uint64_t mCurrentAudioFrame;
   int64_t mSamplePosition;
   bool mHaveOutput;
+  bool mFailed;
 
   void SetupDecoder();
+  void SubmitSample(nsAutoPtr<mp4_demuxer::MP4Sample> aSample);
 };
 
 } // namespace mozilla

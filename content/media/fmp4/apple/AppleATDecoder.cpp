@@ -33,6 +33,7 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   , mCurrentAudioFrame(0)
   , mSamplePosition(0)
   , mHaveOutput(false)
+  , mFailed(false)
 {
   MOZ_COUNT_CTOR(AppleATDecoder);
   LOG("Creating Apple AudioToolbox AAC decoder");
@@ -88,6 +89,7 @@ AppleATDecoder::Init()
     NS_ERROR("Couldn't open AudioFileStream");
     return NS_ERROR_FAILURE;
   }
+  mFailed = false;
 
   return NS_OK;
 }
@@ -101,24 +103,15 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
       aSample->composition_timestamp,
       aSample->is_sync_point ? " keyframe" : "",
       (unsigned long long)aSample->size);
-  mSamplePosition = aSample->byte_offset;
-  OSStatus rv = AudioFileStreamParseBytes(mStream,
-                                          aSample->size,
-                                          aSample->data,
-                                          0);
-  if (rv != noErr) {
-    LOG("Error %d parsing audio data", rv);
-    return NS_ERROR_FAILURE;
-  }
 
-  // Sometimes we need multiple input samples before AudioToolbox
-  // starts decoding. If we haven't seen any output yet, ask for
-  // more data here.
-  if (!mHaveOutput) {
-    mCallback->InputExhausted();
-  }
+  // Queue a task to perform the actual decoding on a separate thread.
+  mTaskQueue->Dispatch(
+      NS_NewRunnableMethodWithArg<nsAutoPtr<mp4_demuxer::MP4Sample>>(
+        this,
+        &AppleATDecoder::SubmitSample,
+        nsAutoPtr<mp4_demuxer::MP4Sample>(aSample)));
 
-  return NS_OK;
+  return mFailed ? NS_ERROR_FAILURE : NS_OK;
 }
 
 nsresult
@@ -318,6 +311,28 @@ AppleATDecoder::SetupDecoder()
     mConverter = nullptr;
   }
   mHaveOutput = false;
+}
+
+void
+AppleATDecoder::SubmitSample(nsAutoPtr<mp4_demuxer::MP4Sample> aSample)
+{
+  mSamplePosition = aSample->byte_offset;
+  OSStatus rv = AudioFileStreamParseBytes(mStream,
+                                          aSample->size,
+                                          aSample->data,
+                                          0);
+  if (rv != noErr) {
+    LOG("Error %d parsing audio data", rv);
+    // Set a flag to return an error on the next Input() call.
+    mFailed = true;
+  }
+
+  // Sometimes we need multiple input samples before AudioToolbox
+  // starts decoding. If we haven't seen any output yet, ask for
+  // more data here.
+  if (!mHaveOutput) {
+    mCallback->InputExhausted();
+  }
 }
 
 } // namespace mozilla
