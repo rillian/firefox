@@ -77,10 +77,7 @@ nsresult
 AppleATDecoder::Init()
 {
   LOG("Initializing Apple AudioToolbox AAC decoder");
-  //AudioFileTypeID fileType = kAudioFileAAC_ADTSType;
-  AudioFileTypeID fileType = kAudioFileMPEG4Type;
-  //AudioFileTypeID fileType = kAudioFileM4AType;
-  //AudioFileTypeID fileType = kAudioFileMP3Type;
+  AudioFileTypeID fileType = kAudioFileAAC_ADTSType;
   OSStatus rv = AudioFileStreamOpen(this,
                                     _MetadataCallback,
                                     _SampleCallback,
