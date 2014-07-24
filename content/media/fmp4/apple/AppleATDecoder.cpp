@@ -32,6 +32,7 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   , mCallback(aCallback)
   , mCurrentAudioFrame(0)
   , mSamplePosition(0)
+  , mHaveOutput(false)
 {
   MOZ_COUNT_CTOR(AppleATDecoder);
   LOG("Creating Apple AudioToolbox AAC decoder");
@@ -110,7 +111,13 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
     return NS_ERROR_FAILURE;
   }
 
-  mCallback->InputExhausted();
+  // Sometimes we need multiple input samples before AudioToolbox
+  // starts decoding. If we haven't seen any output yet, ask for
+  // more data here.
+  if (!mHaveOutput) {
+    mCallback->InputExhausted();
+  }
+
   return NS_OK;
 }
 
@@ -266,6 +273,7 @@ AppleATDecoder::SampleCallback(uint32_t aNumBytes,
                                      reinterpret_cast<AudioDataValue *>(decoded.forget()),
                                      rate);
     mCallback->Output(audio);
+    mHaveOutput = true;
 
     mCurrentAudioFrame += numFrames;
 
@@ -309,6 +317,7 @@ AppleATDecoder::SetupDecoder()
     LOG("Error %d constructing AudioConverter", rv);
     mConverter = nullptr;
   }
+  mHaveOutput = false;
 }
 
 } // namespace mozilla

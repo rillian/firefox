@@ -43,6 +43,7 @@ public:
 
   // Callbacks also need access to the config.
   const mp4_demuxer::AudioDecoderConfig& mConfig;
+
 private:
   RefPtr<MediaTaskQueue> mTaskQueue;
   MediaDataDecoderCallback* mCallback;
@@ -50,6 +51,7 @@ private:
   AudioFileStreamID mStream;
   uint64_t mCurrentAudioFrame;
   int64_t mSamplePosition;
+  bool mHaveOutput;
 
   void SetupDecoder();
 };
