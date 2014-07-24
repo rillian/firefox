@@ -30,6 +30,7 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
   : mConfig(aConfig)
   , mTaskQueue(anAudioTaskQueue)
   , mCallback(aCallback)
+  , mConverter(nullptr)
   , mCurrentAudioFrame(0)
   , mSamplePosition(0)
   , mHaveOutput(false)
@@ -131,7 +132,7 @@ AppleATDecoder::Drain()
 nsresult
 AppleATDecoder::Shutdown()
 {
-  LOG(__func__);
+  LOG("Shutting down Apple AudioToolbox AAC decoder");
   OSStatus rv = AudioConverterDispose(mConverter);
   if (rv) {
     LOG("error %d disposing of AudioConverter", rv);
