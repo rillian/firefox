@@ -49,6 +49,8 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
 AppleATDecoder::~AppleATDecoder()
 {
   MOZ_COUNT_DTOR(AppleATDecoer);
+  MOZ_ASSERT(!mConverter);
+  MOZ_ASSERT(!mStream);
 }
 
 static void
@@ -135,14 +137,19 @@ AppleATDecoder::Drain()
 nsresult
 AppleATDecoder::Shutdown()
 {
-  LOG("Shutting down Apple AudioToolbox AAC decoder");
+  LOG("Shutdown: Apple AudioToolbox AAC decoder");
   OSStatus rv1 = AudioConverterDispose(mConverter);
   if (rv1) {
     LOG("error %d disposing of AudioConverter", rv1);
+  } else {
+    mConverter = nullptr;
   }
+
   OSStatus rv2 = AudioFileStreamClose(mStream);
   if (rv2) {
     LOG("error %d closing AudioFileStream", rv2);
+  } else {
+    mStream = nullptr;
   }
 
   return (rv1 && rv2) ? NS_OK : NS_ERROR_FAILURE;
