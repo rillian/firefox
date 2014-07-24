@@ -110,6 +110,7 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
     return NS_ERROR_FAILURE;
   }
 
+  mCallback->InputExhausted();
   return NS_OK;
 }
 
