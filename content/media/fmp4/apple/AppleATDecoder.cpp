@@ -48,8 +48,6 @@ AppleATDecoder::AppleATDecoder(const mp4_demuxer::AudioDecoderConfig& aConfig,
 
 AppleATDecoder::~AppleATDecoder()
 {
-  // Silence an unused-variable warning while we're a stub.
-  (void)mCallback;
   MOZ_COUNT_DTOR(AppleATDecoer);
 }
 
