@@ -116,15 +116,21 @@ AppleATDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleATDecoder::Flush()
 {
-  LOG(__func__);
+  LOG("Flushing AudioToolbox AAC decoder");
+  OSStatus rv = AudioConverterReset(mConverter);
+  if (rv) {
+    LOG("Error %d resetting AudioConverter", rv);
+    return NS_ERROR_FAILURE;
+  }
   return NS_OK;
 }
 
 nsresult
 AppleATDecoder::Drain()
 {
-  LOG(__func__);
-  return NS_OK;
+  LOG("Draining AudioToolbox AAC decoder");
+  mTaskQueue->AwaitIdle();
+  return Flush();
 }
 
 nsresult
