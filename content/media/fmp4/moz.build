@@ -51,6 +51,9 @@ if CONFIG['MOZ_APPLEMEDIA']:
       'apple/AppleVTDecoder.cpp',
       'apple/AppleVTLinker.cpp',
   ]
+  LOCAL_INCLUDES += [
+      'apple',
+  ]
 
 FINAL_LIBRARY = 'xul'
 
