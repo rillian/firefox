@@ -15,12 +15,12 @@
 // so we need to dlopen it as well to run on 10.6,
 // but we can depend on the real framework headers at build time.
 
-#include "CoreMedia/CMBase.h"
+#include <CoreMedia/CMBase.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreVideo/CVPixelBuffer.h>
-#include "CoreMedia/CMSampleBuffer.h"
-#include "CoreMedia/CMFormatDescription.h"
-#include "CoreMedia/CMTime.h"
+#include <CoreMedia/CMSampleBuffer.h>
+#include <CoreMedia/CMFormatDescription.h>
+#include <CoreMedia/CMTime.h>
 
 typedef uint32_t VTDecodeFrameFlags;
 typedef uint32_t VTDecodeInfoFlags;

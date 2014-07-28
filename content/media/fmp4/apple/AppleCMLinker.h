@@ -9,7 +9,7 @@
 
 extern "C" {
 #pragma GCC visibility push(default)
-#include "CoreMedia/CoreMedia.h"
+#include <CoreMedia/CoreMedia.h>
 #pragma GCC visibility pop
 }
 
