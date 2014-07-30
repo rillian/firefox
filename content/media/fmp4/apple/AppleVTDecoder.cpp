@@ -111,13 +111,18 @@ AppleVTDecoder::Input(mp4_demuxer::MP4Sample* aSample)
 nsresult
 AppleVTDecoder::Flush()
 {
+  nsresult rv = WaitForAsynchronousFrames();
+  if (NS_FAILED(rv)) {
+    LOG("AppleVTDecoder::Drain failed waiting for platform decoder.");
+  }
   mReorderQueue.Clear();
-  return WaitForAsynchronousFrames();
+  return rv;
 }
 
 nsresult
 AppleVTDecoder::Drain()
 {
+  mTaskQueue->AwaitIdle();
   nsresult rv = WaitForAsynchronousFrames();
   if (NS_FAILED(rv)) {
     LOG("AppleVTDecoder::Drain failed waiting for platform decoder.");
