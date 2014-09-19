@@ -16,19 +16,12 @@
 #ifndef VPX_SVC_CONTEXT_H_
 #define VPX_SVC_CONTEXT_H_
 
-#include "vpx/vp8cx.h"
-#include "vpx/vpx_encoder.h"
+#include "./vp8cx.h"
+#include "./vpx_encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum SVC_ENCODING_MODE {
-  INTER_LAYER_PREDICTION_I,
-  ALT_INTER_LAYER_PREDICTION_IP,
-  INTER_LAYER_PREDICTION_IP,
-  USE_GOLDEN_FRAME
-} SVC_ENCODING_MODE;
 
 typedef enum SVC_LOG_LEVEL {
   SVC_LOG_ERROR,
@@ -38,9 +31,8 @@ typedef enum SVC_LOG_LEVEL {
 
 typedef struct {
   // public interface to svc_command options
-  int spatial_layers;               // number of layers
-  int first_frame_full_size;        // set to one to force first frame full size
-  SVC_ENCODING_MODE encoding_mode;  // svc encoding strategy
+  int spatial_layers;               // number of spatial layers
+  int temporal_layers;               // number of temporal layers
   SVC_LOG_LEVEL log_level;  // amount of information to display
   int log_print;  // when set, printf log messages instead of returning the
                   // message with svc_get_message
@@ -104,39 +96,15 @@ const char *vpx_svc_dump_statistics(SvcContext *svc_ctx);
 const char *vpx_svc_get_message(const SvcContext *svc_ctx);
 
 /**
- * return size of encoded data to be returned by vpx_svc_get_buffer
- */
-size_t vpx_svc_get_frame_size(const SvcContext *svc_ctx);
-
-/**
- * return buffer with encoded data
- */
-void *vpx_svc_get_buffer(const SvcContext *svc_ctx);
-
-/**
  * return spatial resolution of the specified layer
  */
 vpx_codec_err_t vpx_svc_get_layer_resolution(const SvcContext *svc_ctx,
                                              int layer,
                                              unsigned int *width,
                                              unsigned int *height);
-/**
- * return number of frames that have been encoded
- */
-int vpx_svc_get_encode_frame_count(const SvcContext *svc_ctx);
-
-/**
- * return 1 if last encoded frame was a keyframe
- */
-int vpx_svc_is_keyframe(const SvcContext *svc_ctx);
-
-/**
- * force the next frame to be a keyframe
- */
-void vpx_svc_set_keyframe(SvcContext *svc_ctx);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif  /* VPX_SVC_CONTEXT_H_ */
+#endif  // VPX_SVC_CONTEXT_H_

@@ -79,6 +79,7 @@ MODULES = {
         'VP8_CX_SRCS_REMOVE-yes',
         'VP8_CX_SRCS-yes',
         'VP9_CX_EXPORTS',
+        'VP9_CX_SRCS-$(CONFIG_VP9_TEMPORAL_DENOISING)',
         'VP9_CX_SRCS-no',
         'VP9_CX_SRCS_REMOVE-no',
         'VP9_CX_SRCS_REMOVE-yes',
@@ -120,16 +121,20 @@ MODULES = {
         'VP8_COMMON_SRCS-$(HAVE_MEDIA)',
         'VP8_COMMON_SRCS-$(HAVE_NEON)',
         'VP9_COMMON_SRCS-$(HAVE_NEON)',
+        'VP9_COMMON_SRCS-$(HAVE_NEON_ASM)',
         'VP8_CX_SRCS-$(ARCH_ARM)',
         'VP8_CX_SRCS-$(HAVE_EDSP)',
         'VP8_CX_SRCS-$(HAVE_MEDIA)',
         'VP8_CX_SRCS-$(HAVE_NEON)',
+        'VP8_CX_SRCS-$(HAVE_NEON_ASM)',
+        'VP9_CX_SRCS-$(HAVE_NEON)',
     ],
     'ERROR_CONCEALMENT': [
         'VP8_DX_SRCS-$(CONFIG_ERROR_CONCEALMENT)',
     ],
     'AVX2': [
         'VP9_COMMON_SRCS-$(HAVE_AVX2)',
+        'VP9_CX_SRCS-$(HAVE_AVX2)',
     ],
     'VP8_POSTPROC': [
         'VP8_COMMON_SRCS-$(CONFIG_POSTPROC)',
@@ -140,6 +145,7 @@ MODULES = {
 }
 
 DISABLED_MODULES = [
+    'API_SRCS-$(CONFIG_SPATIAL_SVC)',
     'MEM_SRCS-$(CONFIG_MEM_MANAGER)',
     'MEM_SRCS-$(CONFIG_MEM_TRACKER)',
     'VP8_COMMON_SRCS-$(CONFIG_POSTPROC_VISUALIZER)',
@@ -450,9 +456,7 @@ def update_and_remove_files(prefix, libvpx_files, files):
 
 def apply_patches():
     # Patch to permit vpx users to specify their own <stdint.h> types.
-    os.system("patch -p3 < stdint.patch")
-    os.system("patch -p3 < unified.patch")
-    os.system("patch -p3 < mingw.patch")
+    os.system("patch -p0 < stdint.patch")
 
 def update_readme(commit):
     with open('README_MOZILLA') as f:
