@@ -211,17 +211,19 @@ files = {
         'vpx/vpx_codec.h',
         'vpx/vpx_decoder.h',
         'vpx/vpx_encoder.h',
+        'vpx/vpx_frame_buffer.h',
         'vpx/vpx_image.h',
         'vpx/vpx_integer.h',
     ],
     'X86-64_ASM': [
         'third_party/x86inc/x86inc.asm',
-        'vp8/common/x86/loopfilter_block_sse2.asm',
-        'vp9/encoder/x86/vp9_quantize_ssse3.asm',
+        'vp8/common/x86/loopfilter_block_sse2_x86_64.asm',
+        'vp9/encoder/x86/vp9_quantize_ssse3_x86_64.asm',
     ],
     'SOURCES': [
         'vp8/common/rtcd.c',
         'vp8/common/sad_c.c',
+        'vp8/encoder/onyx_if.c',
         'vp8/vp8_dx_iface.c',
         'vp9/common/vp9_entropymv.c',
         'vp9/common/vp9_rtcd.c',
@@ -236,8 +238,8 @@ manual = [
     'vp8/encoder/boolhuff.c',
 
     # 64bit only
-    'vp8/common/x86/loopfilter_block_sse2.asm',
-    'vp9/encoder/x86/vp9_quantize_ssse3.asm',
+    'vp8/common/x86/loopfilter_block_sse2_x86_64.asm',
+    'vp9/encoder/x86/vp9_quantize_ssse3_x86_64.asm',
 
     # offsets are special cased in Makefile.in
     'vp8/encoder/vp8_asm_enc_offsets.c',
