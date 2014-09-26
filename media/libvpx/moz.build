@@ -40,17 +40,15 @@ if CONFIG['VPX_X86_ASM']:
     if '64' in CONFIG['OS_TEST']:
         SOURCES += files['X86-64_ASM']
 
-    # AVX2 only supported on
-    # Darwin toolchain right now
-    if CONFIG['OS_TARGET'] == 'Darwin':
-        SOURCES += files['AVX2']
-
     # Expected support is hard-coded in the various vpx_config files but
     # we need to propagate the config checks here to get the right flags.
     if CONFIG['HAVE_TOOLCHAIN_SUPPORT_MSSSE3']:
         CFLAGS += ['-mssse3']
     if CONFIG['HAVE_TOOLCHAIN_SUPPORT_MSSE4_1']:
         CFLAGS += ['-msse4.1']
+
+    if CONFIG['HAVE_X86_AVX2']:
+        SOURCES += files['AVX2']
 
     #postproc is only enabled on x86 with asm
     SOURCES += files['VP8_POSTPROC']
