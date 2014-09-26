@@ -57,6 +57,8 @@ arm_asm_files = []
 if CONFIG['VPX_ARM_ASM']:
     arm_asm_files += files['ARM_ASM']
 
+    CFLAGS += [CONFIG['VPX_ASFLAGS']]
+
     if CONFIG['VPX_AS_CONVERSION']:
         GENERATED_SOURCES += [ "%s.%s" % (f, CONFIG['VPX_ASM_SUFFIX'])
             for f in sorted(arm_asm_files) if f.endswith('.asm')
