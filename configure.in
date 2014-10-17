@@ -7083,6 +7083,19 @@ else
   fi
 fi
 
+dnl We re-declare malloc_usable_size; make sure we match the argument type.
+AC_MSG_CHECKING([if malloc_usable_size takes a const ptr])
+AC_TRY_COMPILE([malloc.h],
+               [extern size_t malloc_usable_size(const void *);],
+               [ result="no" ], [ result="yes" ])
+AC_MSG_RESULT([$result])
+if test "$result" = "yes"; then
+    AC_DEFINE(CONST_USABLE_SIZE)
+fi
+
+
+
+
 dnl ========================================================
 dnl = Enable dynamic replacement of malloc implementation
 dnl ========================================================

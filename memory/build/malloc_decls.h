@@ -15,10 +15,10 @@
 
 #  include "jemalloc_types.h"
 
-#  if defined(__linux__) && (!defined(MOZ_MEMORY_ANDROID) || ANDROID_VERSION < 19)
-typedef void * usable_ptr_t;
-#  else
+#  ifdef CONST_USABLE_PTR
 typedef const void * usable_ptr_t;
+#  else
+typedef void * usable_ptr_t;
 #  endif
 
 #  define MALLOC_FUNCS_MALLOC 1
