@@ -17,7 +17,9 @@
 #  define USE_MSC_INTRIN
 # endif
 # include <math.h>
-# define snprintf _snprintf
+# if _MSC_VER < 1900
+#  define snprintf _snprintf
+# endif
 #endif
 
 #ifdef __cplusplus
