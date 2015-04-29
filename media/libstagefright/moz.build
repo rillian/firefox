@@ -110,6 +110,7 @@ UNIFIED_SOURCES += [
 
 if CONFIG['RUSTC']:
     SOURCES += ['binding/hello.rs',]
+    SOURCES += ['binding/TestRust.cpp',]
 
 LOCAL_INCLUDES += [
     'binding/include',
