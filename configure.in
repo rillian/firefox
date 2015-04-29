@@ -420,6 +420,8 @@ MOZ_TOOL_VARIABLES
 
 MOZ_CHECK_COMPILER_WRAPPER
 
+AC_CHECK_PROGS(RUSTC, rustc)
+
 dnl ========================================================
 dnl Check for MacOS deployment target version
 dnl ========================================================
