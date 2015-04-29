@@ -108,6 +108,9 @@ UNIFIED_SOURCES += [
     'system/core/libutils/Unicode.cpp',
 ]
 
+if CONFIG['RUSTC']:
+    SOURCES += ['binding/hello.rs',]
+
 LOCAL_INCLUDES += [
     'binding/include',
     'frameworks/av/include',
