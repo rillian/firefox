@@ -1,0 +1,116 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+implementation: taskgraph.task.transform:TransformTask
+
+transforms:
+   - taskgraph.transforms.job:transforms
+   - taskgraph.transforms.task:transforms
+
+job-defaults:
+    attributes:
+        build_platform: bootstrap
+        build_type: opt
+    treeherder:
+        kind: build
+        tier: 2
+        platform: bootstrap/opt
+    worker-type: aws-provisioner-v1/desktop-test-xlarge
+    worker:
+        implementation: docker-worker
+        max-run-time: 3600
+    run:
+        using: bootstrap
+
+jobs:
+    bootstrap/arch:
+        description: "Arch Linux Bootstrap Support"
+        treeherder:
+            symbol: "Arch"
+        worker:
+            docker-image: "base/archlinux:latest"
+        run:
+            system-setup: >
+                pacman -S --refresh
+                && pacman -S --noconfirm archlinux-keyring
+                && pacman -S -u --noconfirm
+                && pacman-db-upgrade
+                && pacman -S --noconfirm ca-certificates-mozilla
+                && pacman -S --noconfirm python2 wget
+            python: python2.7
+
+    bootstrap/centos6:
+        description: "CentOS 6 Bootstrap Support"
+        treeherder:
+            symbol: "CentOS6"
+        worker:
+            docker-image: "centos:centos6"
+        run:
+            system-setup: "yum update -y && yum install -y python-devel wget which"
+            python: python
+
+    bootstrap/centos7:
+        description: "CentOS 7 Bootstrap Support"
+        treeherder:
+            symbol: "CentOS7"
+        worker:
+            docker-image: "centos:centos7"
+        run:
+            system-setup: "yum update -y && yum install -y python-devel wget which"
+            python: python
+
+    bootstrap/debian8:
+        description: "Debian 8 Bootstrap Support"
+        treeherder:
+            symbol: "Debian8"
+        worker:
+            docker-image: "debian:jessie"
+        run:
+            system-setup: "apt-get update && apt-get -y install python2.7 wget"
+            python: python2.7
+
+    bootstrap/fedora22:
+        description: "Fedora 22 Bootstrap Support"
+        treeherder:
+            symbol: "Fedora22"
+        worker:
+            docker-image: "fedora:22"
+        run:
+            system-setup: "dnf update -y && dnf install -y unzip wget zip"
+            python: python
+
+    bootstrap/fedora23:
+        description: "Fedora 23 Bootstrap Support"
+        treeherder:
+            symbol: "Fedora23"
+        worker:
+            docker-image: "fedora:23"
+        run:
+            system-setup: "dnf update -y && dnf install -y python2 redhat-rpm-config wget"
+            python: python2.7
+
+    bootstrap/gentoo:
+        description: "Gentoo Bootstrap Support"
+        treeherder:
+            symbol: "Gentoo"
+        worker:
+            docker-image: "gentoo/stage3-amd64:latest"
+        run:
+            system-setup: >
+                emerge --sync --quiet
+                && echo ">=media-libs/libpng-1.6.19 apng" >> /etc/portage/package.use/firefox
+                && echo ">=dev-lang/python-2.7.10-r1:2.7 sqlite" >> /etc/portage/package.use/firefox
+                && echo ">=x11-libs/cairo-1.14.2 X" >> /etc/portage/package.use/firefox
+                && emerge -UD world
+            python: python2.7
+
+    bootstrap/ubuntu1404:
+        description: "Ubuntu 16.04 Bootstrap Support"
+        treeherder:
+            symbol: "Ubuntu16.04"
+        worker:
+            docker-image: "ubuntu:16.04"
+        run:
+            system-setup: "apt-get update && apt-get -y install python2.7 wget"
+            python: python2.7
