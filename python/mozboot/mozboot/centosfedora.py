@@ -107,9 +107,9 @@ class CentOSFedoraBootstrapper(BaseBootstrapper):
         self.dnf_install(*self.browser_packages)
 
         if self.distro in ('CentOS', 'CentOS Linux'):
-            yasm = 'http://pkgs.repoforge.org/yasm/yasm-1.1.0-1.el6.rf.i686.rpm'
+            yasm = 'ftp://rpmfind.net/linux/dag/redhat/el6/en/i386/dag/RPMS/yasm-1.1.0-1.el6.rf.i686.rpm'
             if platform.architecture()[0] == '64bit':
-                yasm = 'http://pkgs.repoforge.org/yasm/yasm-1.1.0-1.el6.rf.x86_64.rpm'
+                yasm = 'ftp://rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/yasm-1.1.0-1.el6.rf.x86_64.rpm'
 
             self.run_as_root(['rpm', '-ivh', yasm])
 
