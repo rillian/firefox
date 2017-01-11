@@ -39,6 +39,7 @@ class MozillaBuildBootstrapper(BaseBootstrapper):
                 f.write('    PATH="$WIN_HOME/.cargo/bin:$PATH"\n')
                 f.write('    export PATH\n')
                 f.write('fi')
+            self.run(['rustup', 'target', 'add', 'i686-pc-windows-msvc'])
         finally:
             try:
                 os.remove(rustup_init)
