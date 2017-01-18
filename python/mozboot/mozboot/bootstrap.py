@@ -55,8 +55,7 @@ But don't worry! You can always switch configurations later.
 You can learn more about Artifact mode builds at
 https://developer.mozilla.org/en-US/docs/Artifact_builds.
 
-Your choice:
-'''
+Your choice: '''
 
 APPLICATIONS_LIST=[
     ('Firefox for Desktop Artifact Mode', 'browser_artifact_mode'),
@@ -230,6 +229,7 @@ class Bootstrapper(object):
         hg_installed, hg_modern = self.instance.ensure_mercurial_modern()
         self.instance.ensure_python_modern()
         self.instance.ensure_rust_modern()
+        print("")
 
         # The state directory code is largely duplicated from mach_bootstrap.py.
         # We can't easily import mach_bootstrap.py because the bootstrapper may
