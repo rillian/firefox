@@ -20,3 +20,5 @@ DIRS += [
 
 if not CONFIG['JS_STANDALONE']:
     TEST_DIRS += ['tests']
+
+USE_LIBS += ['rustifoo']
