@@ -1,0 +1,7 @@
+[package]
+name = "rustifoo"
+version = "0.1.0"
+authors = ["Ralph Giles <giles@mozilla.com>"]
+
+[dependencies]
+lazy_static = "0.2.8"
