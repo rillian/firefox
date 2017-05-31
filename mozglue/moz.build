@@ -16,6 +16,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'android':
 DIRS += [
   'build',
   'misc',
+  'rustifoo',
 ]
 
 if not CONFIG['JS_STANDALONE']:

@@ -4,4 +4,32 @@ version = "0.1.0"
 authors = ["Ralph Giles <giles@mozilla.com>"]
 
 [dependencies]
-lazy_static = "0.2.8"
+lazy_static = "0.2"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+test = false
+doctest = false
+bench = false
+doc = false
+plugin = false
+harness = false
+
+# Explicitly specify what our profiles use.
+[profile.dev]
+opt-level = 1
+debug = true
+rpath = false
+lto = false
+debug-assertions = true
+codegen-units = 4
+panic = "abort"
+
+[profile.release]
+opt-level = 2
+debug = true
+rpath = false
+lto = true
+debug-assertions = false
+panic = "abort"
