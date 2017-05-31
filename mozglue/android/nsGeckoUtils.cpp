@@ -11,12 +11,15 @@
 #include "Zip.h"
 #include "mozilla/RefPtr.h"
 
+// Test rust code inclusion.
+extern "C" char* rustifoo_msg();
+
 extern "C"
 __attribute__ ((visibility("default")))
 void MOZ_JNICALL
 Java_org_mozilla_gecko_mozglue_GeckoLoader_putenv(JNIEnv *jenv, jclass, jstring map)
 {
-    const char* str;
+    const char* str = rustifoo_msg();
     // XXX: java doesn't give us true UTF8, we should figure out something
     // better to do here
     str = jenv->GetStringUTFChars(map, nullptr);
