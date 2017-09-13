@@ -90,20 +90,23 @@ AV1_COMMON_SRCS-yes += common/warped_motion.h
 AV1_COMMON_SRCS-yes += common/warped_motion.c
 endif
 ifeq ($(CONFIG_CDEF),yes)
+ifeq ($(CONFIG_CDEF_SINGLEPASS),yes)
+AV1_COMMON_SRCS-$(HAVE_AVX2) += common/cdef_block_avx2.c
+else
 AV1_COMMON_SRCS-yes += common/clpf.c
 AV1_COMMON_SRCS-yes += common/clpf_simd.h
-AV1_COMMON_SRCS-yes += common/cdef_simd.h
 AV1_COMMON_SRCS-$(HAVE_SSE2) += common/clpf_sse2.c
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/clpf_ssse3.c
 AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/clpf_sse4.c
 AV1_COMMON_SRCS-$(HAVE_NEON) += common/clpf_neon.c
-AV1_COMMON_SRCS-$(HAVE_SSE2) += common/od_dering_sse2.c
-AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/od_dering_ssse3.c
-AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/od_dering_sse4.c
-AV1_COMMON_SRCS-$(HAVE_NEON) += common/od_dering_neon.c
-AV1_COMMON_SRCS-yes += common/od_dering.c
-AV1_COMMON_SRCS-yes += common/od_dering.h
-AV1_COMMON_SRCS-yes += common/od_dering_simd.h
+endif
+AV1_COMMON_SRCS-$(HAVE_SSE2) += common/cdef_block_sse2.c
+AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/cdef_block_ssse3.c
+AV1_COMMON_SRCS-$(HAVE_SSE4_1) += common/cdef_block_sse4.c
+AV1_COMMON_SRCS-$(HAVE_NEON) += common/cdef_block_neon.c
+AV1_COMMON_SRCS-yes += common/cdef_block.c
+AV1_COMMON_SRCS-yes += common/cdef_block.h
+AV1_COMMON_SRCS-yes += common/cdef_block_simd.h
 AV1_COMMON_SRCS-yes += common/cdef.c
 AV1_COMMON_SRCS-yes += common/cdef.h
 endif
@@ -113,6 +116,10 @@ AV1_COMMON_SRCS-yes += common/odintrin.h
 ifeq ($(CONFIG_CFL),yes)
 AV1_COMMON_SRCS-yes += common/cfl.h
 AV1_COMMON_SRCS-yes += common/cfl.c
+endif
+
+ifeq ($(CONFIG_MOTION_VAR),yes)
+AV1_COMMON_SRCS-yes += common/obmc.h
 endif
 
 ifeq ($(CONFIG_PVQ),yes)
@@ -183,6 +190,16 @@ AV1_COMMON_SRCS-$(HAVE_SSE2) += common/x86/convolve_2d_sse2.c
 ifeq ($(CONFIG_HIGHBITDEPTH),yes)
 AV1_COMMON_SRCS-$(HAVE_SSSE3) += common/x86/highbd_convolve_2d_ssse3.c
 endif
+endif
+
+
+ifeq ($(CONFIG_Q_ADAPT_PROBS),yes)
+AV1_COMMON_SRCS-yes += common/token_cdfs.h
+endif
+
+ifeq ($(CONFIG_NCOBMC_ADAPT_WEIGHT),yes)
+AV1_COMMON_SRCS-yes += common/ncobmc_kernels.h
+AV1_COMMON_SRCS-yes += common/ncobmc_kernels.c
 endif
 
 $(eval $(call rtcd_h_template,av1_rtcd,av1/common/av1_rtcd_defs.pl))

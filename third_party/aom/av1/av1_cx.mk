@@ -63,6 +63,7 @@ AV1_CX_SRCS-yes += encoder/lookahead.c
 AV1_CX_SRCS-yes += encoder/lookahead.h
 AV1_CX_SRCS-yes += encoder/mcomp.h
 AV1_CX_SRCS-yes += encoder/encoder.h
+AV1_CX_SRCS-yes += encoder/random.h
 AV1_CX_SRCS-yes += encoder/ratectrl.h
 ifeq ($(CONFIG_XIPHRC),yes)
 AV1_CX_SRCS-yes += encoder/ratectrl_xiph.h
@@ -73,10 +74,9 @@ AV1_CX_SRCS-yes += encoder/tokenize.h
 AV1_CX_SRCS-yes += encoder/treewriter.h
 AV1_CX_SRCS-yes += encoder/mcomp.c
 AV1_CX_SRCS-yes += encoder/encoder.c
-ifeq ($(CONFIG_PALETTE),yes)
+AV1_CX_SRCS-yes += encoder/k_means_template.h
 AV1_CX_SRCS-yes += encoder/palette.h
 AV1_CX_SRCS-yes += encoder/palette.c
-endif
 AV1_CX_SRCS-yes += encoder/picklpf.c
 AV1_CX_SRCS-yes += encoder/picklpf.h
 AV1_CX_SRCS-$(CONFIG_LOOP_RESTORATION) += encoder/pickrst.c
@@ -107,6 +107,14 @@ AV1_CX_SRCS-yes += encoder/temporal_filter.c
 AV1_CX_SRCS-yes += encoder/temporal_filter.h
 AV1_CX_SRCS-yes += encoder/mbgraph.c
 AV1_CX_SRCS-yes += encoder/mbgraph.h
+AV1_CX_SRCS-yes += encoder/hash.c
+AV1_CX_SRCS-yes += encoder/hash.h
+ifeq ($(CONFIG_HASH_ME),yes)
+AV1_CX_SRCS-yes += ../third_party/vector/vector.h
+AV1_CX_SRCS-yes += ../third_party/vector/vector.c
+AV1_CX_SRCS-yes += encoder/hash_motion.c
+AV1_CX_SRCS-yes += encoder/hash_motion.h
+endif
 ifeq ($(CONFIG_CDEF),yes)
 AV1_CX_SRCS-yes += encoder/pickcdef.c
 endif

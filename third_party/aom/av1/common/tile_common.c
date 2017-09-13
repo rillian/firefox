@@ -103,16 +103,25 @@ void av1_setup_frame_boundary_info(const AV1_COMMON *const cm) {
   }
 }
 
+int get_tile_size(int frame_mi_size, int log2_tile_num) {
+  // Round the frame up to a whole number of max superblocks
+  frame_mi_size = ALIGN_POWER_OF_TWO(frame_mi_size, MAX_MIB_SIZE_LOG2);
+  // Divide by the number of tiles, rounding up to the multiple of the max
+  // superblock size. To do this, shift right (and round up) to get the number
+  // of super-blocks and then shift left again to convert it to mi units.
+  const int shift = log2_tile_num + MAX_MIB_SIZE_LOG2;
+  const int round = (1 << shift) - 1;
+  return ((frame_mi_size + round) >> shift) << MAX_MIB_SIZE_LOG2;
+}
+
+#if CONFIG_LOOPFILTERING_ACROSS_TILES
 void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
                                          const TileInfo *const tile_info) {
-  int lpf_across_tiles_enabled = 1;
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
-  lpf_across_tiles_enabled = cm->loop_filter_across_tiles_enabled;
-#endif
-  if ((cm->tile_cols * cm->tile_rows > 1) && (!lpf_across_tiles_enabled)) {
+  if (cm->tile_cols * cm->tile_rows > 1) {
     const int mi_row = tile_info->mi_row_start;
     const int mi_col = tile_info->mi_col_start;
     MODE_INFO *const mi_start = cm->mi + mi_row * cm->mi_stride + mi_col;
+    assert(mi_start < cm->mip + cm->mi_alloc_size);
     MODE_INFO *mi = 0;
     const int row_diff = tile_info->mi_row_end - tile_info->mi_row_start;
     const int col_diff = tile_info->mi_col_end - tile_info->mi_col_start;
@@ -136,6 +145,10 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
     }
 
     mi = mi_start + (row_diff - 1) * cm->mi_stride;
+
+    // explicit bounds checking
+    assert(mi + col_diff <= cm->mip + cm->mi_alloc_size);
+
     for (col = 0; col < col_diff; ++col) {
       mi->mbmi.boundary_info |= TILE_BOTTOM_BOUNDARY;
       mi += 1;
@@ -149,7 +162,6 @@ void av1_setup_across_tile_boundary_info(const AV1_COMMON *const cm,
   }
 }
 
-#if CONFIG_LOOPFILTERING_ACROSS_TILES
 int av1_disable_loopfilter_on_tile_boundary(const struct AV1Common *cm) {
   return (!cm->loop_filter_across_tiles_enabled &&
           (cm->tile_cols * cm->tile_rows > 1));

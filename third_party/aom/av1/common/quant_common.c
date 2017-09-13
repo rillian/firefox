@@ -368,12 +368,17 @@ void aom_qm_init(AV1_COMMON *cm) {
         current = 0;
         for (t = 0; t < TX_SIZES_ALL; ++t) {
           size = tx_size_2d[t];
-          cm->gqmatrix[q][c][f][t] = &wt_matrix_ref[AOMMIN(
-              NUM_QM_LEVELS - 1, f == 0 ? q + DEFAULT_QM_INTER_OFFSET : q)][c]
-                                                   [current];
-          cm->giqmatrix[q][c][f][t] = &iwt_matrix_ref[AOMMIN(
-              NUM_QM_LEVELS - 1, f == 0 ? q + DEFAULT_QM_INTER_OFFSET : q)][c]
+          if (q == NUM_QM_LEVELS - 1) {
+            cm->gqmatrix[q][c][f][t] = NULL;
+            cm->giqmatrix[q][c][f][t] = NULL;
+          } else {
+            cm->gqmatrix[q][c][f][t] = &wt_matrix_ref[AOMMIN(
+                NUM_QM_LEVELS - 1, f == 0 ? q + DEFAULT_QM_INTER_OFFSET : q)][c]
                                                      [current];
+            cm->giqmatrix[q][c][f][t] = &iwt_matrix_ref[AOMMIN(
+                NUM_QM_LEVELS - 1, f == 0 ? q + DEFAULT_QM_INTER_OFFSET : q)][c]
+                                                       [current];
+          }
           current += size;
         }
       }
@@ -14039,7 +14044,7 @@ static uint16_t wt_matrix_ref[NUM_QM_LEVELS][2][QM_TOTAL_SIZE] = {
 };
 #endif
 
-#if CONFIG_PVQ || CONFIG_DAALA_DIST
+#if CONFIG_PVQ
 /* Quantization matrices for 8x8. For other block sizes, we currently just do
    resampling. */
 /* Flat quantization, i.e. optimize for PSNR. */

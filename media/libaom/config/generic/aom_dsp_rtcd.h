@@ -20,6 +20,9 @@
 extern "C" {
 #endif
 
+void aom_blend_a64_d32_mask_c(int32_t *dst, uint32_t dst_stride, const int32_t *src0, uint32_t src0_stride, const int32_t *src1, uint32_t src1_stride, const uint8_t *mask, uint32_t mask_stride, int h, int w, int suby, int subx);
+#define aom_blend_a64_d32_mask aom_blend_a64_d32_mask_c
+
 void aom_blend_a64_hmask_c(uint8_t *dst, uint32_t dst_stride, const uint8_t *src0, uint32_t src0_stride, const uint8_t *src1, uint32_t src1_stride, const uint8_t *mask, int h, int w);
 #define aom_blend_a64_hmask aom_blend_a64_hmask_c
 

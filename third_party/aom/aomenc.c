@@ -377,10 +377,16 @@ static const arg_def_t arnr_maxframes =
 static const arg_def_t arnr_strength =
     ARG_DEF(NULL, "arnr-strength", 1, "AltRef filter strength (0..6)");
 static const struct arg_enum_list tuning_enum[] = {
-  { "psnr", AOM_TUNE_PSNR }, { "ssim", AOM_TUNE_SSIM }, { NULL, 0 }
+  { "psnr", AOM_TUNE_PSNR },
+  { "ssim", AOM_TUNE_SSIM },
+#ifdef CONFIG_DIST_8X8
+  { "cdef-dist", AOM_TUNE_CDEF_DIST },
+  { "daala-dist", AOM_TUNE_DAALA_DIST },
+#endif
+  { NULL, 0 }
 };
-static const arg_def_t tune_ssim =
-    ARG_DEF_ENUM(NULL, "tune", 1, "Material to favor", tuning_enum);
+static const arg_def_t tune_metric =
+    ARG_DEF_ENUM(NULL, "tune", 1, "Distortion metric tuned with", tuning_enum);
 static const arg_def_t cq_level =
     ARG_DEF(NULL, "cq-level", 1, "Constant/Constrained Quality level");
 static const arg_def_t max_intra_rate_pct =
@@ -418,6 +424,11 @@ static const arg_def_t qm_min = ARG_DEF(
 static const arg_def_t qm_max = ARG_DEF(
     NULL, "qm-max", 1, "Max quant matrix flatness (0..15), default is 16");
 #endif
+#if CONFIG_DIST_8X8
+static const arg_def_t enable_dist_8x8 =
+    ARG_DEF(NULL, "enable-dist-8x8", 1,
+            "Enable dist-8x8 (0: false (default), 1: true)");
+#endif  // CONFIG_DIST_8X8
 static const arg_def_t num_tg = ARG_DEF(
     NULL, "num-tile-groups", 1, "Maximum number of tile groups, default is 1");
 static const arg_def_t mtu_size =
@@ -463,29 +474,17 @@ static const arg_def_t max_gf_interval = ARG_DEF(
     "max gf/arf frame interval (default 0, indicating in-built behavior)");
 
 static const struct arg_enum_list color_space_enum[] = {
-  { "unknown", AOM_CS_UNKNOWN },
-  { "bt601", AOM_CS_BT_601 },
-  { "bt709", AOM_CS_BT_709 },
-  { "smpte170", AOM_CS_SMPTE_170 },
-  { "smpte240", AOM_CS_SMPTE_240 },
-#if CONFIG_COLORSPACE_HEADERS
-  { "bt2020ncl", AOM_CS_BT_2020_NCL },
-  { "bt2020cl", AOM_CS_BT_2020_CL },
-  { "sRGB", AOM_CS_SRGB },
-  { "ICtCp", AOM_CS_ICTCP },
-#else
-  { "bt2020", AOM_CS_BT_2020 },
-  { "reserved", AOM_CS_RESERVED },
-  { "sRGB", AOM_CS_SRGB },
-#endif
-  { NULL, 0 }
+  { "unknown", AOM_CS_UNKNOWN },     { "bt601", AOM_CS_BT_601 },
+  { "bt709", AOM_CS_BT_709 },        { "smpte170", AOM_CS_SMPTE_170 },
+  { "smpte240", AOM_CS_SMPTE_240 },  { "bt2020ncl", AOM_CS_BT_2020_NCL },
+  { "bt2020cl", AOM_CS_BT_2020_CL }, { "sRGB", AOM_CS_SRGB },
+  { "ICtCp", AOM_CS_ICTCP },         { NULL, 0 }
 };
 
 static const arg_def_t input_color_space =
-    ARG_DEF_ENUM(NULL, "color-space", 1, "The color space of input content:",
-                 color_space_enum);
+    ARG_DEF_ENUM(NULL, "color-space", 1,
+                 "The color space of input content:", color_space_enum);
 
-#if CONFIG_COLORSPACE_HEADERS
 static const struct arg_enum_list transfer_function_enum[] = {
   { "unknown", AOM_TF_UNKNOWN },
   { "bt709", AOM_TF_BT_709 },
@@ -495,8 +494,8 @@ static const struct arg_enum_list transfer_function_enum[] = {
 };
 
 static const arg_def_t input_transfer_function = ARG_DEF_ENUM(
-    NULL, "transfer-function", 1, "The transfer function of input content:",
-    transfer_function_enum);
+    NULL, "transfer-function", 1,
+    "The transfer function of input content:", transfer_function_enum);
 
 static const struct arg_enum_list chroma_sample_position_enum[] = {
   { "unknown", AOM_CSP_UNKNOWN },
@@ -509,7 +508,6 @@ static const arg_def_t input_chroma_sample_position =
     ARG_DEF_ENUM(NULL, "chroma-sample-position", 1,
                  "The chroma sample position when chroma 4:2:0 is signaled:",
                  chroma_sample_position_enum);
-#endif
 
 static const struct arg_enum_list tune_content_enum[] = {
   { "default", AOM_CONTENT_DEFAULT },
@@ -550,7 +548,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif  // CONFIG_LOOPFILTERING_ACROSS_TILES
                                        &arnr_maxframes,
                                        &arnr_strength,
-                                       &tune_ssim,
+                                       &tune_metric,
                                        &cq_level,
                                        &max_intra_rate_pct,
                                        &max_inter_rate_pct,
@@ -561,6 +559,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &qm_min,
                                        &qm_max,
 #endif
+#if CONFIG_DIST_8X8
+                                       &enable_dist_8x8,
+#endif
                                        &frame_parallel_decoding,
                                        &aq_mode,
 #if CONFIG_EXT_DELTA_Q
@@ -570,10 +571,8 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &noise_sens,
                                        &tune_content,
                                        &input_color_space,
-#if CONFIG_COLORSPACE_HEADERS
                                        &input_transfer_function,
                                        &input_chroma_sample_position,
-#endif
                                        &min_gf_interval,
                                        &max_gf_interval,
 #if CONFIG_EXT_PARTITION
@@ -617,6 +616,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_QM_MIN,
                                         AV1E_SET_QM_MAX,
 #endif
+#if CONFIG_DIST_8X8
+                                        AV1E_SET_ENABLE_DIST_8X8,
+#endif
                                         AV1E_SET_FRAME_PARALLEL_DECODING,
                                         AV1E_SET_AQ_MODE,
 #if CONFIG_EXT_DELTA_Q
@@ -626,10 +628,8 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_NOISE_SENSITIVITY,
                                         AV1E_SET_TUNE_CONTENT,
                                         AV1E_SET_COLOR_SPACE,
-#if CONFIG_COLORSPACE_HEADERS
                                         AV1E_SET_TRANSFER_FUNCTION,
                                         AV1E_SET_CHROMA_SAMPLE_POSITION,
-#endif
                                         AV1E_SET_MIN_GF_INTERVAL,
                                         AV1E_SET_MAX_GF_INTERVAL,
 #if CONFIG_EXT_PARTITION
@@ -1638,50 +1638,35 @@ static float usec_to_fps(uint64_t usec, unsigned int frames) {
 }
 
 static void test_decode(struct stream_state *stream,
-                        enum TestDecodeFatality fatal,
-                        const AvxInterface *codec) {
+                        enum TestDecodeFatality fatal) {
   aom_image_t enc_img, dec_img;
 
   if (stream->mismatch_seen) return;
 
   /* Get the internal reference frame */
-  if (strcmp(codec->name, "vp8") == 0) {
-    struct aom_ref_frame ref_enc, ref_dec;
-    const unsigned int frame_width = (stream->config.cfg.g_w + 15) & ~15;
-    const unsigned int frame_height = (stream->config.cfg.g_h + 15) & ~15;
-    aom_img_alloc(&ref_enc.img, AOM_IMG_FMT_I420, frame_width, frame_height, 1);
-    enc_img = ref_enc.img;
-    aom_img_alloc(&ref_dec.img, AOM_IMG_FMT_I420, frame_width, frame_height, 1);
-    dec_img = ref_dec.img;
-
-    ref_enc.frame_type = AOM_LAST_FRAME;
-    ref_dec.frame_type = AOM_LAST_FRAME;
-    aom_codec_control(&stream->encoder, AOM_COPY_REFERENCE, &ref_enc);
-    aom_codec_control(&stream->decoder, AOM_COPY_REFERENCE, &ref_dec);
-  } else {
-    aom_codec_control(&stream->encoder, AV1_GET_NEW_FRAME_IMAGE, &enc_img);
-    aom_codec_control(&stream->decoder, AV1_GET_NEW_FRAME_IMAGE, &dec_img);
+  aom_codec_control(&stream->encoder, AV1_GET_NEW_FRAME_IMAGE, &enc_img);
+  aom_codec_control(&stream->decoder, AV1_GET_NEW_FRAME_IMAGE, &dec_img);
 
 #if CONFIG_HIGHBITDEPTH
-    if ((enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) !=
-        (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH)) {
-      if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-        aom_image_t enc_hbd_img;
-        aom_img_alloc(&enc_hbd_img, enc_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
-                      enc_img.d_w, enc_img.d_h, 16);
-        aom_img_truncate_16_to_8(&enc_hbd_img, &enc_img);
-        enc_img = enc_hbd_img;
-      }
-      if (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
-        aom_image_t dec_hbd_img;
-        aom_img_alloc(&dec_hbd_img, dec_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
-                      dec_img.d_w, dec_img.d_h, 16);
-        aom_img_truncate_16_to_8(&dec_hbd_img, &dec_img);
-        dec_img = dec_hbd_img;
-      }
+  if ((enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) !=
+      (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH)) {
+    if (enc_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
+      aom_image_t enc_hbd_img;
+      aom_img_alloc(&enc_hbd_img, enc_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
+                    enc_img.d_w, enc_img.d_h, 16);
+      aom_img_truncate_16_to_8(&enc_hbd_img, &enc_img);
+      enc_img = enc_hbd_img;
     }
-#endif
+    if (dec_img.fmt & AOM_IMG_FMT_HIGHBITDEPTH) {
+      aom_image_t dec_hbd_img;
+      aom_img_alloc(&dec_hbd_img, dec_img.fmt - AOM_IMG_FMT_HIGHBITDEPTH,
+                    dec_img.d_w, dec_img.d_h, 16);
+      aom_img_truncate_16_to_8(&dec_hbd_img, &dec_img);
+      dec_img = dec_hbd_img;
+    }
   }
+#endif
+
   ctx_exit_on_error(&stream->encoder, "Failed to get encoder reference frame");
   ctx_exit_on_error(&stream->decoder, "Failed to get decoder reference frame");
 
@@ -2103,7 +2088,7 @@ int main(int argc, const char **argv_) {
 
         if (got_data && global.test_decode != TEST_DECODE_OFF) {
           FOREACH_STREAM(stream, streams) {
-            test_decode(stream, global.test_decode, global.codec);
+            test_decode(stream, global.test_decode);
           }
         }
       }

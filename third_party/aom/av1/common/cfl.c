@@ -21,10 +21,14 @@ void cfl_init(CFL_CTX *cfl, AV1_COMMON *cm) {
     aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                        "Only 4:4:4 and 4:2:0 are currently supported by CfL");
   }
-  memset(&cfl->y_pix, 0, sizeof(uint8_t) * MAX_SB_SQUARE);
+  memset(&cfl->y_pix, 0, sizeof(cfl->y_pix));
   cfl->subsampling_x = cm->subsampling_x;
   cfl->subsampling_y = cm->subsampling_y;
   cfl->are_parameters_computed = 0;
+  cfl->store_y = 0;
+#if CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
+  cfl_clear_sub8x8_val(cfl);
+#endif  // CONFIG_CHROMA_SUB8X8 && CONFIG_DEBUG
 }
 
 // Load from the CfL pixel buffer into output
@@ -227,17 +231,14 @@ static void cfl_compute_averages(CFL_CTX *cfl, TX_SIZE tx_size) {
   assert(a <= MAX_NUM_TXB);
 }
 
-static INLINE int cfl_idx_to_alpha(int alpha_idx, CFL_SIGN_TYPE alpha_sign,
+static INLINE int cfl_idx_to_alpha(int alpha_idx, int joint_sign,
                                    CFL_PRED_TYPE pred_type) {
-  const int mag_idx = cfl_alpha_codes[alpha_idx][pred_type];
-  const int abs_alpha_q3 = cfl_alpha_mags_q3[mag_idx];
-  if (alpha_sign == CFL_SIGN_POS) {
-    return abs_alpha_q3;
-  } else {
-    assert(abs_alpha_q3 != 0);
-    assert(cfl_alpha_mags_q3[mag_idx + 1] == -abs_alpha_q3);
-    return -abs_alpha_q3;
-  }
+  const int alpha_sign = (pred_type == CFL_PRED_U) ? CFL_SIGN_U(joint_sign)
+                                                   : CFL_SIGN_V(joint_sign);
+  if (alpha_sign == CFL_SIGN_ZERO) return 0;
+  const int abs_alpha_q3 =
+      (pred_type == CFL_PRED_U) ? CFL_IDX_U(alpha_idx) : CFL_IDX_V(alpha_idx);
+  return (alpha_sign == CFL_SIGN_POS) ? abs_alpha_q3 + 1 : -abs_alpha_q3 - 1;
 }
 
 // Predict the current transform block using CfL.
@@ -255,8 +256,8 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
   const uint8_t *y_pix = cfl->y_down_pix;
 
   const int dc_pred = cfl->dc_pred[plane - 1];
-  const int alpha_q3 = cfl_idx_to_alpha(
-      mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs[plane - 1], plane - 1);
+  const int alpha_q3 =
+      cfl_idx_to_alpha(mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, plane - 1);
 
   const int avg_row =
       (row << tx_size_wide_log2[0]) >> tx_size_wide_log2[tx_size];
@@ -313,10 +314,21 @@ void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride, int row,
       assert(col == 0);
       col++;
     }
+#if CONFIG_DEBUG
+    for (int unit_r = 0; unit_r < tx_size_high_unit[tx_size]; unit_r++) {
+      assert(row + unit_r < 2);
+      int row_off = (row + unit_r) * 2;
+      for (int unit_c = 0; unit_c < tx_size_wide_unit[tx_size]; unit_c++) {
+        assert(col + unit_c < 2);
+        assert(cfl->sub8x8_val[row_off + col + unit_c] == 0);
+        cfl->sub8x8_val[row_off + col + unit_c] = 1;
+      }
+    }
+#endif  // CONFIG_DEBUG
   }
 #else
   (void)bsize;
-#endif
+#endif  // CONFIG_CHROMA_SUB8X8
 
   // Invalidate current parameters
   cfl->are_parameters_computed = 0;
@@ -359,6 +371,20 @@ void cfl_compute_parameters(MACROBLOCKD *const xd, TX_SIZE tx_size) {
 #if CONFIG_CHROMA_SUB8X8
   const BLOCK_SIZE plane_bsize = AOMMAX(
       BLOCK_4X4, get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]));
+#if CONFIG_DEBUG
+  if (mbmi->sb_type < BLOCK_8X8) {
+    const int val_high =
+        block_size_high[BLOCK_8X8] / block_size_high[BLOCK_4X4];
+    const int val_wide =
+        block_size_wide[BLOCK_8X8] / block_size_wide[BLOCK_4X4];
+    for (int val_r = 0; val_r < val_high; val_r++) {
+      for (int val_c = 0; val_c < val_wide; val_c++) {
+        assert(cfl->sub8x8_val[(val_r * val_wide) + val_c] == 1);
+      }
+    }
+    cfl_clear_sub8x8_val(cfl);
+  }
+#endif  // CONFIG_DEBUG
 #else
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(mbmi->sb_type, &xd->plane[AOM_PLANE_U]);

@@ -40,7 +40,6 @@ extern "C" {
 #define INTER_COMPOUND_OFFSET(mode) ((mode)-NEAREST_NEARESTMV)
 #endif  // CONFIG_EXT_INTER
 
-#if CONFIG_PALETTE
 // Number of possible contexts for a color index.
 // As can be seen from av1_get_palette_color_index_context(), the possible
 // contexts are (2,0,0), (2,2,1), (3,2,0), (4,1,0), (5,0,0). These are mapped to
@@ -70,7 +69,6 @@ extern "C" {
 #define PALETTE_UV_MODE_CONTEXTS 2
 
 #define PALETTE_MAX_BLOCK_SIZE (64 * 64)
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_INTRABC
 #define INTRABC_PROB_DEFAULT 192
@@ -98,10 +96,8 @@ typedef struct frame_contexts {
 #else
   aom_prob partition_prob[PARTITION_CONTEXTS][PARTITION_TYPES - 1];
 #endif
-  av1_coeff_probs_model coef_probs[TX_SIZES][PLANE_TYPES];
   coeff_cdf_model coef_tail_cdfs[TX_SIZES][PLANE_TYPES];
   coeff_cdf_model coef_head_cdfs[TX_SIZES][PLANE_TYPES];
-  aom_prob blockzero_probs[TX_SIZES][PLANE_TYPES][REF_TYPES][BLOCKZ_CONTEXTS];
   aom_prob switchable_interp_prob[SWITCHABLE_FILTER_CONTEXTS]
                                  [SWITCHABLE_FILTERS - 1];
 #if CONFIG_ADAPT_SCAN
@@ -179,6 +175,26 @@ typedef struct frame_contexts {
   aom_prob coeff_base[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                      [COEFF_BASE_CONTEXTS];
   aom_prob coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS];
+#if BR_NODE
+  aom_prob coeff_br[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS];
+#endif
+
+#if LV_MAP_PROB
+  aom_cdf_prob txb_skip_cdf[TX_SIZES][TXB_SKIP_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob nz_map_cdf[TX_SIZES][PLANE_TYPES][SIG_COEF_CONTEXTS]
+                         [CDF_SIZE(2)];
+  aom_cdf_prob eob_flag_cdf[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS]
+                           [CDF_SIZE(2)];
+  aom_cdf_prob dc_sign_cdf[PLANE_TYPES][DC_SIGN_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob coeff_base_cdf[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
+                             [COEFF_BASE_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob coeff_lps_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
+                            [CDF_SIZE(2)];
+#if BR_NODE
+  aom_cdf_prob coeff_br_cdf[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS]
+                           [LEVEL_CONTEXTS][CDF_SIZE(2)];
+#endif
+#endif  // LV_MAP_PROB
 #endif
 
   aom_prob newmv_prob[NEWMV_MODE_CONTEXTS];
@@ -204,7 +220,9 @@ typedef struct frame_contexts {
       INTER_SINGLEREF_COMP_MODES)];
 #endif  // CONFIG_COMPOUND_SINGLEREF
   aom_prob compound_type_prob[BLOCK_SIZES_ALL][COMPOUND_TYPES - 1];
+#if CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL][CDF_SIZE(COMPOUND_TYPES)];
+#endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #if CONFIG_INTERINTRA
   aom_prob interintra_prob[BLOCK_SIZE_GROUPS];
   aom_prob wedge_interintra_prob[BLOCK_SIZES_ALL];
@@ -226,15 +244,18 @@ typedef struct frame_contexts {
                               [CDF_SIZE(MAX_NCOBMC_MODES)];
 #endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  aom_prob ncobmc_prob[BLOCK_SIZES_ALL][OBMC_FAMILY_MODES - 1];
+  aom_cdf_prob ncobmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(OBMC_FAMILY_MODES)];
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   aom_prob obmc_prob[BLOCK_SIZES_ALL];
-#if CONFIG_NEW_MULTISYMBOL
+#if CONFIG_NEW_MULTISYMBOL || CONFIG_NCOBMC_ADAPT_WEIGHT
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
 #endif  // CONFIG_NEW_MULTISYMBOL
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
   aom_prob intra_inter_prob[INTRA_INTER_CONTEXTS];
   aom_prob comp_inter_prob[COMP_INTER_CONTEXTS];
-#if CONFIG_PALETTE
   aom_cdf_prob palette_y_size_cdf[PALETTE_BLOCK_SIZES][CDF_SIZE(PALETTE_SIZES)];
   aom_cdf_prob palette_uv_size_cdf[PALETTE_BLOCK_SIZES]
                                   [CDF_SIZE(PALETTE_SIZES)];
@@ -244,8 +265,16 @@ typedef struct frame_contexts {
   aom_cdf_prob palette_uv_color_index_cdf[PALETTE_SIZES]
                                          [PALETTE_COLOR_INDEX_CONTEXTS]
                                          [CDF_SIZE(PALETTE_COLORS)];
-#endif  // CONFIG_PALETTE
+#if CONFIG_MRC_TX
+  aom_cdf_prob mrc_mask_inter_cdf[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
+                                 [CDF_SIZE(PALETTE_COLORS)];
+  aom_cdf_prob mrc_mask_intra_cdf[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
+                                 [CDF_SIZE(PALETTE_COLORS)];
+#endif  // CONFIG_MRC_TX
 #if CONFIG_NEW_MULTISYMBOL
+  aom_cdf_prob palette_y_mode_cdf[PALETTE_BLOCK_SIZES][PALETTE_Y_MODE_CONTEXTS]
+                                 [CDF_SIZE(2)];
+  aom_cdf_prob palette_uv_mode_cdf[PALETTE_UV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob comp_inter_cdf[COMP_INTER_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob single_ref_cdf[REF_CONTEXTS][SINGLE_REFS - 1][CDF_SIZE(2)];
 #endif
@@ -366,7 +395,8 @@ typedef struct frame_contexts {
   od_adapt_ctx pvq_context;
 #endif  // CONFIG_PVQ
 #if CONFIG_CFL
-  aom_cdf_prob cfl_alpha_cdf[CDF_SIZE(CFL_ALPHABET_SIZE)];
+  aom_cdf_prob cfl_sign_cdf[CDF_SIZE(CFL_JOINT_SIGNS)];
+  aom_cdf_prob cfl_alpha_cdf[CFL_ALPHA_CONTEXTS][CDF_SIZE(CFL_ALPHABET_SIZE)];
 #endif
 } FRAME_CONTEXT;
 
@@ -383,9 +413,6 @@ typedef struct FRAME_COUNTS {
 #else
   unsigned int partition[PARTITION_CONTEXTS][PARTITION_TYPES];
 #endif
-  av1_coeff_count_model coef[TX_SIZES][PLANE_TYPES];
-  unsigned int eob_branch[TX_SIZES][PLANE_TYPES][REF_TYPES][COEF_BANDS]
-                         [COEFF_CONTEXTS];
   unsigned int switchable_interp[SWITCHABLE_FILTER_CONTEXTS]
                                 [SWITCHABLE_FILTERS];
 #if CONFIG_ADAPT_SCAN
@@ -415,6 +442,8 @@ typedef struct FRAME_COUNTS {
   unsigned int coeff_base[TX_SIZES][PLANE_TYPES][NUM_BASE_LEVELS]
                          [COEFF_BASE_CONTEXTS][2];
   unsigned int coeff_lps[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS][2];
+  unsigned int coeff_br[TX_SIZES][PLANE_TYPES][BASE_RANGE_SETS][LEVEL_CONTEXTS]
+                       [2];
 #endif  // CONFIG_LV_MAP
 
   av1_blockz_count_model blockz_count[TX_SIZES][PLANE_TYPES];
@@ -443,6 +472,9 @@ typedef struct FRAME_COUNTS {
   unsigned int ncobmc_mode[ADAPT_OVERLAP_BLOCKS][MAX_NCOBMC_MODES];
 #endif
 #if CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  unsigned int ncobmc[BLOCK_SIZES_ALL][OBMC_FAMILY_MODES];
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
   unsigned int obmc[BLOCK_SIZES_ALL][2];
 #endif  // CONFIG_MOTION_VAR && CONFIG_WARPED_MOTION
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
@@ -515,12 +547,10 @@ typedef struct FRAME_COUNTS {
 extern const aom_cdf_prob av1_kf_y_mode_cdf[INTRA_MODES][INTRA_MODES]
                                            [CDF_SIZE(INTRA_MODES)];
 
-#if CONFIG_PALETTE
 extern const aom_prob av1_default_palette_y_mode_prob[PALETTE_BLOCK_SIZES]
                                                      [PALETTE_Y_MODE_CONTEXTS];
 extern const aom_prob
     av1_default_palette_uv_mode_prob[PALETTE_UV_MODE_CONTEXTS];
-#endif  // CONFIG_PALETTE
 
 extern const int av1_intra_mode_ind[INTRA_MODES];
 extern const int av1_intra_mode_inv[INTRA_MODES];
@@ -551,10 +581,8 @@ extern const aom_tree_index
 #endif
 extern const aom_tree_index
     av1_switchable_interp_tree[TREE_SIZE(SWITCHABLE_FILTERS)];
-#if CONFIG_PALETTE
 extern const aom_tree_index
     av1_palette_color_index_tree[PALETTE_SIZES][TREE_SIZE(PALETTE_COLORS)];
-#endif  // CONFIG_PALETTE
 extern const aom_tree_index av1_tx_size_tree[MAX_TX_DEPTH][TREE_SIZE(TX_SIZES)];
 #if CONFIG_EXT_INTRA && CONFIG_INTRA_INTERP
 extern const aom_tree_index av1_intra_filter_tree[TREE_SIZE(INTRA_FILTERS)];
@@ -570,9 +598,12 @@ extern const aom_tree_index av1_ext_tx_tree[TREE_SIZE(TX_TYPES)];
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 extern const aom_tree_index av1_motion_mode_tree[TREE_SIZE(MOTION_MODES)];
 #endif  // CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
 extern const aom_tree_index av1_ncobmc_mode_tree[TREE_SIZE(MAX_NCOBMC_MODES)];
-#endif
+#if CONFIG_WARPED_MOTION
+extern const aom_tree_index av1_ncobmc_tree[TREE_SIZE(OBMC_FAMILY_MODES)];
+#endif  // CONFIG_WARPED_MOTION
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #if CONFIG_LOOP_RESTORATION
 #define RESTORE_NONE_SGRPROJ_PROB 64
 #define RESTORE_NONE_BILATERAL_PROB 16
@@ -583,6 +614,10 @@ extern const aom_tree_index
 #endif  // CONFIG_LOOP_RESTORATION
 extern int av1_switchable_interp_ind[SWITCHABLE_FILTERS];
 extern int av1_switchable_interp_inv[SWITCHABLE_FILTERS];
+
+#if CONFIG_EXT_PARTITION_TYPES
+extern int av1_num_partition_types[PARTITION_BLOCK_SIZES];
+#endif
 
 void av1_setup_past_independence(struct AV1Common *cm);
 
@@ -602,14 +637,12 @@ static INLINE int av1_ceil_log2(int n) {
   return i;
 }
 
-#if CONFIG_PALETTE
 // Returns the context for palette color index at row 'r' and column 'c',
 // along with the 'color_order' of neighbors and the 'color_idx'.
 // The 'color_map' is a 2D array with the given 'stride'.
 int av1_get_palette_color_index_context(const uint8_t *color_map, int stride,
                                         int r, int c, int palette_size,
                                         uint8_t *color_order, int *color_idx);
-#endif  // CONFIG_PALETTE
 
 #ifdef __cplusplus
 }  // extern "C"

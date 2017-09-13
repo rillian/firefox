@@ -110,6 +110,17 @@ typedef struct PVQ_QUEUE {
 } PVQ_QUEUE;
 #endif
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+typedef struct superblock_mi_boundaries {
+  int mi_row_begin;
+  int mi_col_begin;
+  int mi_row_end;
+  int mi_col_end;
+} SB_MI_BD;
+
+typedef struct { int16_t KERNEL[4][MAX_SB_SIZE][MAX_SB_SIZE]; } NCOBMC_KERNELS;
+#endif
+
 typedef struct {
   uint8_t *plane[MAX_MB_PLANE];
   int stride[MAX_MB_PLANE];
@@ -142,13 +153,11 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // D153_PRED
     MB_MODE_COUNT,  // D207_PRED
     MB_MODE_COUNT,  // D63_PRED
-#if CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // SMOOTH_PRED
 #if CONFIG_SMOOTH_HV
     MB_MODE_COUNT,  // SMOOTH_V_PRED
     MB_MODE_COUNT,  // SMOOTH_H_PRED
 #endif              // CONFIG_SMOOTH_HV
-#endif              // CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // TM_PRED
     MB_MODE_COUNT,  // NEARESTMV
     MB_MODE_COUNT,  // NEARMV
@@ -190,13 +199,11 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,  // D153_PRED
     MB_MODE_COUNT,  // D207_PRED
     MB_MODE_COUNT,  // D63_PRED
-#if CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // SMOOTH_PRED
 #if CONFIG_SMOOTH_HV
     MB_MODE_COUNT,  // SMOOTH_V_PRED
     MB_MODE_COUNT,  // SMOOTH_H_PRED
 #endif              // CONFIG_SMOOTH_HV
-#endif              // CONFIG_ALT_INTRA
     MB_MODE_COUNT,  // TM_PRED
     MB_MODE_COUNT,  // NEARESTMV
     MB_MODE_COUNT,  // NEARMV
@@ -291,14 +298,12 @@ typedef struct {
 
 typedef int8_t MV_REFERENCE_FRAME;
 
-#if CONFIG_PALETTE
 typedef struct {
   // Number of base colors for Y (0) and UV (1)
   uint8_t palette_size[2];
   // Value of base colors for Y, U, and V
   uint16_t palette_colors[3 * PALETTE_MAX_SIZE];
 } PALETTE_MODE_INFO;
-#endif  // CONFIG_PALETTE
 
 #if CONFIG_FILTER_INTRA
 #define USE_3TAP_INTRA_FILTER 1  // 0: 4-tap; 1: 3-tap
@@ -328,6 +333,7 @@ typedef struct RD_STATS {
   int skip;  // sse should equal to dist when skip == 1
   int64_t ref_rdcost;
   int zero_rate;
+  uint8_t invalid_rate;
 #if CONFIG_DIST_8X8 && CONFIG_CB4X4
   int64_t dist_y;
 #endif
@@ -376,11 +382,14 @@ typedef struct MB_MODE_INFO {
 #endif                      // CONFIG_SUPERTX
   int8_t seg_id_predicted;  // valid only when temporal_update is enabled
 
+#if CONFIG_MRC_TX
+  int valid_mrc_mask;
+#endif  // CONFIG_MRC_TX
+
   // Only for INTRA blocks
   UV_PREDICTION_MODE uv_mode;
-#if CONFIG_PALETTE
+
   PALETTE_MODE_INFO palette_mode_info;
-#endif  // CONFIG_PALETTE
 #if CONFIG_INTRABC
   uint8_t use_intrabc;
 #endif  // CONFIG_INTRABC
@@ -437,7 +446,7 @@ typedef struct MB_MODE_INFO {
   // blocks. A rectangular block is divided into two squared blocks and each
   // squared block has an interpolation mode.
   NCOBMC_MODE ncobmc_mode[2];
-#endif
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 #endif  // CONFIG_MOTION_VAR
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -470,8 +479,8 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_CFL
   // Index of the alpha Cb and alpha Cr combination
   int cfl_alpha_idx;
-  // Signs of alpha Cb and alpha Cr
-  CFL_SIGN_TYPE cfl_alpha_signs[CFL_PRED_PLANES];
+  // Joint sign of alpha Cb and alpha Cr
+  int cfl_alpha_signs;
 #endif
 
   BOUNDARY_TYPE boundary_info;
@@ -500,23 +509,22 @@ static INLINE PREDICTION_MODE get_y_mode(const MODE_INFO *mi, int block) {
 #if CONFIG_CFL
 static INLINE PREDICTION_MODE get_uv_mode(UV_PREDICTION_MODE mode) {
   static const PREDICTION_MODE uv2y[UV_INTRA_MODES] = {
-    DC_PRED,    // UV_DC_PRED
-    V_PRED,     // UV_V_PRED
-    H_PRED,     // UV_H_PRED
-    D45_PRED,   // UV_D45_PRED
-    D135_PRED,  // UV_D135_PRED
-    D117_PRED,  // UV_D117_PRED
-    D153_PRED,  // UV_D153_PRED
-    D207_PRED,  // UV_D207_PRED
-    D63_PRED,   // UV_D63_PRED
-#if CONFIG_ALT_INTRA
+    DC_PRED,      // UV_DC_PRED
+    V_PRED,       // UV_V_PRED
+    H_PRED,       // UV_H_PRED
+    D45_PRED,     // UV_D45_PRED
+    D135_PRED,    // UV_D135_PRED
+    D117_PRED,    // UV_D117_PRED
+    D153_PRED,    // UV_D153_PRED
+    D207_PRED,    // UV_D207_PRED
+    D63_PRED,     // UV_D63_PRED
     SMOOTH_PRED,  // UV_SMOOTH_PRED
 #if CONFIG_SMOOTH_HV
     SMOOTH_V_PRED,  // UV_SMOOTH_V_PRED
     SMOOTH_H_PRED,  // UV_SMOOTH_H_PRED
 #endif              // CONFIG_SMOOTH_HV
-#endif              // CONFIG_ALT_INTRA
     TM_PRED,        // UV_TM_PRED
+    DC_PRED,        // CFL_PRED
   };
   return uv2y[mode];
 }
@@ -578,7 +586,8 @@ static INLINE int is_global_mv_block(const MODE_INFO *mi, int block,
   const int block_size_allowed = 1;
 #else
   const BLOCK_SIZE bsize = mi->mbmi.sb_type;
-  const int block_size_allowed = (bsize >= BLOCK_8X8);
+  const int block_size_allowed =
+      AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 #endif  // GLOBAL_SUB8X8_USED
 #if CONFIG_EXT_INTER
   return (mode == ZEROMV || mode == ZERO_ZEROMV) && type > TRANSLATION &&
@@ -613,9 +622,7 @@ typedef struct macroblockd_plane {
   dequant_val_type_nuq seg_dequant_nuq[MAX_SEGMENTS][QUANT_PROFILES]
                                       [COEF_BANDS];
 #endif
-#if CONFIG_PALETTE
   uint8_t *color_index_map;
-#endif  // CONFIG_PALETTE
 
   // number of 4x4s in current block
   uint16_t n4_w, n4_h;
@@ -625,8 +632,8 @@ typedef struct macroblockd_plane {
   uint8_t width, height;
 
 #if CONFIG_AOM_QM
-  const qm_val_t *seg_iqmatrix[MAX_SEGMENTS][2][TX_SIZES_ALL];
-  const qm_val_t *seg_qmatrix[MAX_SEGMENTS][2][TX_SIZES_ALL];
+  qm_val_t *seg_iqmatrix[MAX_SEGMENTS][2][TX_SIZES_ALL];
+  qm_val_t *seg_qmatrix[MAX_SEGMENTS][2][TX_SIZES_ALL];
 #endif
   // encoder
   const int16_t *dequant;
@@ -659,6 +666,18 @@ typedef struct RefBuffer {
 typedef int16_t EobThresholdMD[TX_TYPES][EOB_THRESHOLD_NUM];
 #endif
 
+#if CONFIG_LOOP_RESTORATION
+typedef struct {
+  DECLARE_ALIGNED(16, InterpKernel, vfilter);
+  DECLARE_ALIGNED(16, InterpKernel, hfilter);
+} WienerInfo;
+
+typedef struct {
+  int ep;
+  int xqd[2];
+} SgrprojInfo;
+#endif  // CONFIG_LOOP_RESTORATION
+
 typedef struct macroblockd {
   struct macroblockd_plane plane[MAX_MB_PLANE];
   uint8_t bmode_blocks_wl;
@@ -684,7 +703,7 @@ typedef struct macroblockd {
 
   const aom_prob (*partition_probs)[PARTITION_TYPES - 1];
 
-  /* Distance of MB away from frame edges */
+  /* Distance of MB away from frame edges in subpixels (1/8th pixel)  */
   int mb_to_left_edge;
   int mb_to_right_edge;
   int mb_to_top_edge;
@@ -719,6 +738,11 @@ typedef struct macroblockd {
   TX_SIZE supertx_size;
 #endif
 #endif
+
+#if CONFIG_LOOP_RESTORATION
+  WienerInfo wiener_info[MAX_MB_PLANE];
+  SgrprojInfo sgrproj_info[MAX_MB_PLANE];
+#endif  // CONFIG_LOOP_RESTORATION
 
   // block dimension in the unit of mode_info.
   uint8_t n8_w, n8_h;
@@ -765,8 +789,18 @@ typedef struct macroblockd {
   DECLARE_ALIGNED(16, uint8_t, seg_mask[2 * MAX_SB_SQUARE]);
 #endif  // CONFIG_EXT_INTER && CONFIG_COMPOUND_SEGMENT
 
+#if CONFIG_MRC_TX
+  uint8_t *mrc_mask;
+#endif  // CONFIG_MRC_TX
+
 #if CONFIG_CFL
   CFL_CTX *cfl;
+#endif
+
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  uint8_t *ncobmc_pred_buf[MAX_MB_PLANE];
+  int ncobmc_pred_buf_stride[MAX_MB_PLANE];
+  SB_MI_BD sb_mi_bd;
 #endif
 } MACROBLOCKD;
 
@@ -792,13 +826,11 @@ static const TX_TYPE intra_mode_to_tx_type_context[INTRA_MODES] = {
   DCT_ADST,   // D153
   DCT_ADST,   // D207
   ADST_DCT,   // D63
-#if CONFIG_ALT_INTRA
   ADST_ADST,  // SMOOTH
 #if CONFIG_SMOOTH_HV
   ADST_DCT,   // SMOOTH_V
   DCT_ADST,   // SMOOTH_H
 #endif        // CONFIG_SMOOTH_HV
-#endif        // CONFIG_ALT_INTRA
   ADST_ADST,  // TM
 };
 
@@ -815,6 +847,14 @@ static INLINE int supertx_enabled(const MB_MODE_INFO *mbmi) {
 #if CONFIG_RECT_TX
 static INLINE int is_rect_tx(TX_SIZE tx_size) { return tx_size >= TX_SIZES; }
 #endif  // CONFIG_RECT_TX
+
+#if CONFIG_MRC_TX
+#define USE_MRC_INTRA 0
+#define USE_MRC_INTER 1
+#define SIGNAL_MRC_MASK_INTRA (USE_MRC_INTRA && 0)
+#define SIGNAL_MRC_MASK_INTER (USE_MRC_INTER && 1)
+#define SIGNAL_ANY_MRC_MASK (SIGNAL_MRC_MASK_INTRA || SIGNAL_MRC_MASK_INTER)
+#endif  // CONFIG_MRC_TX
 
 #if CONFIG_EXT_TX
 #define ALLOW_INTRA_EXT_TX 1
@@ -904,8 +944,12 @@ static INLINE TxSetType get_ext_tx_set_type(TX_SIZE tx_size, BLOCK_SIZE bs,
   if (use_reduced_set)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DTT4_IDTX;
 #if CONFIG_MRC_TX
-  if (tx_size == TX_32X32)
-    return is_inter ? EXT_TX_SET_MRC_DCT_IDTX : EXT_TX_SET_MRC_DCT;
+  if (tx_size == TX_32X32) {
+    if (is_inter && USE_MRC_INTER)
+      return EXT_TX_SET_MRC_DCT_IDTX;
+    else if (!is_inter && USE_MRC_INTRA)
+      return EXT_TX_SET_MRC_DCT;
+  }
 #endif  // CONFIG_MRC_TX
   if (tx_size_sqr_up == TX_32X32)
     return is_inter ? EXT_TX_SET_DCT_IDTX : EXT_TX_SET_DCTONLY;
@@ -1075,6 +1119,8 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
     0,  // BLOCK_32X8
+    0,  // BLOCK_16X64
+    0,  // BLOCK_64X16
   };
 
   return LUT[bsize];
@@ -1118,6 +1164,8 @@ static INLINE int is_quarter_tx_allowed_bsize(BLOCK_SIZE bsize) {
     0,  // BLOCK_16X4
     0,  // BLOCK_8X32
     0,  // BLOCK_32X8
+    0,  // BLOCK_16X64
+    0,  // BLOCK_64X16
   };
 
   return LUT_QTTX[bsize];
@@ -1168,13 +1216,10 @@ static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode,
 #define ANGLE_STEP 3
 extern const int16_t dr_intra_derivative[90];
 static const uint8_t mode_to_angle_map[] = {
-  0, 90, 180, 45, 135, 111, 157, 203, 67, 0,
-#if CONFIG_ALT_INTRA
-  0,
+  0, 90, 180, 45, 135, 111, 157, 203, 67, 0, 0,
 #if CONFIG_SMOOTH_HV
   0, 0,
 #endif  // CONFIG_SMOOTH_HV
-#endif  // CONFIG_ALT_INTRA
 };
 #if CONFIG_INTRA_INTERP
 // Returns whether filter selection is needed for a given
@@ -1209,19 +1254,6 @@ static INLINE int av1_raster_order_to_block_index(TX_SIZE tx_size,
   // We ensure that block indices are 0 & 2 if tx size is 4x8 or 8x4.
   return (tx_size == TX_4X4) ? raster_order : (raster_order > 0) ? 2 : 0;
 }
-
-#if CONFIG_DPCM_INTRA || CONFIG_LGT
-static INLINE PREDICTION_MODE get_prediction_mode(const MODE_INFO *mi,
-                                                  int plane, TX_SIZE tx_size,
-                                                  int block_idx) {
-  const MB_MODE_INFO *const mbmi = &mi->mbmi;
-  if (is_inter_block(mbmi)) return mbmi->mode;
-
-  int block_raster_idx = av1_block_index_to_raster_order(tx_size, block_idx);
-  return (plane == PLANE_TYPE_Y) ? get_y_mode(mi, block_raster_idx)
-                                 : get_uv_mode(mbmi->uv_mode);
-}
-#endif
 
 static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
                                           const MACROBLOCKD *xd, int block_idx,
@@ -1273,6 +1305,9 @@ static INLINE TX_TYPE av1_get_tx_type(PLANE_TYPE plane_type,
 #if CONFIG_EXT_TX
 #if CONFIG_MRC_TX
   if (mbmi->tx_type == MRC_DCT) {
+    assert(((is_inter_block(mbmi) && USE_MRC_INTER) ||
+            (!is_inter_block(mbmi) && USE_MRC_INTRA)) &&
+           "INVALID BLOCK TYPE FOR MRC_DCT");
     if (plane_type == PLANE_TYPE_Y) {
       assert(tx_size == TX_32X32);
       return mbmi->tx_type;
@@ -1480,7 +1515,7 @@ static INLINE int get_vartx_max_txsize(const MB_MODE_INFO *const mbmi,
 
 #if CONFIG_MOTION_VAR || CONFIG_WARPED_MOTION
 static INLINE int is_motion_variation_allowed_bsize(BLOCK_SIZE bsize) {
-  return (bsize >= BLOCK_8X8);
+  return AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >= 8;
 }
 
 static INLINE int is_motion_variation_allowed_compound(
@@ -1503,7 +1538,15 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   return !(mbmi->overlappable_neighbors[0] == 0 &&
            mbmi->overlappable_neighbors[1] == 0);
 }
-#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
+  if (bsize < BLOCK_8X8 || bsize >= BLOCK_64X64)
+    return NO_OVERLAP;
+  else
+    return MAX_NCOBMC_MODES;
+}
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+#endif  // CONFIG_MOTION_VAR
 
 static INLINE MOTION_MODE motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
@@ -1531,11 +1574,16 @@ static INLINE MOTION_MODE motion_mode_allowed(
 #endif
 #if CONFIG_WARPED_MOTION
     if (!has_second_ref(mbmi) && mbmi->num_proj_ref[0] >= 1 &&
-        !av1_is_scaled(&(xd->block_refs[0]->sf)))
+        !av1_is_scaled(&(xd->block_refs[0]->sf))) {
       return WARPED_CAUSAL;
-    else
+    }
 #endif  // CONFIG_WARPED_MOTION
 #if CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+    if (ncobmc_mode_allowed_bsize(mbmi->sb_type) < NO_OVERLAP)
+      return NCOBMC_ADAPT_WEIGHT;
+    else
+#endif
       return OBMC_CAUSAL;
 #else
     return SIMPLE_TRANSLATION;
@@ -1544,42 +1592,6 @@ static INLINE MOTION_MODE motion_mode_allowed(
     return SIMPLE_TRANSLATION;
   }
 }
-
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
-static INLINE NCOBMC_MODE ncobmc_mode_allowed_bsize(BLOCK_SIZE bsize) {
-  if (bsize < BLOCK_8X8 || bsize > BLOCK_64X64)
-    return NO_OVERLAP;
-  else
-    return (NCOBMC_MODE)(MAX_NCOBMC_MODES - 1);
-}
-
-static INLINE MOTION_MODE
-motion_mode_allowed_wrapper(int for_mv_search,
-#if CONFIG_GLOBAL_MOTION
-                            int block, const WarpedMotionParams *gm_params,
-#endif  // CONFIG_GLOBAL_MOTION
-#if CONFIG_WARPED_MOTION
-                            const MACROBLOCKD *xd,
-#endif
-                            const MODE_INFO *mi) {
-  const MB_MODE_INFO *mbmi = &mi->mbmi;
-  MOTION_MODE motion_mode_for_mv_search = motion_mode_allowed(
-#if CONFIG_GLOBAL_MOTION
-      int block, const WarpedMotionParams *gm_params,
-#endif
-#if CONFIG_WARPED_MOTION
-      xd,
-#endif
-      mi);
-  int ncobmc_mode_allowed =
-      ncobmc_mode_allowed_bsize(mbmi->sb_type) && is_inter_mode(mbmi->mode);
-  if (for_mv_search)
-    return motion_mode_for_mv_search;
-  else
-    return ncobmc_mode_allowed ? NCOBMC_ADAPT_WEIGHT
-                               : motion_mode_for_mv_search;
-}
-#endif
 
 static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
 #if CONFIG_GLOBAL_MOTION
@@ -1590,14 +1602,6 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
                                             const MACROBLOCKD *xd,
 #endif
                                             const MODE_INFO *mi) {
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-  const MOTION_MODE last_motion_mode_allowed =
-      motion_mode_allowed_wrapper(0,
-#if CONFIG_GLOBAL_MOTION
-                                  block, gm_params,
-#endif  // CONFIG_GLOBAL_MOTION
-                                  mi);
-#else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
 #if CONFIG_GLOBAL_MOTION
       block, gm_params,
@@ -1606,7 +1610,7 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
       xd,
 #endif
       mi);
-#endif
+
   // Check that the input mode is not illegal
   if (last_motion_mode_allowed < mode)
     assert(0 && "Illegal motion mode selected");
@@ -1646,6 +1650,24 @@ static INLINE void av1_get_block_dimensions(BLOCK_SIZE bsize, int plane,
   if (rows_within_bounds) *rows_within_bounds = block_rows >> pd->subsampling_y;
   if (cols_within_bounds) *cols_within_bounds = block_cols >> pd->subsampling_x;
 }
+
+/* clang-format off */
+typedef aom_cdf_prob (*MapCdf)[PALETTE_COLOR_INDEX_CONTEXTS]
+                              [CDF_SIZE(PALETTE_COLORS)];
+typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
+                              [PALETTE_COLORS];
+/* clang-format on */
+
+typedef struct {
+  int rows;
+  int cols;
+  int n_colors;
+  int plane_width;
+  int plane_height;
+  uint8_t *color_map;
+  MapCdf map_cdf;
+  ColorCost color_cost;
+} Av1ColorMapParam;
 
 #if CONFIG_GLOBAL_MOTION
 static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
@@ -1693,6 +1715,38 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd) {
 
 static INLINE PLANE_TYPE get_plane_type(int plane) {
   return (plane == 0) ? PLANE_TYPE_Y : PLANE_TYPE_UV;
+}
+
+static INLINE void transpose_uint8(uint8_t *dst, int dst_stride,
+                                   const uint8_t *src, int src_stride, int w,
+                                   int h) {
+  int r, c;
+  for (r = 0; r < h; ++r)
+    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+}
+
+static INLINE void transpose_uint16(uint16_t *dst, int dst_stride,
+                                    const uint16_t *src, int src_stride, int w,
+                                    int h) {
+  int r, c;
+  for (r = 0; r < h; ++r)
+    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+}
+
+static INLINE void transpose_int16(int16_t *dst, int dst_stride,
+                                   const int16_t *src, int src_stride, int w,
+                                   int h) {
+  int r, c;
+  for (r = 0; r < h; ++r)
+    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
+}
+
+static INLINE void transpose_int32(int32_t *dst, int dst_stride,
+                                   const int32_t *src, int src_stride, int w,
+                                   int h) {
+  int r, c;
+  for (r = 0; r < h; ++r)
+    for (c = 0; c < w; ++c) dst[c * dst_stride + r] = src[r * src_stride + c];
 }
 
 #ifdef __cplusplus

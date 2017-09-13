@@ -31,7 +31,6 @@ struct search_site_config;
 struct mv;
 union int_mv;
 struct yv12_buffer_config;
-typedef uint16_t od_dering_in;
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,17 +55,23 @@ RTCD_EXTERN void (*aom_clpf_hblock_hbd)(uint16_t *dst, const uint16_t *src, int 
 int64_t av1_block_error_c(const tran_low_t *coeff, const tran_low_t *dqcoeff, intptr_t block_size, int64_t *ssz);
 #define av1_block_error av1_block_error_c
 
+void av1_convolve_2d_c(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params);
+#define av1_convolve_2d av1_convolve_2d_c
+
+void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_qn, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params);
+#define av1_convolve_2d_scale av1_convolve_2d_scale_c
+
 void av1_convolve_horiz_c(const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, ConvolveParams *conv_params);
 #define av1_convolve_horiz av1_convolve_horiz_c
+
+void av1_convolve_rounding_c(const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits);
+#define av1_convolve_rounding av1_convolve_rounding_c
 
 void av1_convolve_vert_c(const uint8_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, ConvolveParams *conv_params);
 #define av1_convolve_vert av1_convolve_vert_c
 
 int av1_diamond_search_sad_c(struct macroblock *x, const struct search_site_config *cfg,  struct mv *ref_mv, struct mv *best_mv, int search_param, int sad_per_bit, int *num00, const struct aom_variance_vtable *fn_ptr, const struct mv *center_mv);
 #define av1_diamond_search_sad av1_diamond_search_sad_c
-
-void av1_fdct8x8_quant_c(const int16_t *input, int stride, tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan);
-#define av1_fdct8x8_quant av1_fdct8x8_quant_c
 
 void av1_fht16x16_c(const int16_t *input, tran_low_t *output, int stride, struct txfm_param *param);
 #define av1_fht16x16 av1_fht16x16_c
@@ -176,6 +181,12 @@ void av1_highbd_convolve8_horiz_c(const uint8_t *src, ptrdiff_t src_stride, uint
 void av1_highbd_convolve8_vert_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps);
 #define av1_highbd_convolve8_vert av1_highbd_convolve8_vert_c
 
+void av1_highbd_convolve_2d_c(const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int subpel_y_q4, ConvolveParams *conv_params, int bd);
+#define av1_highbd_convolve_2d av1_highbd_convolve_2d_c
+
+void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride, CONV_BUF_TYPE *dst, int dst_stride, int w, int h, InterpFilterParams *filter_params_x, InterpFilterParams *filter_params_y, const int subpel_x_q4, const int x_step_qn, const int subpel_y_q4, const int y_step_qn, ConvolveParams *conv_params, int bd);
+#define av1_highbd_convolve_2d_scale av1_highbd_convolve_2d_scale_c
+
 void av1_highbd_convolve_avg_c(const uint8_t *src, ptrdiff_t src_stride, uint8_t *dst, ptrdiff_t dst_stride, const int16_t *filter_x, int x_step_q4, const int16_t *filter_y, int y_step_q4, int w, int h, int bps);
 #define av1_highbd_convolve_avg av1_highbd_convolve_avg_c
 
@@ -187,6 +198,9 @@ void av1_highbd_convolve_horiz_c(const uint16_t *src, int src_stride, uint16_t *
 
 void av1_highbd_convolve_init_c(void);
 #define av1_highbd_convolve_init av1_highbd_convolve_init_c
+
+void av1_highbd_convolve_rounding_c(const int32_t *src, int src_stride, uint8_t *dst, int dst_stride, int w, int h, int bits, int bd);
+#define av1_highbd_convolve_rounding av1_highbd_convolve_rounding_c
 
 void av1_highbd_convolve_vert_c(const uint16_t *src, int src_stride, uint16_t *dst, int dst_stride, int w, int h, const InterpFilterParams fp, const int subpel_x_q4, int x_step_q4, int avg, int bd);
 #define av1_highbd_convolve_vert av1_highbd_convolve_vert_c
@@ -232,9 +246,6 @@ void av1_highbd_iht8x4_32_add_c(const tran_low_t *input, uint8_t *dest, int dest
 
 void av1_highbd_iht8x8_64_add_c(const tran_low_t *input, uint8_t *dest, int dest_stride, const struct txfm_param *param);
 #define av1_highbd_iht8x8_64_add av1_highbd_iht8x8_64_add_c
-
-void av1_highbd_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, int log_scale);
-#define av1_highbd_quantize_b av1_highbd_quantize_b_c
 
 void av1_highbd_quantize_fp_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, int log_scale);
 #define av1_highbd_quantize_fp av1_highbd_quantize_fp_c
@@ -323,7 +334,7 @@ void av1_inv_txfm2d_add_8x8_c(const int32_t *input, uint16_t *output, int stride
 void av1_lowbd_convolve_init_c(void);
 #define av1_lowbd_convolve_init av1_lowbd_convolve_init_c
 
-void av1_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, int log_scale);
+void av1_quantize_b_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr, int log_scale);
 #define av1_quantize_b av1_quantize_b_c
 
 void av1_quantize_fp_c(const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan);
@@ -346,6 +357,18 @@ int av1_wedge_sign_from_residuals_c(const int16_t *ds, const uint8_t *m, int N, 
 
 uint64_t av1_wedge_sse_from_residuals_c(const int16_t *r1, const int16_t *d, const uint8_t *m, int N);
 #define av1_wedge_sse_from_residuals av1_wedge_sse_from_residuals_c
+
+void cdef_direction_4x4_c(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+void cdef_direction_4x4_neon(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+RTCD_EXTERN void (*cdef_direction_4x4)(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+
+void cdef_direction_8x8_c(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+void cdef_direction_8x8_neon(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+RTCD_EXTERN void (*cdef_direction_8x8)(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
+
+int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var, int coeff_shift);
+int cdef_find_dir_neon(const uint16_t *img, int stride, int32_t *var, int coeff_shift);
+RTCD_EXTERN int (*cdef_find_dir)(const uint16_t *img, int stride, int32_t *var, int coeff_shift);
 
 double compute_cross_correlation_c(unsigned char *im1, int stride1, int x1, int y1, unsigned char *im2, int stride2, int x2, int y2);
 #define compute_cross_correlation compute_cross_correlation_c
@@ -374,18 +397,6 @@ void copy_rect8_8bit_to_16bit_c(uint16_t *dst, int dstride, const uint8_t *src, 
 void copy_rect8_8bit_to_16bit_neon(uint16_t *dst, int dstride, const uint8_t *src, int sstride, int v, int h);
 RTCD_EXTERN void (*copy_rect8_8bit_to_16bit)(uint16_t *dst, int dstride, const uint8_t *src, int sstride, int v, int h);
 
-int od_dir_find8_c(const od_dering_in *img, int stride, int32_t *var, int coeff_shift);
-int od_dir_find8_neon(const od_dering_in *img, int stride, int32_t *var, int coeff_shift);
-RTCD_EXTERN int (*od_dir_find8)(const od_dering_in *img, int stride, int32_t *var, int coeff_shift);
-
-void od_filter_dering_direction_4x4_c(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-void od_filter_dering_direction_4x4_neon(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-RTCD_EXTERN void (*od_filter_dering_direction_4x4)(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-
-void od_filter_dering_direction_8x8_c(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-void od_filter_dering_direction_8x8_neon(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-RTCD_EXTERN void (*od_filter_dering_direction_8x8)(uint16_t *y, int ystride, const uint16_t *in, int threshold, int dir, int damping);
-
 void aom_rtcd(void);
 
 #include "aom_config.h"
@@ -406,6 +417,12 @@ static void setup_rtcd_internal(void)
     if (flags & HAS_NEON) aom_clpf_hblock = aom_clpf_hblock_neon;
     aom_clpf_hblock_hbd = aom_clpf_hblock_hbd_c;
     if (flags & HAS_NEON) aom_clpf_hblock_hbd = aom_clpf_hblock_hbd_neon;
+    cdef_direction_4x4 = cdef_direction_4x4_c;
+    if (flags & HAS_NEON) cdef_direction_4x4 = cdef_direction_4x4_neon;
+    cdef_direction_8x8 = cdef_direction_8x8_c;
+    if (flags & HAS_NEON) cdef_direction_8x8 = cdef_direction_8x8_neon;
+    cdef_find_dir = cdef_find_dir_c;
+    if (flags & HAS_NEON) cdef_find_dir = cdef_find_dir_neon;
     copy_4x4_16bit_to_16bit = copy_4x4_16bit_to_16bit_c;
     if (flags & HAS_NEON) copy_4x4_16bit_to_16bit = copy_4x4_16bit_to_16bit_neon;
     copy_4x4_16bit_to_8bit = copy_4x4_16bit_to_8bit_c;
@@ -418,12 +435,6 @@ static void setup_rtcd_internal(void)
     if (flags & HAS_NEON) copy_rect8_16bit_to_16bit = copy_rect8_16bit_to_16bit_neon;
     copy_rect8_8bit_to_16bit = copy_rect8_8bit_to_16bit_c;
     if (flags & HAS_NEON) copy_rect8_8bit_to_16bit = copy_rect8_8bit_to_16bit_neon;
-    od_dir_find8 = od_dir_find8_c;
-    if (flags & HAS_NEON) od_dir_find8 = od_dir_find8_neon;
-    od_filter_dering_direction_4x4 = od_filter_dering_direction_4x4_c;
-    if (flags & HAS_NEON) od_filter_dering_direction_4x4 = od_filter_dering_direction_4x4_neon;
-    od_filter_dering_direction_8x8 = od_filter_dering_direction_8x8_c;
-    if (flags & HAS_NEON) od_filter_dering_direction_8x8 = od_filter_dering_direction_8x8_neon;
 }
 #endif
 

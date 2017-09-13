@@ -86,14 +86,14 @@ int av1_get_pred_context_intra_interp(const MACROBLOCKD *xd);
 #endif  // CONFIG_INTRA_INTERP
 #endif  // CONFIG_EXT_INTRA
 
-#if CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+#if CONFIG_PALETTE_DELTA_ENCODING
 // Get a list of palette base colors that are used in the above and left blocks,
 // referred to as "color cache". The return value is the number of colors in the
 // cache (<= 2 * PALETTE_MAX_SIZE). The color values are stored in "cache"
 // in ascending order.
-int av1_get_palette_cache(const MODE_INFO *above_mi, const MODE_INFO *left_mi,
-                          int plane, uint16_t *cache);
-#endif  // CONFIG_PALETTE && CONFIG_PALETTE_DELTA_ENCODING
+int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
+                          uint16_t *cache);
+#endif  // CONFIG_PALETTE_DELTA_ENCODING
 
 int av1_get_intra_inter_context(const MACROBLOCKD *xd);
 
@@ -243,17 +243,22 @@ static INLINE aom_prob av1_get_pred_prob_comp_bwdref_p(const AV1_COMMON *cm,
   return cm->fc->comp_bwdref_prob[pred_context][0];
 }
 
-#if CONFIG_ALTREF2
-// TODO(zoeliu): ALTREF2 to work with NEW_MULTISYMBOL
 int av1_get_pred_context_comp_bwdref_p1(const AV1_COMMON *cm,
                                         const MACROBLOCKD *xd);
+
+#if CONFIG_NEW_MULTISYMBOL
+static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_bwdref_p1(
+    const AV1_COMMON *cm, const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_comp_bwdref_p1(cm, xd);
+  return xd->tile_ctx->comp_bwdref_cdf[pred_context][1];
+}
+#endif  // CONFIG_NEW_MULTISYMBOL
 
 static INLINE aom_prob av1_get_pred_prob_comp_bwdref_p1(const AV1_COMMON *cm,
                                                         const MACROBLOCKD *xd) {
   const int pred_context = av1_get_pred_context_comp_bwdref_p1(cm, xd);
   return cm->fc->comp_bwdref_prob[pred_context][1];
 }
-#endif  // CONFIG_ALTREF2
 #endif  // CONFIG_EXT_REFS
 
 int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
@@ -292,14 +297,12 @@ static INLINE aom_prob av1_get_pred_prob_single_ref_p5(const AV1_COMMON *cm,
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p5(xd)][4];
 }
 
-#if CONFIG_ALTREF2
 int av1_get_pred_context_single_ref_p6(const MACROBLOCKD *xd);
 
 static INLINE aom_prob av1_get_pred_prob_single_ref_p6(const AV1_COMMON *cm,
                                                        const MACROBLOCKD *xd) {
   return cm->fc->single_ref_prob[av1_get_pred_context_single_ref_p6(xd)][5];
 }
-#endif  // CONFIG_ALTREF2
 #endif  // CONFIG_EXT_REFS
 
 #if CONFIG_NEW_MULTISYMBOL
@@ -333,6 +336,12 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p5(
   (void)cm;
   return xd->tile_ctx
       ->single_ref_cdf[av1_get_pred_context_single_ref_p5(xd)][4];
+}
+static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p6(
+    const AV1_COMMON *cm, const MACROBLOCKD *xd) {
+  (void)cm;
+  return xd->tile_ctx
+      ->single_ref_cdf[av1_get_pred_context_single_ref_p6(xd)][5];
 }
 #endif  // CONFIG_EXT_REFS
 #endif  // CONFIG_NEW_MULTISYMBOL

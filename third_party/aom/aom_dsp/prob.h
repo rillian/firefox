@@ -46,6 +46,10 @@ typedef uint16_t aom_cdf_prob;
 
 #define MAX_PROB 255
 
+#define LV_MAP_PROB 1
+
+#define BR_NODE 1
+
 #define aom_prob_half ((aom_prob)128)
 
 typedef int8_t aom_tree_index;
@@ -158,7 +162,7 @@ static INLINE void update_cdf(aom_cdf_prob *cdf, int val, int nsymbs) {
   tmp = AOM_ICDF(tmp0);
   diff = ((CDF_PROB_TOP - (nsymbs << rate2)) >> rate) << rate;
 // Single loop (faster)
-#if !CONFIG_ANS && CONFIG_EC_SMALLMUL
+#if !CONFIG_ANS
   for (i = 0; i < nsymbs - 1; ++i, tmp -= tmp0) {
     tmp -= (i == val ? diff : 0);
     cdf[i] += ((tmp - cdf[i]) >> rate);

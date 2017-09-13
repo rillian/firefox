@@ -28,8 +28,7 @@ extern "C" {
 #define GROUP_DIFF_UPDATE_PROB 252
 
 #if CONFIG_Q_ADAPT_PROBS
-#define QCTX_BIN_BITS 2
-#define QCTX_BINS (1 << QCTX_BIN_BITS)
+#define TOKEN_CDF_Q_CTXS 4
 #endif  // CONFIG_Q_ADAPT_PROBS
 
 // Coefficient token alphabet
@@ -61,7 +60,15 @@ extern "C" {
 
 #if CONFIG_LV_MAP
 #define TXB_SKIP_CONTEXTS 13
-#define SIG_COEF_CONTEXTS 20
+#if CONFIG_EXT_TX
+#define SIG_COEF_CONTEXTS_2D 16
+#define SIG_COEF_CONTEXTS_1D 16
+#define SIG_COEF_CONTEXTS \
+  (SIG_COEF_CONTEXTS_2D + SIG_COEF_CONTEXTS_1D + SIG_COEF_CONTEXTS_1D)
+#else
+#define SIG_COEF_CONTEXTS_2D 16
+#define SIG_COEF_CONTEXTS 16
+#endif
 #define EOB_COEF_CONTEXTS 25
 #define COEFF_BASE_CONTEXTS 42
 #define DC_SIGN_CONTEXTS 3
@@ -71,10 +78,21 @@ extern "C" {
 #define LEVEL_CONTEXTS (BR_TMP_OFFSET * BR_REF_CAT)
 
 #define NUM_BASE_LEVELS 2
-#define COEFF_BASE_RANGE (15 - NUM_BASE_LEVELS)
+#define COEFF_BASE_RANGE (16 - NUM_BASE_LEVELS)
+#define BASE_RANGE_SETS 3
 
 #define COEFF_CONTEXT_BITS 6
 #define COEFF_CONTEXT_MASK ((1 << COEFF_CONTEXT_BITS) - 1)
+
+#define BASE_CONTEXT_POSITION_NUM 12
+
+typedef enum TX_CLASS {
+  TX_CLASS_2D = 0,
+  TX_CLASS_HORIZ = 1,
+  TX_CLASS_VERT = 2,
+  TX_CLASSES = 3,
+} TX_CLASS;
+
 #endif
 
 DECLARE_ALIGNED(16, extern const uint8_t, av1_pt_energy_class[ENTROPY_TOKENS]);
@@ -174,21 +192,15 @@ static INLINE int av1_get_cat6_extrabits_size(TX_SIZE tx_size,
 #define BAND_COEFF_CONTEXTS(band) \
   ((band) == 0 ? COEFF_CONTEXTS0 : COEFF_CONTEXTS)
 
-// #define ENTROPY_STATS
-
-typedef unsigned int av1_coeff_count[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                    [ENTROPY_TOKENS];
-typedef unsigned int av1_coeff_stats[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                    [ENTROPY_NODES][2];
-
 #define SUBEXP_PARAM 4   /* Subexponential code parameter */
 #define MODULUS_PARAM 13 /* Modulus parameter */
 
 struct AV1Common;
 struct frame_contexts;
 void av1_default_coef_probs(struct AV1Common *cm);
+#if CONFIG_LV_MAP
 void av1_adapt_coef_probs(struct AV1Common *cm);
-void av1_adapt_coef_cdfs(struct AV1Common *cm, struct frame_contexts *pre_fc);
+#endif  // CONFIG_LV_MAP
 
 // This is the index in the scan order beyond which all coefficients for
 // 8x8 transform and above are in the top band.
@@ -221,21 +233,10 @@ static INLINE const uint8_t *get_band_translate(TX_SIZE tx_size) {
 
 #define UNCONSTRAINED_NODES 3
 
-#define PIVOT_NODE 2  // which node is pivot
-
 #define MODEL_NODES (ENTROPY_NODES - UNCONSTRAINED_NODES)
 #define TAIL_NODES (MODEL_NODES + 1)
 extern const aom_tree_index av1_coef_con_tree[TREE_SIZE(ENTROPY_TOKENS)];
 extern const aom_prob av1_pareto8_full[COEFF_PROB_MODELS][MODEL_NODES];
-
-typedef aom_prob av1_coeff_probs_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
-                                      [UNCONSTRAINED_NODES];
-
-typedef unsigned int av1_coeff_count_model[REF_TYPES][COEF_BANDS]
-                                          [COEFF_CONTEXTS]
-                                          [UNCONSTRAINED_NODES + 1];
-
-void av1_model_to_full_probs(const aom_prob *model, aom_prob *full);
 
 typedef aom_cdf_prob coeff_cdf_model[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS]
                                     [CDF_SIZE(ENTROPY_TOKENS)];
@@ -414,7 +415,7 @@ static INLINE int get_entropy_context(TX_SIZE tx_size, const ENTROPY_CONTEXT *a,
 #define COEF_MAX_UPDATE_FACTOR_AFTER_KEY 128
 
 #if CONFIG_ADAPT_SCAN
-#define ADAPT_SCAN_PROB_PRECISION 16
+#define ADAPT_SCAN_PROB_PRECISION 10
 // 1/8 update rate
 #define ADAPT_SCAN_UPDATE_LOG_RATE 3
 #define ADAPT_SCAN_UPDATE_RATE \

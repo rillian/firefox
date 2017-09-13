@@ -22,6 +22,16 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+#define TWO_MODE
+#endif
+
+#if CONFIG_NCOBMC || CONFIG_NCOBMC_ADAPT_WEIGHT
+#define NC_MODE_INFO 1
+#else
+#define NC_MODE_INFO 0
+#endif
+
 // Max superblock size
 #if CONFIG_EXT_PARTITION
 #define MAX_SB_SIZE_LOG2 7
@@ -113,6 +123,8 @@ typedef enum ATTRIBUTE_PACKED {
   BLOCK_16X4,
   BLOCK_8X32,
   BLOCK_32X8,
+  BLOCK_16X64,
+  BLOCK_64X16,
   BLOCK_SIZES_ALL,
   BLOCK_SIZES = BLOCK_4X16,
   BLOCK_INVALID = 255,
@@ -142,6 +154,7 @@ typedef char PARTITION_CONTEXT;
 #define PARTITION_BLOCK_SIZES (4 + CONFIG_EXT_PARTITION)
 #define PARTITION_CONTEXTS_PRIMARY (PARTITION_BLOCK_SIZES * PARTITION_PLOFFSET)
 #if CONFIG_UNPOISON_PARTITION_CTX
+#define INVALID_PARTITION_CTX (-1)
 #define PARTITION_CONTEXTS \
   (PARTITION_CONTEXTS_PRIMARY + 2 * PARTITION_BLOCK_SIZES)
 #else
@@ -194,9 +207,9 @@ typedef enum ATTRIBUTE_PACKED {
 
 #define MAX_NUM_TXB (1 << (MAX_SB_SIZE_LOG2 - MIN_TX_SIZE_LOG2))
 
-#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
 typedef enum ATTRIBUTE_PACKED {
-  NO_OVERLAP,
+  NCOBMC_MODE_0,
   NCOBMC_MODE_1,
   NCOBMC_MODE_2,
   NCOBMC_MODE_3,
@@ -204,11 +217,24 @@ typedef enum ATTRIBUTE_PACKED {
   NCOBMC_MODE_5,
   NCOBMC_MODE_6,
   NCOBMC_MODE_7,
-  NCOBMC_MODE_8,
-  MAX_NCOBMC_MODES
-} NCOBMC_MODE;
-// #define MAX_INTRPL_MODES 9
+  ALL_NCOBMC_MODES,
+#ifdef TWO_MODE
+  MAX_NCOBMC_MODES = NCOBMC_MODE_1 + 1,
+#else
+  MAX_NCOBMC_MODES = ALL_NCOBMC_MODES,
 #endif
+  NO_OVERLAP = MAX_NCOBMC_MODES + 1
+} NCOBMC_MODE;
+
+typedef enum {
+  ADAPT_OVERLAP_BLOCK_8X8,
+  ADAPT_OVERLAP_BLOCK_16X16,
+  ADAPT_OVERLAP_BLOCK_32X32,
+  ADAPT_OVERLAP_BLOCK_64X64,
+  ADAPT_OVERLAP_BLOCKS,
+  ADAPT_OVERLAP_BLOCK_INVALID = 255
+} ADAPT_OVERLAP_BLOCK;
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
 
 // frame transform mode
 typedef enum {
@@ -304,14 +330,9 @@ typedef enum {
   AOM_LAST3_FLAG = 1 << 2,
   AOM_GOLD_FLAG = 1 << 3,
   AOM_BWD_FLAG = 1 << 4,
-#if CONFIG_ALTREF2
   AOM_ALT2_FLAG = 1 << 5,
   AOM_ALT_FLAG = 1 << 6,
   AOM_REFFRAME_ALL = (1 << 7) - 1
-#else  // !CONFIG_ALTREF2
-  AOM_ALT_FLAG = 1 << 5,
-  AOM_REFFRAME_ALL = (1 << 6) - 1
-#endif  // CONFIG_ALTREF2
 #else   // !CONFIG_EXT_REFS
   AOM_GOLD_FLAG = 1 << 1,
   AOM_ALT_FLAG = 1 << 2,
@@ -334,17 +355,45 @@ typedef enum {
 typedef enum { PLANE_TYPE_Y = 0, PLANE_TYPE_UV = 1, PLANE_TYPES } PLANE_TYPE;
 
 #if CONFIG_CFL
-// TODO(ltrudeau) this should change based on QP size
-#define CB_ALPHABET_SIZE 4
-#define CR_ALPHABET_SIZE 4
-#define CFL_ALPHABET_SIZE (CB_ALPHABET_SIZE * CR_ALPHABET_SIZE)
-#define CFL_MAGS_SIZE 7
+#define CFL_ALPHABET_SIZE_LOG2 4
+#define CFL_ALPHABET_SIZE (1 << CFL_ALPHABET_SIZE_LOG2)
+#define CFL_MAGS_SIZE ((2 << CFL_ALPHABET_SIZE_LOG2) + 1)
+#define CFL_IDX_U(idx) (idx >> CFL_ALPHABET_SIZE_LOG2)
+#define CFL_IDX_V(idx) (idx & (CFL_ALPHABET_SIZE - 1))
 
 typedef enum { CFL_PRED_U = 0, CFL_PRED_V = 1, CFL_PRED_PLANES } CFL_PRED_TYPE;
-typedef enum { CFL_SIGN_NEG = 0, CFL_SIGN_POS = 1, CFL_SIGNS } CFL_SIGN_TYPE;
+
+typedef enum {
+  CFL_SIGN_ZERO = 0,
+  CFL_SIGN_NEG = 1,
+  CFL_SIGN_POS = 2,
+  CFL_SIGNS
+} CFL_SIGN_TYPE;
+
+// CFL_SIGN_ZERO,CFL_SIGN_ZERO is invalid
+#define CFL_JOINT_SIGNS (CFL_SIGNS * CFL_SIGNS - 1)
+// CFL_SIGN_U is equivalent to (js + 1) / 3 for js in 0 to 8
+#define CFL_SIGN_U(js) (((js + 1) * 11) >> 5)
+// CFL_SIGN_V is equivalent to (js + 1) % 3 for js in 0 to 8
+#define CFL_SIGN_V(js) ((js + 1) - CFL_SIGNS * CFL_SIGN_U(js))
+
+// There is no context when the alpha for a given plane is zero.
+// So there are 2 fewer contexts than joint signs.
+#define CFL_ALPHA_CONTEXTS (CFL_JOINT_SIGNS + 1 - CFL_SIGNS)
+#define CFL_CONTEXT_U(js) (js + 1 - CFL_SIGNS)
+// Also, the contexts are symmetric under swapping the planes.
+#define CFL_CONTEXT_V(js) \
+  (CFL_SIGN_V(js) * CFL_SIGNS + CFL_SIGN_U(js) - CFL_SIGNS)
 #endif
 
-#if CONFIG_PALETTE
+typedef enum {
+  PALETTE_MAP,
+#if CONFIG_MRC_TX
+  MRC_MAP,
+#endif  // CONFIG_MRC_TX
+  COLOR_MAP_TYPES,
+} COLOR_MAP_TYPE;
+
 typedef enum {
   TWO_COLORS,
   THREE_COLORS,
@@ -367,27 +416,24 @@ typedef enum {
   PALETTE_COLOR_EIGHT,
   PALETTE_COLORS
 } PALETTE_COLOR;
-#endif  // CONFIG_PALETTE
 
 // Note: All directional predictors must be between V_PRED and D63_PRED (both
 // inclusive).
 typedef enum ATTRIBUTE_PACKED {
-  DC_PRED,    // Average of above and left pixels
-  V_PRED,     // Vertical
-  H_PRED,     // Horizontal
-  D45_PRED,   // Directional 45  deg = round(arctan(1/1) * 180/pi)
-  D135_PRED,  // Directional 135 deg = 180 - 45
-  D117_PRED,  // Directional 117 deg = 180 - 63
-  D153_PRED,  // Directional 153 deg = 180 - 27
-  D207_PRED,  // Directional 207 deg = 180 + 27
-  D63_PRED,   // Directional 63  deg = round(arctan(2/1) * 180/pi)
-#if CONFIG_ALT_INTRA
+  DC_PRED,      // Average of above and left pixels
+  V_PRED,       // Vertical
+  H_PRED,       // Horizontal
+  D45_PRED,     // Directional 45  deg = round(arctan(1/1) * 180/pi)
+  D135_PRED,    // Directional 135 deg = 180 - 45
+  D117_PRED,    // Directional 117 deg = 180 - 63
+  D153_PRED,    // Directional 153 deg = 180 - 27
+  D207_PRED,    // Directional 207 deg = 180 + 27
+  D63_PRED,     // Directional 63  deg = round(arctan(2/1) * 180/pi)
   SMOOTH_PRED,  // Combination of horizontal and vertical interpolation
 #if CONFIG_SMOOTH_HV
   SMOOTH_V_PRED,  // Vertical interpolation
   SMOOTH_H_PRED,  // Horizontal interpolation
 #endif            // CONFIG_SMOOTH_HV
-#endif            // CONFIG_ALT_INTRA
   TM_PRED,        // True-motion
   NEARESTMV,
   NEARMV,
@@ -421,23 +467,22 @@ typedef enum ATTRIBUTE_PACKED {
 // TODO(ltrudeau) Do we really want to pack this?
 // TODO(ltrudeau) Do we match with PREDICTION_MODE?
 typedef enum ATTRIBUTE_PACKED {
-  UV_DC_PRED,    // Average of above and left pixels
-  UV_V_PRED,     // Vertical
-  UV_H_PRED,     // Horizontal
-  UV_D45_PRED,   // Directional 45  deg = round(arctan(1/1) * 180/pi)
-  UV_D135_PRED,  // Directional 135 deg = 180 - 45
-  UV_D117_PRED,  // Directional 117 deg = 180 - 63
-  UV_D153_PRED,  // Directional 153 deg = 180 - 27
-  UV_D207_PRED,  // Directional 207 deg = 180 + 27
-  UV_D63_PRED,   // Directional 63  deg = round(arctan(2/1) * 180/pi)
-#if CONFIG_ALT_INTRA
+  UV_DC_PRED,      // Average of above and left pixels
+  UV_V_PRED,       // Vertical
+  UV_H_PRED,       // Horizontal
+  UV_D45_PRED,     // Directional 45  deg = round(arctan(1/1) * 180/pi)
+  UV_D135_PRED,    // Directional 135 deg = 180 - 45
+  UV_D117_PRED,    // Directional 117 deg = 180 - 63
+  UV_D153_PRED,    // Directional 153 deg = 180 - 27
+  UV_D207_PRED,    // Directional 207 deg = 180 + 27
+  UV_D63_PRED,     // Directional 63  deg = round(arctan(2/1) * 180/pi)
   UV_SMOOTH_PRED,  // Combination of horizontal and vertical interpolation
 #if CONFIG_SMOOTH_HV
   UV_SMOOTH_V_PRED,  // Vertical interpolation
   UV_SMOOTH_H_PRED,  // Horizontal interpolation
 #endif               // CONFIG_SMOOTH_HV
-#endif               // CONFIG_ALT_INTRA
   UV_TM_PRED,        // True-motion
+  UV_CFL_PRED,       // Chroma-from-Luma
   UV_INTRA_MODES,
   UV_MODE_INVALID,  // For uv_mode in inter blocks
 } UV_PREDICTION_MODE;
@@ -452,26 +497,19 @@ typedef enum {
   SIMPLE_TRANSLATION = 0,
 #if CONFIG_MOTION_VAR
   OBMC_CAUSAL,  // 2-sided OBMC
-#endif          // CONFIG_MOTION_VAR
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  NCOBMC_ADAPT_WEIGHT,
+#endif  // CONFIG_NCOBMC_ADAPT_WEIGHT
+#endif  // CONFIG_MOTION_VAR
 #if CONFIG_WARPED_MOTION
   WARPED_CAUSAL,  // 2-sided WARPED
 #endif            // CONFIG_WARPED_MOTION
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-  NCOBMC_ADAPT_WEIGHT,
-#endif
   MOTION_MODES
-} MOTION_MODE;
-
-#if CONFIG_NCOBMC_ADAPT_WEIGHT
-typedef enum {
-  ADAPT_OVERLAP_BLOCK_8X8,
-  ADAPT_OVERLAP_BLOCK_16X16,
-  ADAPT_OVERLAP_BLOCK_32X32,
-  ADAPT_OVERLAP_BLOCK_64X64,
-  ADAPT_OVERLAP_BLOCKS,
-  ADAPT_OVERLAP_BLOCK_INVALID = 255
-} ADAPT_OVERLAP_BLOCK;
+#if CONFIG_NCOBMC_ADAPT_WEIGHT && CONFIG_WARPED_MOTION
+  ,
+  OBMC_FAMILY_MODES = NCOBMC_ADAPT_WEIGHT + 1
 #endif
+} MOTION_MODE;
 
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
@@ -479,11 +517,7 @@ typedef enum {
   II_DC_PRED = 0,
   II_V_PRED,
   II_H_PRED,
-#if CONFIG_ALT_INTRA
   II_SMOOTH_PRED,
-#else
-  II_TM_PRED,
-#endif  // CONFIG_ALT_INTRA
   INTERINTRA_MODES
 } INTERINTRA_MODE;
 #endif
@@ -601,14 +635,8 @@ typedef uint8_t TXFM_CONTEXT;
 #define LAST3_FRAME 3
 #define GOLDEN_FRAME 4
 #define BWDREF_FRAME 5
-
-#if CONFIG_ALTREF2
 #define ALTREF2_FRAME 6
 #define ALTREF_FRAME 7
-#else  // !CONFIG_ALTREF2
-#define ALTREF_FRAME 6
-#endif  // CONFIG_ALTREF2
-
 #define LAST_REF_FRAMES (LAST3_FRAME - LAST_FRAME + 1)
 #else  // !CONFIG_EXT_REFS
 #define GOLDEN_FRAME 2

@@ -54,9 +54,10 @@ typedef struct TileData {
   CFL_CTX cfl;
 #endif
   DECLARE_ALIGNED(16, FRAME_CONTEXT, tctx);
-#if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
+#if CONFIG_MRC_TX
+  DECLARE_ALIGNED(16, uint8_t, mrc_mask[MAX_SB_SQUARE]);
+#endif  // CONFIG_MRC_TX
 } TileData;
 
 typedef struct TileWorkerData {
@@ -74,9 +75,10 @@ typedef struct TileWorkerData {
   CFL_CTX cfl;
 #endif
   FRAME_CONTEXT tctx;
-#if CONFIG_PALETTE
   DECLARE_ALIGNED(16, uint8_t, color_index_map[2][MAX_SB_SQUARE]);
-#endif  // CONFIG_PALETTE
+#if CONFIG_MRC_TX
+  DECLARE_ALIGNED(16, uint8_t, mrc_mask[MAX_SB_SQUARE]);
+#endif  // CONFIG_MRC_TX
   struct aom_internal_error_info error_info;
 } TileWorkerData;
 
@@ -154,12 +156,10 @@ int av1_get_raw_frame(struct AV1Decoder *pbi, YV12_BUFFER_CONFIG *sd);
 
 int av1_get_frame_to_show(struct AV1Decoder *pbi, YV12_BUFFER_CONFIG *frame);
 
-aom_codec_err_t av1_copy_reference_dec(struct AV1Decoder *pbi,
-                                       AOM_REFFRAME ref_frame_flag,
+aom_codec_err_t av1_copy_reference_dec(struct AV1Decoder *pbi, int idx,
                                        YV12_BUFFER_CONFIG *sd);
 
-aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm,
-                                      AOM_REFFRAME ref_frame_flag,
+aom_codec_err_t av1_set_reference_dec(AV1_COMMON *cm, int idx,
                                       YV12_BUFFER_CONFIG *sd);
 
 static INLINE uint8_t read_marker(aom_decrypt_cb decrypt_cb,
@@ -213,7 +213,6 @@ static INLINE int dec_is_ref_frame_buf(AV1Decoder *const pbi,
 }
 #endif  // CONFIG_EXT_REFS
 
-#if CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 #define ACCT_STR __func__
 static INLINE int av1_read_uniform(aom_reader *r, int n) {
   const int l = get_unsigned_bits(n);
@@ -225,7 +224,6 @@ static INLINE int av1_read_uniform(aom_reader *r, int n) {
   else
     return (v << 1) - m + aom_read_literal(r, 1, ACCT_STR);
 }
-#endif  // CONFIG_EXT_INTRA || CONFIG_FILTER_INTRA || CONFIG_PALETTE
 
 #ifdef __cplusplus
 }  // extern "C"

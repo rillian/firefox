@@ -24,18 +24,48 @@ extern "C" {
 #define CLIP(x, lo, hi) ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 #define RINT(x) ((x) < 0 ? (int)((x)-0.5) : (int)((x) + 0.5))
 
-#define RESTORATION_TILESIZE_MAX 256
-#define RESTORATION_TILEPELS_MAX \
-  (RESTORATION_TILESIZE_MAX * RESTORATION_TILESIZE_MAX * 9 / 4)
+#define RESTORATION_PROC_UNIT_SIZE 64
 
-// 4 32-bit buffers needed for the filter:
-// 2 for the restored versions of the frame and
-// 2 for each restoration operation
-#define SGRPROJ_OUTBUF_SIZE \
-  ((RESTORATION_TILESIZE_MAX * 3 / 2) * (RESTORATION_TILESIZE_MAX * 3 / 2 + 16))
-#define SGRPROJ_TMPBUF_SIZE                         \
-  (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t) + \
-   SGRPROJ_OUTBUF_SIZE * 2 * sizeof(int32_t))
+#define SGRPROJ_BORDER_VERT 1  // Vertical border used for Sgr
+#define SGRPROJ_BORDER_HORZ 2  // Horizontal border used for Sgr
+
+#define WIENER_BORDER_VERT 1  // Vertical border used for Wiener
+#define WIENER_HALFWIN 3
+#define WIENER_BORDER_HORZ (WIENER_HALFWIN)  // Horizontal border for Wiener
+
+// RESTORATION_BORDER_VERT determines line buffer requirement for LR.
+// Should be set at the max of SGRPROJ_BORDER_VERT and WIENER_BORDER_VERT.
+// Note the line buffer needed is twice the value of this macro.
+#if SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
+#define RESTORATION_BORDER_VERT (SGRPROJ_BORDER_VERT)
+#else
+#define RESTORATION_BORDER_VERT (WIENER_BORDER_VERT)
+#endif  // SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
+
+#if SGRPROJ_BORDER_HORZ >= WIENER_BORDER_HORZ
+#define RESTORATION_BORDER_HORZ (SGRPROJ_BORDER_HORZ)
+#else
+#define RESTORATION_BORDER_HORZ (WIENER_BORDER_HORZ)
+#endif  // SGRPROJ_BORDER_VERT >= WIENER_BORDER_VERT
+
+// Pad up to 20 more (may be much less is needed)
+#define RESTORATION_PADDING 20
+#define RESTORATION_PROC_UNIT_PELS                             \
+  ((RESTORATION_PROC_UNIT_SIZE + RESTORATION_BORDER_HORZ * 2 + \
+    RESTORATION_PADDING) *                                     \
+   (RESTORATION_PROC_UNIT_SIZE + RESTORATION_BORDER_VERT * 2 + \
+    RESTORATION_PADDING))
+
+#define RESTORATION_TILESIZE_MAX 256
+#define RESTORATION_TILEPELS_MAX                                           \
+  ((RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_HORZ + 16) * \
+   (RESTORATION_TILESIZE_MAX * 3 / 2 + 2 * RESTORATION_BORDER_VERT))
+
+// Two 32-bit buffers needed for the restored versions from two filters
+// TODO(debargha, rupert): Refactor to not need the large tilesize to be stored
+// on the decoder side.
+#define SGRPROJ_TMPBUF_SIZE (RESTORATION_TILEPELS_MAX * 2 * sizeof(int32_t))
+
 #define SGRPROJ_EXTBUF_SIZE (0)
 #define SGRPROJ_PARAMS_BITS 4
 #define SGRPROJ_PARAMS (1 << SGRPROJ_PARAMS_BITS)
@@ -65,18 +95,21 @@ extern "C" {
 
 #define SGRPROJ_BITS (SGRPROJ_PRJ_BITS * 2 + SGRPROJ_PARAMS_BITS)
 
-#define MAX_RADIUS 3  // Only 1, 2, 3 allowed
+#define MAX_RADIUS 2  // Only 1, 2, 3 allowed
 #define MAX_EPS 80    // Max value of eps
 #define MAX_NELEM ((2 * MAX_RADIUS + 1) * (2 * MAX_RADIUS + 1))
 #define SGRPROJ_MTABLE_BITS 20
 #define SGRPROJ_RECIP_BITS 12
 
-#define WIENER_HALFWIN 3
 #define WIENER_HALFWIN1 (WIENER_HALFWIN + 1)
 #define WIENER_WIN (2 * WIENER_HALFWIN + 1)
 #define WIENER_WIN2 ((WIENER_WIN) * (WIENER_WIN))
 #define WIENER_TMPBUF_SIZE (0)
 #define WIENER_EXTBUF_SIZE (0)
+
+// If WIENER_WIN_CHROMA == WIENER_WIN - 2, that implies 5x5 filters are used for
+// chroma. To use 7x7 for chroma set WIENER_WIN_CHROMA to WIENER_WIN.
+#define WIENER_WIN_CHROMA (WIENER_WIN - 2)
 
 #define WIENER_FILT_PREC_BITS 7
 #define WIENER_FILT_STEP (1 << WIENER_FILT_PREC_BITS)
@@ -131,10 +164,6 @@ extern "C" {
 #if WIENER_FILT_PREC_BITS != 7
 #error "Wiener filter currently only works if WIENER_FILT_PREC_BITS == 7"
 #endif
-typedef struct {
-  DECLARE_ALIGNED(16, InterpKernel, vfilter);
-  DECLARE_ALIGNED(16, InterpKernel, hfilter);
-} WienerInfo;
 
 typedef struct {
 #if USE_HIGHPASS_IN_SGRPROJ
@@ -149,12 +178,8 @@ typedef struct {
 } sgr_params_type;
 
 typedef struct {
-  int ep;
-  int xqd[2];
-} SgrprojInfo;
-
-typedef struct {
   int restoration_tilesize;
+  int procunit_width, procunit_height;
   RestorationType frame_restoration_type;
   RestorationType *restoration_type;
   // Wiener filter
@@ -196,6 +221,8 @@ static INLINE int av1_get_rest_ntiles(int width, int height, int tilesize,
   int tile_width_, tile_height_;
   tile_width_ = (tilesize < 0) ? width : AOMMIN(tilesize, width);
   tile_height_ = (tilesize < 0) ? height : AOMMIN(tilesize, height);
+  assert(tile_width_ > 0 && tile_height_ > 0);
+
   nhtiles_ = (width + (tile_width_ >> 1)) / tile_width_;
   nvtiles_ = (height + (tile_height_ >> 1)) / tile_height_;
   if (tile_width) *tile_width = tile_width_;
@@ -248,15 +275,31 @@ int av1_alloc_restoration_struct(struct AV1Common *cm,
                                  int height);
 void av1_free_restoration_struct(RestorationInfo *rst_info);
 
-void extend_frame(uint8_t *data, int width, int height, int stride);
+void extend_frame(uint8_t *data, int width, int height, int stride,
+                  int border_horz, int border_vert);
 #if CONFIG_HIGHBITDEPTH
-void extend_frame_highbd(uint16_t *data, int width, int height, int stride);
+void extend_frame_highbd(uint16_t *data, int width, int height, int stride,
+                         int border_horz, int border_vert);
 #endif  // CONFIG_HIGHBITDEPTH
 void decode_xq(int *xqd, int *xq);
 void av1_loop_restoration_frame(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                                 RestorationInfo *rsi, int components_pattern,
                                 int partial_frame, YV12_BUFFER_CONFIG *dst);
 void av1_loop_restoration_precal();
+
+// Return 1 iff the block at mi_row, mi_col with size bsize is a
+// top-level superblock containing the top-left corner of at least one
+// loop restoration tile.
+//
+// If the block is a top-level superblock, the function writes to
+// *rcol0, *rcol1, *rrow0, *rrow1. The rectangle of indices given by
+// [*rcol0, *rcol1) x [*rrow0, *rrow1) will point at the set of rtiles
+// whose top left corners lie in the superblock. Note that the set is
+// only nonempty if *rcol0 < *rcol1 and *rrow0 < *rrow1.
+int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
+                                       int mi_row, int mi_col, BLOCK_SIZE bsize,
+                                       int *rcol0, int *rcol1, int *rrow0,
+                                       int *rrow1, int *nhtiles);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

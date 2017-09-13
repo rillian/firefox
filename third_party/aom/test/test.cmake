@@ -133,23 +133,34 @@ if (NOT BUILD_SHARED_LIBS)
         "${AOM_ROOT}/test/av1_txfm_test.h"
         "${AOM_ROOT}/test/intrapred_test.cc"
         "${AOM_ROOT}/test/lpf_8_test.cc"
-        "${AOM_ROOT}/test/motion_vector_test.cc"
         "${AOM_ROOT}/test/simd_cmp_impl.h")
 
-    if (CONFIG_CDEF)
-      set(AOM_UNIT_TEST_COMMON_SOURCES
-          ${AOM_UNIT_TEST_COMMON_SOURCES}
-          "${AOM_ROOT}/test/clpf_test.cc"
-          "${AOM_ROOT}/test/dering_test.cc")
-    endif ()
+    set(AOM_UNIT_TEST_ENCODER_SOURCES
+        ${AOM_UNIT_TEST_ENCODER_SOURCES}
+        "${AOM_ROOT}/test/motion_vector_test.cc")
 
-    if (CONFIG_FILTER_INTRA)
-      if (HAVE_SSE4_1)
+    if (CONFIG_CDEF)
+      if (CONFIG_CDEF_SINGLEPASS)
         set(AOM_UNIT_TEST_COMMON_SOURCES
             ${AOM_UNIT_TEST_COMMON_SOURCES}
-            "${AOM_ROOT}/test/filterintra_predictors_test.cc")
+            "${AOM_ROOT}/test/cdef_test.cc")
+      else ()
+        set(AOM_UNIT_TEST_COMMON_SOURCES
+            ${AOM_UNIT_TEST_COMMON_SOURCES}
+            "${AOM_ROOT}/test/clpf_test.cc"
+            "${AOM_ROOT}/test/dering_test.cc")
       endif ()
     endif ()
+
+    # Omit 4-tap filter intra predictor test-- currently a 3-tap filter is in
+    # use.
+    #if (CONFIG_FILTER_INTRA)
+    #  if (HAVE_SSE4_1)
+    #    set(AOM_UNIT_TEST_COMMON_SOURCES
+    #        ${AOM_UNIT_TEST_COMMON_SOURCES}
+    #        "${AOM_ROOT}/test/filterintra_predictors_test.cc")
+    #  endif ()
+    #endif ()
 
     if (CONFIG_INTRABC)
         set(AOM_UNIT_TEST_COMMON_SOURCES
@@ -160,10 +171,15 @@ if (NOT BUILD_SHARED_LIBS)
     if (CONFIG_LOOP_RESTORATION)
       set(AOM_UNIT_TEST_COMMON_SOURCES
           ${AOM_UNIT_TEST_COMMON_SOURCES}
-           "${AOM_ROOT}/test/hiprec_convolve_test.cc"
+          "${AOM_ROOT}/test/selfguided_filter_test.cc")
+
+      if (HAVE_SSE2)
+        set(AOM_UNIT_TEST_COMMON_SOURCES
+            ${AOM_UNIT_TEST_COMMON_SOURCES}
+            "${AOM_ROOT}/test/hiprec_convolve_test.cc"
             "${AOM_ROOT}/test/hiprec_convolve_test_util.cc"
-            "${AOM_ROOT}/test/hiprec_convolve_test_util.h"
-            "${AOM_ROOT}/test/selfguided_filter_test.cc")
+            "${AOM_ROOT}/test/hiprec_convolve_test_util.h")
+      endif ()
     endif ()
 
     set(AOM_UNIT_TEST_COMMON_INTRIN_NEON
@@ -215,19 +231,28 @@ if (CONFIG_AV1_ENCODER)
         "${AOM_ROOT}/test/fdct8x8_test.cc"
         "${AOM_ROOT}/test/hadamard_test.cc"
         "${AOM_ROOT}/test/minmax_test.cc"
-        "${AOM_ROOT}/test/quantize_func_test.cc"
         "${AOM_ROOT}/test/subtract_test.cc"
         "${AOM_ROOT}/test/sum_squares_test.cc"
         "${AOM_ROOT}/test/variance_test.cc")
 
+    if (NOT CONFIG_AOM_QM AND NOT CONFIG_NEW_QUANT)
+      set(AOM_UNIT_TEST_ENCODER_SOURCES
+          ${AOM_UNIT_TEST_ENCODER_SOURCES}
+          "${AOM_ROOT}/test/quantize_func_test.cc")
+    endif ()
+
     if (CONFIG_CONVOLVE_ROUND)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
           ${AOM_UNIT_TEST_ENCODER_SOURCES}
-          "${AOM_ROOT}/test/av1_convolve_2d_test.cc"
-          "${AOM_ROOT}/test/av1_convolve_2d_test_util.cc"
-          "${AOM_ROOT}/test/av1_convolve_2d_test_util.h"
           "${AOM_ROOT}/test/convolve_round_test.cc")
+      if (HAVE_SSE2)
+        set(AOM_UNIT_TEST_ENCODER_SOURCES
+            ${AOM_UNIT_TEST_ENCODER_SOURCES}
+            "${AOM_ROOT}/test/av1_convolve_2d_test.cc"
+            "${AOM_ROOT}/test/av1_convolve_2d_test_util.cc"
+            "${AOM_ROOT}/test/av1_convolve_2d_test_util.h")
       endif ()
+    endif ()
 
     if (CONFIG_EXT_INTER)
       set(AOM_UNIT_TEST_ENCODER_SOURCES
@@ -274,9 +299,9 @@ if (NOT BUILD_SHARED_LIBS)
   if (CONFIG_AV1_DECODER AND CONFIG_AV1_ENCODER)
     set(AOM_UNIT_TEST_COMMON_SOURCES
         ${AOM_UNIT_TEST_COMMON_SOURCES}
-        "${AOM_ROOT}/test/binary_codes_test.cc"
         "${AOM_ROOT}/test/divu_small_test.cc"
         "${AOM_ROOT}/test/ethread_test.cc"
+        "${AOM_ROOT}/test/coding_path_sync.cc"
         "${AOM_ROOT}/test/idct8x8_test.cc"
         "${AOM_ROOT}/test/partial_idct_test.cc"
         "${AOM_ROOT}/test/superframe_test.cc"
@@ -290,6 +315,7 @@ if (NOT BUILD_SHARED_LIBS)
     else ()
       set(AOM_UNIT_TEST_COMMON_SOURCES
           ${AOM_UNIT_TEST_COMMON_SOURCES}
+          "${AOM_ROOT}/test/binary_codes_test.cc"
           "${AOM_ROOT}/test/boolcoder_test.cc")
     endif ()
 

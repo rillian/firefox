@@ -40,11 +40,13 @@ foreach $w (@block_widths) {
     push @block_sizes, [$w, $h] if ($w <= 2*$h && $h <= 2*$w) ;
   }
 }
-if (aom_config("CONFIG_EXT_PARTITION_TYPES")) {
+if (aom_config("CONFIG_EXT_PARTITION_TYPES") eq "yes") {
   push @block_sizes, [4, 16];
   push @block_sizes, [16, 4];
   push @block_sizes, [8, 32];
   push @block_sizes, [32, 8];
+  push @block_sizes, [16, 64];
+  push @block_sizes, [64, 16];
 }
 
 @tx_dims = (2, 4, 8, 16, 32);
@@ -60,14 +62,9 @@ foreach $w (@tx_dims) {
   }
 }
 
-@pred_names = qw/dc dc_top dc_left dc_128 v h d207e d63e d45e d117 d135 d153/;
-if (aom_config("CONFIG_ALT_INTRA") eq "yes") {
-  push @pred_names, qw/paeth smooth/;
-  if (aom_config("CONFIG_SMOOTH_HV") eq "yes") {
-    push @pred_names, qw/smooth_v smooth_h/;
-  }
-} else {
-  push @pred_names, 'tm';
+@pred_names = qw/dc dc_top dc_left dc_128 v h d207e d63e d45e d117 d135 d153 paeth smooth/;
+if (aom_config("CONFIG_SMOOTH_HV") eq "yes") {
+  push @pred_names, qw/smooth_v smooth_h/;
 }
 
 #
@@ -91,9 +88,6 @@ specialize qw/aom_h_predictor_4x4 neon dspr2 msa sse2/;
 specialize qw/aom_d135_predictor_4x4 neon/;
 specialize qw/aom_d153_predictor_4x4 ssse3/;
 specialize qw/aom_v_predictor_4x4 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_4x4 neon dspr2 msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_4x4 dspr2 msa neon sse2/;
 specialize qw/aom_dc_top_predictor_4x4 msa neon sse2/;
 specialize qw/aom_dc_left_predictor_4x4 msa neon sse2/;
@@ -101,9 +95,6 @@ specialize qw/aom_dc_128_predictor_4x4 msa neon sse2/;
 specialize qw/aom_h_predictor_8x8 neon dspr2 msa sse2/;
 specialize qw/aom_d153_predictor_8x8 ssse3/;
 specialize qw/aom_v_predictor_8x8 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_8x8 neon dspr2 msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_8x8 dspr2 neon msa sse2/;
 specialize qw/aom_dc_top_predictor_8x8 neon msa sse2/;
 specialize qw/aom_dc_left_predictor_8x8 neon msa sse2/;
@@ -111,9 +102,6 @@ specialize qw/aom_dc_128_predictor_8x8 neon msa sse2/;
 specialize qw/aom_h_predictor_16x16 neon dspr2 msa sse2/;
 specialize qw/aom_d153_predictor_16x16 ssse3/;
 specialize qw/aom_v_predictor_16x16 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_16x16 neon msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_16x16 dspr2 neon msa sse2/;
 specialize qw/aom_dc_top_predictor_16x16 neon msa sse2/;
 specialize qw/aom_dc_left_predictor_16x16 neon msa sse2/;
@@ -121,9 +109,6 @@ specialize qw/aom_dc_128_predictor_16x16 neon msa sse2/;
 specialize qw/aom_h_predictor_32x32 neon msa sse2/;
 specialize qw/aom_d153_predictor_32x32 ssse3/;
 specialize qw/aom_v_predictor_32x32 neon msa sse2/;
-if (aom_config("CONFIG_ALT_INTRA") eq "") {
-  specialize qw/aom_tm_predictor_32x32 neon msa sse2/;
-}  # CONFIG_ALT_INTRA
 specialize qw/aom_dc_predictor_32x32 msa neon sse2/;
 specialize qw/aom_dc_top_predictor_32x32 msa neon sse2/;
 specialize qw/aom_dc_left_predictor_32x32 msa neon sse2/;
@@ -131,24 +116,12 @@ specialize qw/aom_dc_128_predictor_32x32 msa neon sse2/;
 
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   specialize qw/aom_highbd_v_predictor_4x4 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_4x4 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_4x4 sse2/;
   specialize qw/aom_highbd_v_predictor_8x8 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_8x8 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_8x8 sse2/;;
   specialize qw/aom_highbd_v_predictor_16x16 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_16x16 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_16x16 sse2/;
   specialize qw/aom_highbd_v_predictor_32x32 sse2/;
-  if (aom_config("CONFIG_ALT_INTRA") eq "") {
-    specialize qw/aom_highbd_tm_predictor_32x32 sse2/;
-  }  # CONFIG_ALT_INTRA
   specialize qw/aom_highbd_dc_predictor_32x32 sse2/;
 }  # CONFIG_HIGHBITDEPTH
 
@@ -257,83 +230,121 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 # Loopfilter
 #
 add_proto qw/void aom_lpf_vertical_16/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_vertical_16 sse2 neon_asm dspr2 msa/;
-$aom_lpf_vertical_16_neon_asm=aom_lpf_vertical_16_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_vertical_16 sse2/;
+} else {
+  specialize qw/aom_lpf_vertical_16 sse2 neon_asm dspr2 msa/;
+  $aom_lpf_vertical_16_neon_asm=aom_lpf_vertical_16_neon;
+}
 
 add_proto qw/void aom_lpf_vertical_16_dual/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_vertical_16_dual sse2 neon_asm dspr2 msa/;
-$aom_lpf_vertical_16_dual_neon_asm=aom_lpf_vertical_16_dual_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+  specialize qw/aom_lpf_vertical_16_dual sse2 neon_asm dspr2 msa/;
+  $aom_lpf_vertical_16_dual_neon_asm=aom_lpf_vertical_16_dual_neon;
+}
 
 add_proto qw/void aom_lpf_vertical_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_vertical_8 sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_vertical_8 sse2/;
+} else {
+  specialize qw/aom_lpf_vertical_8 sse2 neon dspr2 msa/;
+}
 
 add_proto qw/void aom_lpf_vertical_8_dual/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1";
-specialize qw/aom_lpf_vertical_8_dual sse2 neon_asm dspr2 msa/;
-$aom_lpf_vertical_8_dual_neon_asm=aom_lpf_vertical_8_dual_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+  specialize qw/aom_lpf_vertical_8_dual sse2 neon_asm dspr2 msa/;
+  $aom_lpf_vertical_8_dual_neon_asm=aom_lpf_vertical_8_dual_neon;
+}
 
 add_proto qw/void aom_lpf_vertical_4/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_vertical_4 sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_vertical_4 sse2/;
+} else {
+  specialize qw/aom_lpf_vertical_4 sse2 neon dspr2 msa/;
+}
 
 add_proto qw/void aom_lpf_vertical_4_dual/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1";
-specialize qw/aom_lpf_vertical_4_dual sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+  specialize qw/aom_lpf_vertical_4_dual sse2 neon dspr2 msa/;
+}
 
 add_proto qw/void aom_lpf_horizontal_edge_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_horizontal_edge_8 sse2 avx2 neon_asm dspr2 msa/;
-$aom_lpf_horizontal_edge_8_neon_asm=aom_lpf_horizontal_edge_8_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_horizontal_edge_8 sse2/;
+} else {
+  specialize qw/aom_lpf_horizontal_edge_8 sse2 avx2 neon_asm dspr2 msa/;
+  $aom_lpf_horizontal_edge_8_neon_asm=aom_lpf_horizontal_edge_8_neon;
+}
 
 add_proto qw/void aom_lpf_horizontal_edge_16/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_horizontal_edge_16 sse2 avx2 neon_asm dspr2 msa/;
-$aom_lpf_horizontal_edge_16_neon_asm=aom_lpf_horizontal_edge_16_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_horizontal_edge_16 sse2/;
+} else {
+  specialize qw/aom_lpf_horizontal_edge_16 sse2 avx2 neon_asm dspr2 msa/;
+  $aom_lpf_horizontal_edge_16_neon_asm=aom_lpf_horizontal_edge_16_neon;
+}
 
 add_proto qw/void aom_lpf_horizontal_8/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_horizontal_8 sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_horizontal_8 sse2/;
+} else {
+  specialize qw/aom_lpf_horizontal_8 sse2 neon dspr2 msa/;
+}
 
 add_proto qw/void aom_lpf_horizontal_8_dual/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1";
-specialize qw/aom_lpf_horizontal_8_dual sse2 neon_asm dspr2 msa/;
-$aom_lpf_horizontal_8_dual_neon_asm=aom_lpf_horizontal_8_dual_neon;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+  specialize qw/aom_lpf_horizontal_8_dual sse2 neon_asm dspr2 msa/;
+  $aom_lpf_horizontal_8_dual_neon_asm=aom_lpf_horizontal_8_dual_neon;
+}
 
 add_proto qw/void aom_lpf_horizontal_4/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
-specialize qw/aom_lpf_horizontal_4 sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") eq "yes") {
+  specialize qw/aom_lpf_horizontal_4 sse2/;
+} else {
+  specialize qw/aom_lpf_horizontal_4 sse2 neon dspr2 msa/;
+}
 
 add_proto qw/void aom_lpf_horizontal_4_dual/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1";
-specialize qw/aom_lpf_horizontal_4_dual sse2 neon dspr2 msa/;
+if (aom_config("CONFIG_PARALLEL_DEBLOCKING") ne "yes") {
+  specialize qw/aom_lpf_horizontal_4_dual sse2 neon dspr2 msa/;
+}
 
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void aom_highbd_lpf_vertical_16/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_vertical_16 sse2/;
 
   add_proto qw/void aom_highbd_lpf_vertical_16_dual/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
-  specialize qw/aom_highbd_lpf_vertical_16_dual sse2/;
+  specialize qw/aom_highbd_lpf_vertical_16_dual sse2 avx2/;
 
   add_proto qw/void aom_highbd_lpf_vertical_8/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_vertical_8 sse2/;
 
   add_proto qw/void aom_highbd_lpf_vertical_8_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
-  specialize qw/aom_highbd_lpf_vertical_8_dual sse2/;
+  specialize qw/aom_highbd_lpf_vertical_8_dual sse2 avx2/;
 
   add_proto qw/void aom_highbd_lpf_vertical_4/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_vertical_4 sse2/;
 
   add_proto qw/void aom_highbd_lpf_vertical_4_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
-  specialize qw/aom_highbd_lpf_vertical_4_dual sse2/;
+  specialize qw/aom_highbd_lpf_vertical_4_dual sse2 avx2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_edge_8/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_horizontal_edge_8 sse2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_edge_16/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
-  specialize qw/aom_highbd_lpf_horizontal_edge_16 sse2/;
+  specialize qw/aom_highbd_lpf_horizontal_edge_16 sse2 avx2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_8/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_horizontal_8 sse2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_8_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
-  specialize qw/aom_highbd_lpf_horizontal_8_dual sse2/;
+  specialize qw/aom_highbd_lpf_horizontal_8_dual sse2 avx2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_4/, "uint16_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh, int bd";
   specialize qw/aom_highbd_lpf_horizontal_4 sse2/;
 
   add_proto qw/void aom_highbd_lpf_horizontal_4_dual/, "uint16_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0, const uint8_t *blimit1, const uint8_t *limit1, const uint8_t *thresh1, int bd";
-  specialize qw/aom_highbd_lpf_horizontal_4_dual sse2/;
+  specialize qw/aom_highbd_lpf_horizontal_4_dual sse2 avx2/;
 }  # CONFIG_HIGHBITDEPTH
 
 #
@@ -515,23 +526,7 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
 #
 # Quantization
 #
-if (aom_config("CONFIG_AOM_QM") eq "yes") {
-  if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
-    add_proto qw/void aom_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-    add_proto qw/void aom_quantize_b_32x32/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-    add_proto qw/void aom_quantize_b_64x64/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-    add_proto qw/void aom_highbd_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-    add_proto qw/void aom_highbd_quantize_b_32x32/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-    add_proto qw/void aom_highbd_quantize_b_64x64/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr";
-
-  }  # CONFIG_AV1_ENCODER
-} else {
-  if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
+if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
     add_proto qw/void aom_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
     specialize qw/aom_quantize_b sse2/, "$ssse3_x86_64", "$avx_x86_64";
 
@@ -539,17 +534,18 @@ if (aom_config("CONFIG_AOM_QM") eq "yes") {
     specialize qw/aom_quantize_b_32x32/, "$ssse3_x86_64", "$avx_x86_64";
 
     add_proto qw/void aom_quantize_b_64x64/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
+}  # CONFIG_AV1_ENCODER
 
-    add_proto qw/void aom_highbd_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
-    specialize qw/aom_highbd_quantize_b sse2 avx2/;
+if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
+  add_proto qw/void aom_highbd_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
+  specialize qw/aom_highbd_quantize_b sse2 avx2/;
 
-    add_proto qw/void aom_highbd_quantize_b_32x32/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
-    specialize qw/aom_highbd_quantize_b_32x32 sse2/;
+  add_proto qw/void aom_highbd_quantize_b_32x32/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
+  specialize qw/aom_highbd_quantize_b_32x32 sse2/;
 
-    add_proto qw/void aom_highbd_quantize_b_64x64/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
+  add_proto qw/void aom_highbd_quantize_b_64x64/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, int skip_block, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan";
 
-  }  # CONFIG_AV1_ENCODER
-} # CONFIG_AOM_QM
+}  # CONFIG_AV1_ENCODER
 if (aom_config("CONFIG_AV1") eq "yes") {
   #
   # Alpha blending with mask
@@ -989,19 +985,25 @@ specialize qw/aom_sub_pixel_avg_variance8x4        msa sse2 ssse3/;
 specialize qw/aom_sub_pixel_avg_variance4x8        msa sse2 ssse3/;
 specialize qw/aom_sub_pixel_avg_variance4x4        msa sse2 ssse3/;
 
-if (aom_config("CONFIG_EXT_PARTITION_TYPES")) {
+if (aom_config("CONFIG_EXT_PARTITION_TYPES") eq "yes") {
   specialize qw/aom_variance4x16 sse2/;
   specialize qw/aom_variance16x4 sse2/;
   specialize qw/aom_variance8x32 sse2/;
   specialize qw/aom_variance32x8 sse2/;
+  specialize qw/aom_variance16x64 sse2/;
+  specialize qw/aom_variance64x16 sse2/;
   specialize qw/aom_sub_pixel_variance4x16 sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance16x4 sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance8x32 sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance32x8 sse2 ssse3/;
+  specialize qw/aom_sub_pixel_variance16x64 sse2 ssse3/;
+  specialize qw/aom_sub_pixel_variance64x16 sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance4x16 sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance16x4 sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance8x32 sse2 ssse3/;
   specialize qw/aom_sub_pixel_avg_variance32x8 sse2 ssse3/;
+  specialize qw/aom_sub_pixel_avg_variance16x64 sse2 ssse3/;
+  specialize qw/aom_sub_pixel_avg_variance64x16 sse2 ssse3/;
 }
 
 if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
@@ -1020,7 +1022,7 @@ if (aom_config("CONFIG_HIGHBITDEPTH") eq "yes") {
       if ($w != 128 && $h != 128 && $w != 4 && $h != 4) {
         specialize "aom_highbd_${bd}_variance${w}x${h}", "sse2";
       }
-      # TODO(david.barker): When ext-partition-types is enabled, we currenly
+      # TODO(david.barker): When ext-partition-types is enabled, we currently
       # don't have vectorized 4x16 highbd variance functions
       if ($w == 4 && $h == 4) {
         specialize "aom_highbd_${bd}_variance${w}x${h}", "sse4_1";

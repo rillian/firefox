@@ -38,6 +38,10 @@
 #if CONFIG_CFL
 #include "av1/common/cfl.h"
 #endif
+#if CONFIG_HASH_ME
+// TODO(youzhou@microsoft.com): Encoder only. Move it out of common
+#include "av1/encoder/hash_motion.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +66,12 @@ extern "C" {
 #define DELTA_FRAME_ID_LENGTH_MINUS2 12  // Allows frame id deltas up to 2^14-1
 #endif
 
+#if CONFIG_NO_FRAME_CONTEXT_SIGNALING
+#define FRAME_CONTEXTS (FRAME_BUFFERS + 1)
+// Extra frame context which is always kept at default values
+#define FRAME_CONTEXT_DEFAULTS (FRAME_CONTEXTS - 1)
+#else
+
 #if CONFIG_EXT_REFS
 #define FRAME_CONTEXTS_LOG2 3
 #else
@@ -69,6 +79,7 @@ extern "C" {
 #endif
 
 #define FRAME_CONTEXTS (1 << FRAME_CONTEXTS_LOG2)
+#endif  // CONFIG_NO_FRAME_CONTEXT_SIGNALING
 
 #define NUM_PING_PONG_BUFFERS 2
 
@@ -79,11 +90,13 @@ typedef enum {
   REFERENCE_MODES = 3,
 } REFERENCE_MODE;
 
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
 typedef enum {
   RESET_FRAME_CONTEXT_NONE = 0,
   RESET_FRAME_CONTEXT_CURRENT = 1,
   RESET_FRAME_CONTEXT_ALL = 2,
 } RESET_FRAME_CONTEXT_MODE;
+#endif
 
 typedef enum {
   /**
@@ -98,6 +111,14 @@ typedef enum {
   REFRESH_FRAME_CONTEXT_BACKWARD,
 } REFRESH_FRAME_CONTEXT_MODE;
 
+#if CONFIG_MFMV
+#define MFMV_STACK_SIZE INTER_REFS_PER_FRAME
+
+typedef struct {
+  int_mv mfmv[INTER_REFS_PER_FRAME][MFMV_STACK_SIZE];
+} TPL_MV_REF;
+#endif
+
 typedef struct {
   int_mv mv[2];
   int_mv pred_mv[2];
@@ -106,14 +127,34 @@ typedef struct {
 
 typedef struct {
   int ref_count;
+
+#if CONFIG_MFMV
+  int cur_frame_offset;
+  int lst_frame_offset;
+  int alt_frame_offset;
+  int gld_frame_offset;
+#if CONFIG_EXT_REFS
+  int lst2_frame_offset;
+  int lst3_frame_offset;
+  int bwd_frame_offset;
+#endif
+  TPL_MV_REF *tpl_mvs;
+#endif
   MV_REF *mvs;
   int mi_rows;
   int mi_cols;
+  // Width and height give the size of the buffer (before any upscaling, unlike
+  // the sizes that can be derived from the buf structure)
+  int width;
+  int height;
 #if CONFIG_GLOBAL_MOTION
   WarpedMotionParams global_motion[TOTAL_REFS_PER_FRAME];
 #endif  // CONFIG_GLOBAL_MOTION
   aom_codec_frame_buffer_t raw_frame_buffer;
   YV12_BUFFER_CONFIG buf;
+#if CONFIG_HASH_ME
+  hash_table hash_table;
+#endif
 #if CONFIG_TEMPMV_SIGNALING
   uint8_t intra_only;
 #endif
@@ -150,13 +191,20 @@ typedef struct BufferPool {
   InternalFrameBufferList int_frame_buffers;
 } BufferPool;
 
+#if CONFIG_LV_MAP
+typedef struct {
+  int base_ctx_table[2 /*row*/][2 /*col*/][2 /*sig_map*/]
+                    [BASE_CONTEXT_POSITION_NUM + 1];
+} LV_MAP_CTX_TABLE;
+typedef int BASE_CTX_TABLE[2 /*col*/][2 /*sig_map*/]
+                          [BASE_CONTEXT_POSITION_NUM + 1];
+#endif
+
 typedef struct AV1Common {
   struct aom_internal_error_info error;
   aom_color_space_t color_space;
-#if CONFIG_COLORSPACE_HEADERS
   aom_transfer_function_t transfer_function;
   aom_chroma_sample_position_t chroma_sample_position;
-#endif
   int color_range;
   int width;
   int height;
@@ -212,9 +260,7 @@ typedef struct AV1Common {
 
   int allow_high_precision_mv;
 
-#if CONFIG_PALETTE || CONFIG_INTRABC
   int allow_screen_content_tools;
-#endif  // CONFIG_PALETTE || CONFIG_INTRABC
 #if CONFIG_EXT_INTER
 #if CONFIG_INTERINTRA
   int allow_interintra_compound;
@@ -224,8 +270,10 @@ typedef struct AV1Common {
 #endif  // CONFIG_WEDGE || CONFIG_COMPOUND_SEGMENT
 #endif  // CONFIG_EXT_INTER
 
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   // Flag signaling which frame contexts should be reset to default values.
   RESET_FRAME_CONTEXT_MODE reset_frame_context;
+#endif
 
   // MBs, mb_rows/cols is in 16-pixel units; mi_rows/cols is in
   // MODE_INFO (8-pixel) units.
@@ -343,8 +391,14 @@ typedef struct AV1Common {
   FRAME_CONTEXT *fc;              /* this frame entropy */
   FRAME_CONTEXT *frame_contexts;  // FRAME_CONTEXTS
   FRAME_CONTEXT *pre_fc;          // Context referenced in this frame
+#if !CONFIG_NO_FRAME_CONTEXT_SIGNALING
   unsigned int frame_context_idx; /* Context to use/update */
+#endif
   FRAME_COUNTS counts;
+
+#if CONFIG_MFMV
+  unsigned int frame_offset;
+#endif
 
   unsigned int current_video_frame;
   BITSTREAM_PROFILE profile;
@@ -357,6 +411,7 @@ typedef struct AV1Common {
 
   int log2_tile_cols, log2_tile_rows;  // Used in non-large_scale_tile_coding.
   int tile_cols, tile_rows;
+  int last_tile_cols, last_tile_rows;
   int tile_width, tile_height;  // In MI units
 #if CONFIG_EXT_TILE
   unsigned int large_scale_tile;
@@ -407,8 +462,8 @@ typedef struct AV1Common {
   int mib_size;        // Size of the superblock in units of MI blocks
   int mib_size_log2;   // Log 2 of above.
 #if CONFIG_CDEF
-  int cdef_dering_damping;
-  int cdef_clpf_damping;
+  int cdef_pri_damping;
+  int cdef_sec_damping;
   int nb_cdef_strengths;
   int cdef_strengths[CDEF_MAX_STRENGTHS];
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS];
@@ -435,6 +490,12 @@ typedef struct AV1Common {
 #endif
 #if CONFIG_ANS && ANS_MAX_SYMBOLS
   int ans_window_size_log2;
+#endif
+#if CONFIG_NCOBMC_ADAPT_WEIGHT
+  NCOBMC_KERNELS ncobmc_kernels[ADAPT_OVERLAP_BLOCKS][ALL_NCOBMC_MODES];
+#endif
+#if CONFIG_LV_MAP
+  LV_MAP_CTX_TABLE coeff_ctx_table;
 #endif
 } AV1_COMMON;
 
@@ -507,15 +568,50 @@ static INLINE void ref_cnt_fb(RefCntBuffer *bufs, int *idx, int new_idx) {
   bufs[new_idx].ref_count++;
 }
 
+#if CONFIG_TEMPMV_SIGNALING
+// Returns 1 if this frame might use mvs from some previous frame. This
+// function doesn't consider whether prev_frame is actually suitable (see
+// frame_can_use_prev_frame_mvs for that)
+static INLINE int frame_might_use_prev_frame_mvs(const AV1_COMMON *cm) {
+  return !cm->error_resilient_mode && !cm->intra_only;
+}
+
+// Returns 1 if this frame really can use MVs from some previous frame.
+static INLINE int frame_can_use_prev_frame_mvs(const AV1_COMMON *cm) {
+  return (frame_might_use_prev_frame_mvs(cm) && cm->last_show_frame &&
+          cm->prev_frame && !cm->prev_frame->intra_only &&
+          cm->width == cm->prev_frame->width &&
+          cm->height == cm->prev_frame->height);
+}
+#endif
+
+static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
+  if (buf->mvs == NULL || buf->mi_rows < cm->mi_rows ||
+      buf->mi_cols < cm->mi_cols) {
+    aom_free(buf->mvs);
+    buf->mi_rows = cm->mi_rows;
+    buf->mi_cols = cm->mi_cols;
+    CHECK_MEM_ERROR(
+        cm, buf->mvs,
+        (MV_REF *)aom_calloc(cm->mi_rows * cm->mi_cols, sizeof(*buf->mvs)));
+
+#if CONFIG_MFMV
+    aom_free(buf->tpl_mvs);
+    CHECK_MEM_ERROR(
+        cm, buf->tpl_mvs,
+        (TPL_MV_REF *)aom_calloc((cm->mi_rows + MAX_MIB_SIZE) * cm->mi_stride,
+                                 sizeof(*buf->tpl_mvs)));
+#endif
+  }
+}
+
 #if CONFIG_VAR_REFS
 #define LAST_IS_VALID(cm) ((cm)->frame_refs[LAST_FRAME - 1].is_valid)
 #define LAST2_IS_VALID(cm) ((cm)->frame_refs[LAST2_FRAME - 1].is_valid)
 #define LAST3_IS_VALID(cm) ((cm)->frame_refs[LAST3_FRAME - 1].is_valid)
 #define GOLDEN_IS_VALID(cm) ((cm)->frame_refs[GOLDEN_FRAME - 1].is_valid)
 #define BWDREF_IS_VALID(cm) ((cm)->frame_refs[BWDREF_FRAME - 1].is_valid)
-#if CONFIG_ALTREF2
 #define ALTREF2_IS_VALID(cm) ((cm)->frame_refs[ALTREF2_FRAME - 1].is_valid)
-#endif  // CONFIG_ALTREF2
 #define ALTREF_IS_VALID(cm) ((cm)->frame_refs[ALTREF_FRAME - 1].is_valid)
 
 #define L_OR_L2(cm) (LAST_IS_VALID(cm) || LAST2_IS_VALID(cm))
@@ -526,10 +622,8 @@ static INLINE void ref_cnt_fb(RefCntBuffer *bufs, int *idx, int new_idx) {
 #define L3_OR_G(cm) (LAST3_IS_VALID(cm) || GOLDEN_IS_VALID(cm))
 #define L3_AND_G(cm) (LAST3_IS_VALID(cm) && GOLDEN_IS_VALID(cm))
 
-#if CONFIG_ALTREF2
 #define BWD_OR_ALT2(cm) (BWDREF_IS_VALID(cm) || ALTREF2_IS_VALID(cm))
 #define BWD_AND_ALT2(cm) (BWDREF_IS_VALID(cm) && ALTREF2_IS_VALID(cm))
-#endif  // CONFIG_ALTREF2
 #define BWD_OR_ALT(cm) (BWDREF_IS_VALID(cm) || ALTREF_IS_VALID(cm))
 #define BWD_AND_ALT(cm) (BWDREF_IS_VALID(cm) && ALTREF_IS_VALID(cm))
 #endif  // CONFIG_VAR_REFS
@@ -602,11 +696,12 @@ static INLINE void set_skip_context(MACROBLOCKD *xd, int mi_row, int mi_col) {
   for (i = 0; i < MAX_MB_PLANE; ++i) {
     struct macroblockd_plane *const pd = &xd->plane[i];
 #if CONFIG_CHROMA_SUB8X8
-    if (xd->mi[0]->mbmi.sb_type < BLOCK_8X8) {
-      // Offset the buffer pointer
-      if (pd->subsampling_y && (mi_row & 0x01)) row_offset = mi_row - 1;
-      if (pd->subsampling_x && (mi_col & 0x01)) col_offset = mi_col - 1;
-    }
+    // Offset the buffer pointer
+    const BLOCK_SIZE bsize = xd->mi[0]->mbmi.sb_type;
+    if (pd->subsampling_y && (mi_row & 0x01) && (mi_size_high[bsize] == 1))
+      row_offset = mi_row - 1;
+    if (pd->subsampling_x && (mi_col & 0x01) && (mi_size_wide[bsize] == 1))
+      col_offset = mi_col - 1;
 #endif
     int above_idx = col_offset << (MI_SIZE_LOG2 - tx_size_wide_log2[0]);
     int left_idx = (row_offset & MAX_MIB_MASK)
@@ -796,6 +891,43 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
 }
 #endif
 
+static INLINE aom_cdf_prob cdf_element_prob(const aom_cdf_prob *cdf,
+                                            size_t element) {
+#if !CONFIG_ANS
+  return (element > 0 ? cdf[element - 1] : CDF_PROB_TOP) - cdf[element];
+#else
+  return cdf[element] - (element > 0 ? cdf[element - 1] : 0);
+#endif
+}
+
+static INLINE void partition_gather_horz_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = CDF_PROB_TOP;
+  out[0] -= cdf_element_prob(in, PARTITION_HORZ);
+  out[0] -= cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] -= cdf_element_prob(in, PARTITION_HORZ_B);
+  out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
+#endif
+  out[0] = AOM_ICDF(out[0]);
+  out[1] = AOM_ICDF(CDF_PROB_TOP);
+}
+
+static INLINE void partition_gather_vert_alike(aom_cdf_prob *out,
+                                               const aom_cdf_prob *const in) {
+  out[0] = CDF_PROB_TOP;
+  out[0] -= cdf_element_prob(in, PARTITION_VERT);
+  out[0] -= cdf_element_prob(in, PARTITION_SPLIT);
+#if CONFIG_EXT_PARTITION_TYPES
+  out[0] -= cdf_element_prob(in, PARTITION_HORZ_A);
+  out[0] -= cdf_element_prob(in, PARTITION_VERT_A);
+  out[0] -= cdf_element_prob(in, PARTITION_VERT_B);
+#endif
+  out[0] = AOM_ICDF(out[0]);
+  out[1] = AOM_ICDF(CDF_PROB_TOP);
+}
+
 #if CONFIG_EXT_PARTITION_TYPES
 static INLINE void update_ext_partition_context(MACROBLOCKD *xd, int mi_row,
                                                 int mi_col, BLOCK_SIZE subsize,
@@ -842,7 +974,6 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
                                           int has_rows, int has_cols,
 #endif
                                           BLOCK_SIZE bsize) {
-#if CONFIG_UNPOISON_PARTITION_CTX
   const PARTITION_CONTEXT *above_ctx = xd->above_seg_context + mi_col;
   const PARTITION_CONTEXT *left_ctx =
       xd->left_seg_context + (mi_row & MAX_MIB_MASK);
@@ -853,6 +984,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
   assert(b_width_log2_lookup[bsize] == b_height_log2_lookup[bsize]);
   assert(bsl >= 0);
 
+#if CONFIG_UNPOISON_PARTITION_CTX
   if (has_rows && has_cols)
     return (left * 2 + above) + bsl * PARTITION_PLOFFSET;
   else if (has_rows && !has_cols)
@@ -860,18 +992,8 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
   else if (!has_rows && has_cols)
     return PARTITION_CONTEXTS_PRIMARY + PARTITION_BLOCK_SIZES + bsl;
   else
-    return PARTITION_CONTEXTS;  // Bogus context, forced SPLIT
+    return INVALID_PARTITION_CTX;  // Bogus context, forced SPLIT
 #else
-  const PARTITION_CONTEXT *above_ctx = xd->above_seg_context + mi_col;
-  const PARTITION_CONTEXT *left_ctx =
-      xd->left_seg_context + (mi_row & MAX_MIB_MASK);
-  // Minimum partition point is 8x8. Offset the bsl accordingly.
-  const int bsl = mi_width_log2_lookup[bsize] - mi_width_log2_lookup[BLOCK_8X8];
-  int above = (*above_ctx >> bsl) & 1, left = (*left_ctx >> bsl) & 1;
-
-  assert(b_width_log2_lookup[bsize] == b_height_log2_lookup[bsize]);
-  assert(bsl >= 0);
-
   return (left * 2 + above) + bsl * PARTITION_PLOFFSET;
 #endif
 }
@@ -997,18 +1119,22 @@ static INLINE void txfm_partition_update(TXFM_CONTEXT *above_ctx,
 }
 
 static INLINE TX_SIZE get_sqr_tx_size(int tx_dim) {
-  TX_SIZE tx_size;
   switch (tx_dim) {
 #if CONFIG_EXT_PARTITION
     case 128:
-#endif
+#endif  // CONFIG_EXT_PARTITION
     case 64:
-    case 32: tx_size = TX_32X32; break;
-    case 16: tx_size = TX_16X16; break;
-    case 8: tx_size = TX_8X8; break;
-    default: tx_size = TX_4X4;
+#if CONFIG_TX64X64
+      return TX_64X64;
+#else
+      return TX_32X32;
+#endif  // CONFIG_TX64X64
+      break;
+    case 32: return TX_32X32; break;
+    case 16: return TX_16X16; break;
+    case 8: return TX_8X8; break;
+    default: return TX_4X4;
   }
-  return tx_size;
 }
 
 static INLINE int txfm_partition_context(TXFM_CONTEXT *above_ctx,

@@ -19,6 +19,8 @@ extern "C" {
 #endif
 
 #define MVREF_NEIGHBOURS 9
+#define MVREF_ROWS 3
+#define MVREF_COLS 4
 
 typedef struct position {
   int row;
@@ -51,13 +53,11 @@ static const int mode_2_counter[] = {
   9,  // D153_PRED
   9,  // D207_PRED
   9,  // D63_PRED
-#if CONFIG_ALT_INTRA
   9,  // SMOOTH_PRED
 #if CONFIG_SMOOTH_HV
   9,    // SMOOTH_V_PRED
   9,    // SMOOTH_H_PRED
 #endif  // CONFIG_SMOOTH_HV
-#endif  // CONFIG_ALT_INTRA
   9,    // TM_PRED
   0,    // NEARESTMV
   0,    // NEARMV
@@ -209,6 +209,28 @@ static INLINE int is_inside(const TileInfo *const tile, int mi_col, int mi_row,
   }
 }
 
+static INLINE int find_valid_row_offset(const TileInfo *const tile, int mi_row,
+                                        int mi_rows, const AV1_COMMON *cm,
+                                        int row_offset) {
+#if CONFIG_DEPENDENT_HORZTILES
+  const int dependent_horz_tile_flag = cm->dependent_horz_tiles;
+#else
+  const int dependent_horz_tile_flag = 0;
+  (void)cm;
+#endif
+  if (dependent_horz_tile_flag && !tile->tg_horz_boundary)
+    return clamp(row_offset, -mi_row, mi_rows - mi_row - 1);
+  else
+    return clamp(row_offset, tile->mi_row_start - mi_row,
+                 tile->mi_row_end - mi_row - 1);
+}
+
+static INLINE int find_valid_col_offset(const TileInfo *const tile, int mi_col,
+                                        int col_offset) {
+  return clamp(col_offset, tile->mi_col_start - mi_col,
+               tile->mi_col_end - mi_col - 1);
+}
+
 static INLINE void lower_mv_precision(MV *mv, int allow_hp) {
   if (!allow_hp) {
     if (mv->row & 1) mv->row += (mv->row > 0 ? -1 : 1);
@@ -280,10 +302,8 @@ static MV_REFERENCE_FRAME ref_frame_map[COMP_REFS][2] = {
   { LAST_FRAME, BWDREF_FRAME },  { LAST2_FRAME, BWDREF_FRAME },
   { LAST3_FRAME, BWDREF_FRAME }, { GOLDEN_FRAME, BWDREF_FRAME },
 
-#if CONFIG_ALTREF2
   { LAST_FRAME, ALTREF2_FRAME },  { LAST2_FRAME, ALTREF2_FRAME },
   { LAST3_FRAME, ALTREF2_FRAME }, { GOLDEN_FRAME, ALTREF2_FRAME },
-#endif  // CONFIG_ALTREF2
 
   { LAST_FRAME, ALTREF_FRAME },  { LAST2_FRAME, ALTREF_FRAME },
   { LAST3_FRAME, ALTREF_FRAME }, { GOLDEN_FRAME, ALTREF_FRAME }
@@ -356,6 +376,11 @@ static INLINE uint8_t av1_drl_ctx(const CANDIDATE_MV *ref_mv_stack,
 
   return 0;
 }
+
+#if CONFIG_MFMV
+void av1_setup_frame_buf_refs(AV1_COMMON *cm);
+void av1_setup_motion_field(AV1_COMMON *cm);
+#endif
 
 typedef void (*find_mv_refs_sync)(void *const data, int mi_row);
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,

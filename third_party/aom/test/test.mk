@@ -33,11 +33,10 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += altref_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += aq_segment_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += datarate_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += encode_api_test.cc
-LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += coding_path_sync.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += error_resilience_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += i420_video_source.h
 #LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += realtime_test.cc
-#LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += resize_test.cc
+LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += resize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += y4m_video_source.h
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER)    += yuv_video_source.h
 
@@ -107,6 +106,7 @@ ifeq ($(CONFIG_AV1),yes)
 # These tests require both the encoder and decoder to be built.
 ifeq ($(CONFIG_AV1_ENCODER)$(CONFIG_AV1_DECODER),yesyes)
 # IDCT test currently depends on FDCT function
+LIBAOM_TEST_SRCS-yes                   += coding_path_sync.cc
 LIBAOM_TEST_SRCS-yes                   += idct8x8_test.cc
 LIBAOM_TEST_SRCS-yes                   += partial_idct_test.cc
 LIBAOM_TEST_SRCS-yes                   += superframe_test.cc
@@ -135,8 +135,12 @@ endif
 LIBAOM_TEST_SRCS-$(CONFIG_ADAPT_SCAN)  += scan_test.cc
 LIBAOM_TEST_SRCS-yes                   += convolve_test.cc
 LIBAOM_TEST_SRCS-yes                   += lpf_8_test.cc
+ifeq ($(CONFIG_CDEF_SINGLEPASS),yes)
+LIBAOM_TEST_SRCS-$(CONFIG_CDEF)        += cdef_test.cc
+else
 LIBAOM_TEST_SRCS-$(CONFIG_CDEF)        += dering_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_CDEF)        += clpf_test.cc
+endif
 LIBAOM_TEST_SRCS-yes                   += simd_cmp_impl.h
 LIBAOM_TEST_SRCS-$(HAVE_SSE2)          += simd_cmp_sse2.cc
 LIBAOM_TEST_SRCS-$(HAVE_SSSE3)         += simd_cmp_ssse3.cc
@@ -163,10 +167,8 @@ LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += error_block_test.cc
 #LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += av1_quantize_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += subtract_test.cc
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += arf_freq_test.cc
-ifneq ($(CONFIG_AOM_QM), yes)
 ifneq ($(CONFIG_NEW_QUANT), yes)
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += quantize_func_test.cc
-endif
 endif
 LIBAOM_TEST_SRCS-$(CONFIG_AV1_ENCODER) += block_error_test.cc
 

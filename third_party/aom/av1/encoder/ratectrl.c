@@ -29,6 +29,7 @@
 #include "av1/common/seg_common.h"
 
 #include "av1/encoder/encodemv.h"
+#include "av1/encoder/random.h"
 #include "av1/encoder/ratectrl.h"
 
 // Max rate target for 1080P and below encodes under normal circumstances
@@ -579,8 +580,11 @@ static int calc_active_worst_quality_one_pass_vbr(const AV1_COMP *cpi) {
     active_worst_quality =
         curr_frame == 0 ? rc->worst_quality : rc->last_q[KEY_FRAME] * 2;
   } else {
-    if (!rc->is_src_frame_alt_ref &&
-        (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame)) {
+    if (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+#if CONFIG_EXT_REFS
+                                      cpi->refresh_alt2_ref_frame ||
+#endif  // CONFIG_EXT_REFS
+                                      cpi->refresh_alt_ref_frame)) {
       active_worst_quality = curr_frame == 1 ? rc->last_q[KEY_FRAME] * 5 / 4
                                              : rc->last_q[INTER_FRAME];
     } else {
@@ -1005,8 +1009,11 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
       active_best_quality +=
           av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, cm->bit_depth);
     }
-  } else if (!rc->is_src_frame_alt_ref &&
-             (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame)) {
+  } else if (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+#if CONFIG_EXT_REFS
+                                           cpi->refresh_alt2_ref_frame ||
+#endif  // CONFIG_EXT_REFS
+                                           cpi->refresh_alt_ref_frame)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -1026,7 +1033,11 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
       active_best_quality = active_best_quality * 15 / 16;
 
     } else if (oxcf->rc_mode == AOM_Q) {
+#if CONFIG_EXT_REFS
+      if (!cpi->refresh_alt_ref_frame && !cpi->refresh_alt2_ref_frame) {
+#else
       if (!cpi->refresh_alt_ref_frame) {
+#endif  // CONFIG_EXT_REFS
         active_best_quality = cq_level;
       } else {
         active_best_quality = get_gf_active_quality(rc, q, cm->bit_depth);
@@ -1058,8 +1069,11 @@ static int rc_pick_q_and_bounds_two_pass(const AV1_COMP *cpi, int *bottom_index,
   if ((cpi->oxcf.rc_mode != AOM_Q) &&
       (cpi->twopass.gf_zeromotion_pct < VLOW_MOTION_THRESHOLD)) {
     if (frame_is_intra_only(cm) ||
-        (!rc->is_src_frame_alt_ref &&
-         (cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame))) {
+        (!rc->is_src_frame_alt_ref && (cpi->refresh_golden_frame ||
+#if CONFIG_EXT_REFS
+                                       cpi->refresh_alt2_ref_frame ||
+#endif  // CONFIG_EXT_REFS
+                                       cpi->refresh_alt_ref_frame))) {
       active_best_quality -=
           (cpi->twopass.extend_minq + cpi->twopass.extend_minq_fast);
       active_worst_quality += (cpi->twopass.extend_maxq / 2);
@@ -1194,7 +1208,7 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
   //                   only the virtual indices for the reference frame will be
   //                   updated and cpi->refresh_golden_frame will still be zero.
   if (cpi->refresh_golden_frame || rc->is_src_frame_alt_ref) {
-#else
+#else   // !CONFIG_EXT_REFS
   // Update the Golden frame usage counts.
   if (cpi->refresh_golden_frame) {
 #endif  // CONFIG_EXT_REFS
@@ -1219,7 +1233,11 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
     // Decrement count down till next gf
     if (rc->frames_till_gf_update_due > 0) rc->frames_till_gf_update_due--;
 
+#if CONFIG_EXT_REFS
+  } else if (!cpi->refresh_alt_ref_frame && !cpi->refresh_alt2_ref_frame) {
+#else
   } else if (!cpi->refresh_alt_ref_frame) {
+#endif  // CONFIG_EXT_REFS
     // Decrement count down till next gf
     if (rc->frames_till_gf_update_due > 0) rc->frames_till_gf_update_due--;
 
@@ -1249,7 +1267,11 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
         ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
   } else {
     if (!rc->is_src_frame_alt_ref &&
-        !(cpi->refresh_golden_frame || cpi->refresh_alt_ref_frame)) {
+        !(cpi->refresh_golden_frame ||
+#if CONFIG_EXT_REFS
+          cpi->refresh_alt2_ref_frame ||
+#endif  // CONFIG_EXT_REFS
+          cpi->refresh_alt_ref_frame)) {
       rc->last_q[INTER_FRAME] = qindex;
       rc->avg_frame_qindex[INTER_FRAME] =
           ROUND_POWER_OF_TWO(3 * rc->avg_frame_qindex[INTER_FRAME] + qindex, 2);
@@ -1271,6 +1293,9 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   if ((qindex < rc->last_boosted_qindex) || (cm->frame_type == KEY_FRAME) ||
       (!rc->constrained_gf_group &&
        (cpi->refresh_alt_ref_frame ||
+#if CONFIG_EXT_REFS
+        cpi->refresh_alt2_ref_frame ||
+#endif  // CONFIG_EXT_REFS
         (cpi->refresh_golden_frame && !rc->is_src_frame_alt_ref)))) {
     rc->last_boosted_qindex = qindex;
   }
@@ -1294,6 +1319,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // Actual bits spent
   rc->total_actual_bits += rc->projected_frame_size;
 #if CONFIG_EXT_REFS
+  // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+  //               differently here for rc->avg_frame_bandwidth.
   rc->total_target_bits +=
       (cm->show_frame || rc->is_bwd_ref_frame) ? rc->avg_frame_bandwidth : 0;
 #else
@@ -1313,6 +1340,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   if (cm->frame_type == KEY_FRAME) rc->frames_since_key = 0;
 
 #if CONFIG_EXT_REFS
+  // TODO(zoeliu): To investigate whether we should treat BWDREF_FRAME
+  //               differently here for rc->avg_frame_bandwidth.
   if (cm->show_frame || rc->is_bwd_ref_frame) {
 #else
   if (cm->show_frame) {
@@ -1662,11 +1691,6 @@ void av1_set_target_rate(AV1_COMP *cpi) {
   if (cpi->oxcf.rc_mode == AOM_VBR || cpi->oxcf.rc_mode == AOM_CQ)
     vbr_rate_correction(cpi, &target_rate);
   av1_rc_set_frame_target(cpi, target_rate);
-}
-
-static unsigned int lcg_rand16(unsigned int *state) {
-  *state = (unsigned int)(*state * 1103515245ULL + 12345);
-  return *state / 65536 % 32768;
 }
 
 uint8_t av1_calculate_next_resize_scale(const AV1_COMP *cpi) {
